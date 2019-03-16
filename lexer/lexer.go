@@ -1,6 +1,8 @@
 package lexer
 
-import "monkey/token"
+import (
+	"golang-interpreter/token"
+)
 
 type Lexer struct {
 	input        string
@@ -125,7 +127,7 @@ func (l *Lexer) readNumber() string {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '-'
 }
 
 func isDigit(ch byte) bool {
