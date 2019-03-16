@@ -107,7 +107,6 @@ if (5 < 10) {
     let tok = l.NextToken();
 
     if (tok.Type != tt[0]) {
-      console.log({ tt });
       throw new Error(`tests[${i}] - tokentype wrong. expected=${tt[0]}, got=${tok.Type}`);
     }
 

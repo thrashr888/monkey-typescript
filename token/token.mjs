@@ -58,5 +58,5 @@ export const Keywords = {
 
 export function LookupIdent(ident) {
   if (Keywords[ident]) return Keywords[ident];
-  return ident;
+  return Types.IDENT;
 }

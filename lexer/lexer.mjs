@@ -37,7 +37,7 @@ export class Lexer {
           let literal = ch + this.ch;
           tok = new Token(Types.NOT_EQ, literal);
         } else {
-          tok = new Token(Types.MINUS, this.ch);
+          tok = new Token(Types.BANG, this.ch);
         }
         break;
       case '/':
@@ -72,22 +72,19 @@ export class Lexer {
         break;
       case 0:
         tok.Literal = '';
-        tok.Type = token.EOF;
+        tok.Type = Types.EOF;
         break;
 
       default:
         if (isLetter(this.ch)) {
-          console.log('isLetter', this.ch);
           tok.Literal = this.readIdentifier();
           tok.Type = LookupIdent(tok.Literal);
           return tok;
         } else if (isDigit(this.ch)) {
-          console.log('isDigit', this.ch);
-          tok.Literal = Types.INT;
-          tok.Type = this.readNumber();
+          tok.Type = Types.INT;
+          tok.Literal = this.readNumber();
           return tok;
         } else {
-          console.log('isIllegal', this.ch);
           tok = new Token(Types.ILLEGAL, this.ch);
         }
     }
@@ -98,7 +95,7 @@ export class Lexer {
   }
 
   skipWhitespace() {
-    if (this.ch == ' ' || this.ch == '\t' || this.ch == '\n' || this.ch == '\r') {
+    while (this.ch === ' ' || this.ch === '\t' || this.ch === '\n' || this.ch === '\r') {
       this.readChar();
     }
   }
@@ -141,12 +138,12 @@ export class Lexer {
 
 function isLetter(ch) {
   if (!ch) return false;
-  return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_' || ch == '-';
+  return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch === '_' || ch === '-';
 }
 
 function isDigit(ch) {
   if (!ch) return false;
-  return '0123456789'.indexOf(c) !== -1;
+  return '0123456789'.indexOf(ch) !== -1;
 }
 
 export function NewLexer(input) {

@@ -1,16 +1,16 @@
-import { Lexer } from '../lexer/lexer';
-import { Token } from '../token/token';
+import { NewLexer } from '../lexer/lexer';
+import { Types } from '../token/token';
 
 const PROMPT = '>> ';
 
 export function Start(input) {
-  console.log(PROMPT);
+  console.log(PROMPT, input);
 
   let line = input;
 
-  let l = Lexer(line);
+  let l = NewLexer(line);
 
-  for (let tok = l.NextToken(); tok.Type != Token.EOF; tok = l.NextToken()) {
-    console.log('%', tok);
+  for (let tok = l.NextToken(); tok.Type !== Types.EOF; tok = l.NextToken()) {
+    console.log('%', tok.Type);
   }
 }
