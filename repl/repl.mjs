@@ -15,5 +15,7 @@ export function Start(input) {
     for (let tok = l.NextToken(); tok.Type !== Types.EOF; tok = l.NextToken()) {
       console.log('%', tok.Type);
     }
+
+    process.stdout.write(PROMPT);
   });
 }
