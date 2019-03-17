@@ -9,4 +9,7 @@ working through a golang interpreter book
 ## Run it
 
     $ go run main.go
+
+or
+
     $ node --experimental-modules main.mjs

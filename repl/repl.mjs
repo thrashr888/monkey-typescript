@@ -13,7 +13,7 @@ export function Start(input) {
     let l = new Lexer(line);
 
     for (let tok = l.NextToken(); tok.Type !== Types.EOF; tok = l.NextToken()) {
-      console.log('%', tok.Type);
+      console.log('%', tok);
     }
 
     process.stdout.write(PROMPT);
