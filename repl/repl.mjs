@@ -1,16 +1,19 @@
 import { Lexer } from '../lexer/lexer';
 import { Types } from '../token/token';
+import process from 'process';
 
 const PROMPT = '>> ';
 
 export function Start(input) {
-  console.log(PROMPT, input);
+  process.stdout.write(PROMPT);
 
-  let line = input;
+  input.on('data', line => {
+    if (line === 'exit\n') process.exit();
 
-  let l = new Lexer(line);
+    let l = new Lexer(line);
 
-  for (let tok = l.NextToken(); tok.Type !== Types.EOF; tok = l.NextToken()) {
-    console.log('%', tok.Type);
-  }
+    for (let tok = l.NextToken(); tok.Type !== Types.EOF; tok = l.NextToken()) {
+      console.log('%', tok.Type);
+    }
+  });
 }
