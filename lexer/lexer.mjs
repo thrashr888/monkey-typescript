@@ -6,6 +6,8 @@ export class Lexer {
     this.position = 0; // current position in input (points to current char)
     this.readPosition = 0; // current reading position in input (after current char)
     this.ch = null; // current char under examination
+
+    this.readChar();
   }
 
   NextToken() {
@@ -144,10 +146,4 @@ function isLetter(ch) {
 function isDigit(ch) {
   if (!ch) return false;
   return '0123456789'.indexOf(ch) !== -1;
-}
-
-export function NewLexer(input) {
-  let l = new Lexer(input);
-  l.readChar();
-  return l;
 }

@@ -1,4 +1,4 @@
-import { NewLexer } from '../lexer/lexer';
+import { Lexer } from '../lexer/lexer';
 import { Types } from '../token/token';
 
 const PROMPT = '>> ';
@@ -8,7 +8,7 @@ export function Start(input) {
 
   let line = input;
 
-  let l = NewLexer(line);
+  let l = new Lexer(line);
 
   for (let tok = l.NextToken(); tok.Type !== Types.EOF; tok = l.NextToken()) {
     console.log('%', tok.Type);

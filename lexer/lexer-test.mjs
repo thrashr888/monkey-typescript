@@ -1,5 +1,5 @@
 import { Types } from '../token/token';
-import { NewLexer } from './lexer';
+import { Lexer } from './lexer';
 
 export function TestNextToken() {
   let input = `let five = 5;
@@ -100,18 +100,16 @@ if (5 < 10) {
     [Types.EOF, ''],
   ];
 
-  let l = NewLexer(input);
+  let l = new Lexer(input);
 
   for (let i in tests) {
     let tt = tests[i];
     let tok = l.NextToken();
 
-    if (tok.Type != tt[0]) {
-      throw new Error(`tests[${i}] - tokentype wrong. expected=${tt[0]}, got=${tok.Type}`);
-    }
-
-    if (tok.Literal != tt[1]) {
-      throw new Error(`tests[${i}] - literal wrong. expected=${tt[1]}, got=${tok.Literal}`);
-    }
+    console.assert(tok.Type === tt[0], `tests[${i}] - tokentype wrong. expected=${tt[0]}, got=${tok.Type}`);
+    console.assert(
+      tok.Literal === tt[1],
+      `tests[${i}] - literal wrong. expected=${tt[1]}, got=${tok.Literal}`
+    );
   }
 }
