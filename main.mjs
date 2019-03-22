@@ -1,11 +1,8 @@
 import { Start } from './repl/repl';
-import { TestNextToken } from './lexer/lexer-test';
 import process from 'process';
 import os from 'os';
 
 export function main() {
-  TestNextToken();
-
   let username = os.userInfo().username;
   console.log(`Hello ${username}! This is the Monkey programming language!`);
   console.log('Feel free to type in commands');
