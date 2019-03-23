@@ -1,4 +1,11 @@
-import { ASTProgram, LetStatement, ReturnStatement, ExpressionStatement, Identifier } from '../ast/ast';
+import {
+  ASTProgram,
+  LetStatement,
+  ReturnStatement,
+  ExpressionStatement,
+  Identifier,
+  IntegerLiteral,
+} from '../ast/ast.mjs';
 import Token from '../token/token';
 
 export const LOWEST = 1,
@@ -19,6 +26,7 @@ export default class Parser {
 
     this.prefixParseFns = {};
     this.registerPrefix(Token.IDENT, this.parseIdentifier.bind(this));
+    this.registerPrefix(Token.INT, this.parseIntegerLiteral.bind(this));
 
     this.infixParseFns = {};
 
@@ -116,6 +124,21 @@ export default class Parser {
     return new Identifier(this.curToken, this.curToken.Literal);
   }
 
+  parseIntegerLiteral() {
+    let lit = new IntegerLiteral(this.curToken);
+
+    try {
+      let value = parseInt(this.curToken.Literal, 10);
+      lit.Value = value;
+
+      return lit;
+    } catch {
+      let msg = `could not parse ${this.curToken.Literal} as integer`;
+      this.errors.push(msg);
+      return null;
+    }
+  }
+
   curTokenIs(t) {
     return this.curToken.Type === t;
   }
@@ -142,6 +165,7 @@ export default class Parser {
   registerPrefix(tokenType, fn) {
     this.prefixParseFns[tokenType] = fn;
   }
+
   registerInfix(tokenType, fn) {
     this.infixParseFns[tokenType] = fn;
   }

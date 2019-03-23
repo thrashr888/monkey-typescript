@@ -1,4 +1,4 @@
-import { ASTProgram, LetStatement, Identifier } from './ast';
+import { ASTProgram, LetStatement, Identifier } from './ast.mjs';
 import Token from '../token/token';
 
 export function TestAst(t) {

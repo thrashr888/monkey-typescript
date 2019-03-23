@@ -1,4 +1,4 @@
-import { Lexer } from '../lexer/lexer';
+import Lexer from '../lexer/lexer';
 import Token from '../token/token';
 import process from 'process';
 
