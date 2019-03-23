@@ -106,10 +106,7 @@ if (5 < 10) {
     let tt = tests[i];
     let tok = l.NextToken();
 
-    console.assert(tok.Type === tt[0], `tests[${i}] - tokentype wrong. expected=${tt[0]}, got=${tok.Type}`);
-    console.assert(
-      tok.Literal === tt[1],
-      `tests[${i}] - literal wrong. expected=${tt[1]}, got=${tok.Literal}`
-    );
+    t.Assert(tok.Type === tt[0], `tests[${i}] - tokentype wrong. expected=${tt[0]}, got=${tok.Type}`);
+    t.Assert(tok.Literal === tt[1], `tests[${i}] - literal wrong. expected=${tt[1]}, got=${tok.Literal}`);
   }
 }

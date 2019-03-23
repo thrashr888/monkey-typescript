@@ -1,7 +1,7 @@
 import { Lexer } from '../lexer/lexer';
 import Parser from './parser';
 
-export function TestAll(t) {
+export function TestParser(t) {
   TestLetStatements(t);
 }
 
@@ -16,8 +16,8 @@ let foobar = 838383;
   let p = new Parser(l);
   let program = p.ParseProgram();
 
-  console.assert(program !== null, 'ParseProgram() returned nil');
-  console.assert(
+  t.Assert(program !== null, 'ParseProgram() returned nil');
+  t.Assert(
     program.Statements.length === 3,
     'program.Statements does not contain 3 statements. got=%d',
     program.Statements.length
@@ -29,15 +29,15 @@ let foobar = 838383;
     let tt = tests[i];
     let stmt = program.Statements[i];
 
-    console.assert(testLetStatement(t, stmt, tt[0]), 'testLetStatement failed');
+    t.Assert(testLetStatement(t, stmt, tt[0]), 'testLetStatement failed');
   }
 }
 
 function testLetStatement(t, stmt, name) {
-  console.assert(stmt.TokenLiteral() === 'let', `s.TokenLiteral not 'let'. got=${stmt.TokenLiteral()}`);
-  console.assert(typeof stmt === 'object', `s not got=object. got=${typeof stmt}`);
-  console.assert(stmt.Name.Value === name, `stmt.Name.Value not ${name}. got=${stmt.Name.Value}`);
-  console.assert(
+  t.Assert(stmt.TokenLiteral() === 'let', `s.TokenLiteral not 'let'. got=${stmt.TokenLiteral()}`);
+  t.Assert(typeof stmt === 'object', `s not got=object. got=${typeof stmt}`);
+  t.Assert(stmt.Name.Value === name, `stmt.Name.Value not ${name}. got=${stmt.Name.Value}`);
+  t.Assert(
     stmt.Name.TokenLiteral() === name,
     `stmt.Name.TokenLiteral() not ${name}. got=${stmt.Name.TokenLiteral()}`
   );
