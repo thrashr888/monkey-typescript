@@ -15,6 +15,7 @@ let foobar = 838383;
   let l = new Lexer(input);
   let p = new Parser(l);
   let program = p.ParseProgram();
+  checkParserErrors(t, p);
 
   t.Assert(program !== null, 'ParseProgram() returned nil');
   t.Assert(
@@ -31,6 +32,18 @@ let foobar = 838383;
 
     t.Assert(testLetStatement(t, stmt, tt[0]), 'testLetStatement failed');
   }
+}
+
+function checkParserErrors(t, p) {
+  let errors = p.Errors();
+  if (errors.length === 0) return;
+
+  t.Errorf('parser has %d errors', errors.length);
+  for (let err of errors) {
+    t.Errorf('parser error: %s', err);
+  }
+
+  t.FailNow();
 }
 
 function testLetStatement(t, stmt, name) {

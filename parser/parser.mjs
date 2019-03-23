@@ -1,14 +1,19 @@
-import { Types } from '../token/token.mjs';
-import { ASTProgram, LetStatement, Identifier } from '../ast/ast.mjs';
+import { ASTProgram, LetStatement, Identifier } from '../ast/ast';
+import { Types } from '../token/token';
 
 export default class Parser {
   constructor(lexer) {
     this.l = lexer;
     this.curToken = null;
     this.peekToken = null;
+    this.errors = [];
 
     this.nextToken();
     this.nextToken();
+  }
+
+  Errors() {
+    return this.errors;
   }
 
   nextToken() {
@@ -19,7 +24,7 @@ export default class Parser {
   ParseProgram() {
     let program = new ASTProgram();
 
-    while (this.curToken.Type !== Types.EOF) {
+    while (!this.curTokenIs(Types.EOF)) {
       let stmt = this.parseStatement();
       if (stmt !== null) {
         program.Statements.push(stmt);
@@ -68,7 +73,13 @@ export default class Parser {
       this.nextToken();
       return true;
     } else {
+      this.peekError(t);
       return false;
     }
+  }
+
+  peekError(t) {
+    let msg = `expected next token to be ${t}, got ${this.peekToken.Type} instead`;
+    this.errors.push(msg);
   }
 }

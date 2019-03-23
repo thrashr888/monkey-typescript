@@ -27,17 +27,17 @@ export default class Test {
   Errorf(format, ...values) {
     this.FailCount++;
 
-    var err = new Error();
-    Error.captureStackTrace(err, arguments.callee);
-    var stack = err.stack;
-    Error.prepareStackTrace = orig;
+    // var err = new Error();
+    // Error.captureStackTrace(err, arguments.callee);
+    // var stack = err.stack;
+    // Error.prepareStackTrace = orig;
 
     console.error(format, ...values);
   }
 
   FailNow() {
     this.FailCount++;
-    throw new Error('Fail');
+    throw new Error('FAIL');
   }
 }
 

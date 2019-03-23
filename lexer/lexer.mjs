@@ -1,4 +1,4 @@
-import { Types, Token, LookupIdent } from '../token/token.mjs';
+import { Types, Token, LookupIdent } from '../token/token';
 
 export class Lexer {
   constructor(input) {
