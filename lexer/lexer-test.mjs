@@ -1,6 +1,10 @@
 import { Types } from '../token/token';
 import { Lexer } from './lexer';
 
+export function TestLexer(t) {
+  TestNextToken(t);
+}
+
 export function TestNextToken(t) {
   let input = `let five = 5;
 let ten = 10;

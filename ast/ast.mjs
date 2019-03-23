@@ -2,7 +2,12 @@ export class Node {
   TokenLiteral() {
     return '';
   }
+
+  String() {
+    return '';
+  }
 }
+
 export class Statement extends Node {
   statementNode() {}
 }
@@ -23,19 +28,39 @@ export class ASTProgram {
       return '';
     }
   }
+
+  String() {
+    let out = '';
+
+    for (let s of this.Statements) {
+      out += s.String();
+    }
+
+    return out;
+  }
 }
 
 export class LetStatement extends Statement {
-  constructor(token) {
+  constructor(token, name = null, value = null) {
     super(...arguments);
 
     this.Token = token;
-    this.Name = null;
-    this.Value = null;
+    this.Name = name;
+    this.Value = value;
   }
 
   TokenLiteral() {
     return this.Token.Literal;
+  }
+
+  String() {
+    let out = '';
+
+    out += `${this.TokenLiteral()} ${this.Name.String()} = `;
+    if (this.Value !== null) out += this.Value.String();
+    out += ';';
+
+    return out;
   }
 }
 
@@ -50,6 +75,36 @@ export class ReturnStatement extends Statement {
   TokenLiteral() {
     return this.Token.Literal;
   }
+
+  String() {
+    let out = '';
+
+    out += `${this.TokenLiteral()}  = `;
+    if (this.ReturnValue !== null) out += this.ReturnValue.String();
+    out += ';';
+
+    return out;
+  }
+}
+
+export class ExpressionStatement extends Statement {
+  constructor(token) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Expression = null;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    if (this.Expression !== null) {
+      return this.Expression.String();
+    }
+    return '';
+  }
 }
 
 export class Identifier extends Expression {
@@ -62,5 +117,9 @@ export class Identifier extends Expression {
 
   TokenLiteral() {
     return this.Token.Literal;
+  }
+
+  String() {
+    return this.Value;
   }
 }
