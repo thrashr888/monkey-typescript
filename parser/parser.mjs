@@ -1,12 +1,28 @@
-import { ASTProgram, LetStatement, ReturnStatement, Identifier } from '../ast/ast';
+import { ASTProgram, LetStatement, ReturnStatement, ExpressionStatement, Identifier } from '../ast/ast';
 import { Types } from '../token/token';
+
+export const Precedences = {
+  LOWEST: 1,
+  EQUALS: 2, // ==
+  LESSGREATER: 3, // > or <
+  SUM: 4, // +
+  PRODUCT: 5, // *
+  PREFIX: 6, // X or !X
+  CALL: 7, // myFunction(X)
+};
 
 export default class Parser {
   constructor(lexer) {
     this.l = lexer;
+    this.errors = [];
+
     this.curToken = null;
     this.peekToken = null;
-    this.errors = [];
+
+    this.prefixParseFns = {};
+    this.registerPrefix(Types.IDENT, this.parseIdentifier.bind(this));
+
+    this.infixParseFns = {};
 
     this.nextToken();
     this.nextToken();
@@ -42,7 +58,7 @@ export default class Parser {
       case Types.RETURN:
         return this.parseReturnStatement();
       default:
-        return null;
+        return this.parseExpressionStatement();
     }
   }
 
@@ -76,6 +92,32 @@ export default class Parser {
     return stmt;
   }
 
+  parseExpressionStatement() {
+    let stmt = new ExpressionStatement(this.curToken);
+
+    stmt.Expression = this.parseExpression(Precedences.LOWEST);
+
+    if (this.peekTokenIs(Types.SEMICOLON)) {
+      this.nextToken();
+    }
+
+    return stmt;
+  }
+
+  parseExpression(precedence) {
+    if (!this.prefixParseFns[this.curToken.Type]) return null;
+
+    let prefix = this.prefixParseFns[this.curToken.Type];
+    if (prefix === null) return null;
+
+    let leftExp = prefix();
+    return leftExp;
+  }
+
+  parseIdentifier() {
+    return new Identifier(this.curToken, this.curToken.Literal);
+  }
+
   curTokenIs(t) {
     return this.curToken.Type === t;
   }
@@ -97,5 +139,12 @@ export default class Parser {
   peekError(t) {
     let msg = `expected next token to be ${t}, got ${this.peekToken.Type} instead`;
     this.errors.push(msg);
+  }
+
+  registerPrefix(tokenType, fn) {
+    this.prefixParseFns[tokenType] = fn;
+  }
+  registerInfix(tokenType, fn) {
+    this.infixParseFns[tokenType] = fn;
   }
 }
