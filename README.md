@@ -22,3 +22,8 @@ or
 or
 
     $ node --experimental-modules test.mjs
+
+or watch for file changes
+
+    $ npm i -g nodemon
+    $ nodemon --experimental-modules test.mjs

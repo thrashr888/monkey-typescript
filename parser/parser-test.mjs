@@ -3,6 +3,7 @@ import Parser from './parser';
 
 export function TestParser(t) {
   TestLetStatements(t);
+  TestReturnStatements(t);
 }
 
 export function TestLetStatements(t) {
@@ -48,11 +49,39 @@ function checkParserErrors(t, p) {
 
 function testLetStatement(t, stmt, name) {
   t.Assert(stmt.TokenLiteral() === 'let', `s.TokenLiteral not 'let'. got=${stmt.TokenLiteral()}`);
-  t.Assert(typeof stmt === 'object', `s not got=object. got=${typeof stmt}`);
+  t.Assert(stmt.constructor.name === 'LetStatement', `s not got=LetStatement. got=${stmt.constructor.name}`);
   t.Assert(stmt.Name.Value === name, `stmt.Name.Value not ${name}. got=${stmt.Name.Value}`);
   t.Assert(
     stmt.Name.TokenLiteral() === name,
     `stmt.Name.TokenLiteral() not ${name}. got=${stmt.Name.TokenLiteral()}`
   );
   return true;
+}
+
+export function TestReturnStatements(t) {
+  let input = `
+return 5;
+return 10;
+return 838383;
+`;
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(program !== null, 'ParseProgram() returned nil');
+  t.Assert(
+    program.Statements.length === 3,
+    'program.Statements does not contain 3 statements. got=%d',
+    program.Statements.length
+  );
+
+  for (let stmt of program.Statements) {
+    t.Assert(
+      stmt.constructor.name === 'ReturnStatement',
+      `stmt not type ReturnStatement. got=${stmt.constructor.name}`
+    );
+    t.Assert(stmt.TokenLiteral() === 'return', `stmt.TokenLiteral not 'return'. got=${stmt.TokenLiteral()}`);
+  }
 }

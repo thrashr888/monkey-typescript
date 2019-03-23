@@ -39,6 +39,19 @@ export class LetStatement extends Statement {
   }
 }
 
+export class ReturnStatement extends Statement {
+  constructor(token) {
+    super(...arguments);
+
+    this.Token = token;
+    this.ReturnValue = null;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+}
+
 export class Identifier extends Expression {
   constructor(token, value) {
     super(...arguments);

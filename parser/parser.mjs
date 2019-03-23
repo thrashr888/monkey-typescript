@@ -1,4 +1,4 @@
-import { ASTProgram, LetStatement, Identifier } from '../ast/ast';
+import { ASTProgram, LetStatement, ReturnStatement, Identifier } from '../ast/ast';
 import { Types } from '../token/token';
 
 export default class Parser {
@@ -39,6 +39,8 @@ export default class Parser {
     switch (this.curToken.Type) {
       case Types.LET:
         return this.parseLetStatement();
+      case Types.RETURN:
+        return this.parseReturnStatement();
       default:
         return null;
     }
@@ -52,6 +54,20 @@ export default class Parser {
     stmt.Name = new Identifier(this.curToken, this.curToken.Literal);
 
     if (!this.expectPeek(Types.ASSIGN)) return null;
+
+    while (!this.curTokenIs(Types.SEMICOLON)) {
+      this.nextToken();
+    }
+
+    return stmt;
+  }
+
+  parseReturnStatement() {
+    let stmt = new ReturnStatement(this.curToken);
+
+    this.nextToken();
+
+    // TODO add expression
 
     while (!this.curTokenIs(Types.SEMICOLON)) {
       this.nextToken();
