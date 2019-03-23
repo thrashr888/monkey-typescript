@@ -1,15 +1,13 @@
 import { ASTProgram, LetStatement, ReturnStatement, ExpressionStatement, Identifier } from '../ast/ast';
-import { Types } from '../token/token';
+import Token from '../token/token';
 
-export const Precedences = {
-  LOWEST: 1,
-  EQUALS: 2, // ==
-  LESSGREATER: 3, // > or <
-  SUM: 4, // +
-  PRODUCT: 5, // *
-  PREFIX: 6, // X or !X
-  CALL: 7, // myFunction(X)
-};
+export const LOWEST = 1,
+  EQUALS = 2, // ==
+  LESSGREATER = 3, // > or <
+  SUM = 4, // +
+  PRODUCT = 5, // *
+  PREFIX = 6, // X or !X
+  CALL = 7; // myFunction(X)
 
 export default class Parser {
   constructor(lexer) {
@@ -20,7 +18,7 @@ export default class Parser {
     this.peekToken = null;
 
     this.prefixParseFns = {};
-    this.registerPrefix(Types.IDENT, this.parseIdentifier.bind(this));
+    this.registerPrefix(Token.IDENT, this.parseIdentifier.bind(this));
 
     this.infixParseFns = {};
 
@@ -40,7 +38,7 @@ export default class Parser {
   ParseProgram() {
     let program = new ASTProgram();
 
-    while (!this.curTokenIs(Types.EOF)) {
+    while (!this.curTokenIs(Token.EOF)) {
       let stmt = this.parseStatement();
       if (stmt !== null) {
         program.Statements.push(stmt);
@@ -53,9 +51,9 @@ export default class Parser {
 
   parseStatement() {
     switch (this.curToken.Type) {
-      case Types.LET:
+      case Token.LET:
         return this.parseLetStatement();
-      case Types.RETURN:
+      case Token.RETURN:
         return this.parseReturnStatement();
       default:
         return this.parseExpressionStatement();
@@ -65,13 +63,13 @@ export default class Parser {
   parseLetStatement() {
     let stmt = new LetStatement(this.curToken);
 
-    if (!this.expectPeek(Types.IDENT)) return null;
+    if (!this.expectPeek(Token.IDENT)) return null;
 
     stmt.Name = new Identifier(this.curToken, this.curToken.Literal);
 
-    if (!this.expectPeek(Types.ASSIGN)) return null;
+    if (!this.expectPeek(Token.ASSIGN)) return null;
 
-    while (!this.curTokenIs(Types.SEMICOLON)) {
+    while (!this.curTokenIs(Token.SEMICOLON)) {
       this.nextToken();
     }
 
@@ -85,7 +83,7 @@ export default class Parser {
 
     // TODO add expression
 
-    while (!this.curTokenIs(Types.SEMICOLON)) {
+    while (!this.curTokenIs(Token.SEMICOLON)) {
       this.nextToken();
     }
 
@@ -95,9 +93,9 @@ export default class Parser {
   parseExpressionStatement() {
     let stmt = new ExpressionStatement(this.curToken);
 
-    stmt.Expression = this.parseExpression(Precedences.LOWEST);
+    stmt.Expression = this.parseExpression(LOWEST);
 
-    if (this.peekTokenIs(Types.SEMICOLON)) {
+    if (this.peekTokenIs(Token.SEMICOLON)) {
       this.nextToken();
     }
 

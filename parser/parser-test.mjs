@@ -1,10 +1,11 @@
-import { Lexer } from '../lexer/lexer';
+import Lexer from '../lexer/lexer';
 import Parser from './parser';
 
 export function TestParser(t) {
   TestLetStatements(t);
   TestReturnStatements(t);
   TestIdentifierExpression(t);
+  TestIntegerExpression(t);
 }
 
 export function TestLetStatements(t) {
@@ -112,4 +113,31 @@ export function TestIdentifierExpression(t) {
     ident.TokenLiteral() === 'foobar',
     `ident.TokenLiteral is not 'foobar'. got=${ident.TokenLiteral()}`
   );
+}
+
+export function TestIntegerExpression(t) {
+  let input = '5';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  t.Assert(
+    stmt.constructor.name === 'ExpressionStatement',
+    `program.Statements[0] not type ExpressionStatement. got=${stmt.constructor.name}`
+  );
+  let literal = stmt.Expression;
+  t.Assert(
+    literal.constructor.name === 'IntegerLiteral',
+    `exp not type IntegerLiteral. got=${literal.constructor.name}`
+  );
+  t.Assert(literal.Value === 5, `literal.Value is not 5. got=${literal.Value}`);
+  t.Assert(literal.TokenLiteral() === '5', `literal.TokenLiteral is not '5'. got=${literal.TokenLiteral()}`);
 }

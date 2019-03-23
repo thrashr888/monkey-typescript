@@ -1,5 +1,5 @@
 import { Lexer } from '../lexer/lexer';
-import { Types } from '../token/token';
+import Token from '../token/token';
 import process from 'process';
 
 const PROMPT = '>> ';
@@ -12,7 +12,7 @@ export function Start(input) {
 
     let l = new Lexer(line);
 
-    for (let tok = l.NextToken(); tok.Type !== Types.EOF; tok = l.NextToken()) {
+    for (let tok = l.NextToken(); tok.Type !== Token.EOF; tok = l.NextToken()) {
       console.log('%', tok);
     }
 

@@ -1,6 +1,6 @@
-import { Types, Token, LookupIdent } from '../token/token';
+import Token, { LookupIdent } from '../token/token';
 
-export class Lexer {
+export default class Lexer {
   constructor(input) {
     this.input = input;
     this.position = 0; // current position in input (points to current char)
@@ -21,60 +21,60 @@ export class Lexer {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(Types.EQ, literal);
+          tok = new Token(Token.EQ, literal);
         } else {
-          tok = new Token(Types.ASSIGN, this.ch);
+          tok = new Token(Token.ASSIGN, this.ch);
         }
         break;
       case '+':
-        tok = new Token(Types.PLUS, this.ch);
+        tok = new Token(Token.PLUS, this.ch);
         break;
       case '-':
-        tok = new Token(Types.MINUS, this.ch);
+        tok = new Token(Token.MINUS, this.ch);
         break;
       case '!':
         if (this.peekChar() === '=') {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(Types.NOT_EQ, literal);
+          tok = new Token(Token.NOT_EQ, literal);
         } else {
-          tok = new Token(Types.BANG, this.ch);
+          tok = new Token(Token.BANG, this.ch);
         }
         break;
       case '/':
-        tok = new Token(Types.SLASH, this.ch);
+        tok = new Token(Token.SLASH, this.ch);
         break;
       case '*':
-        tok = new Token(Types.ASTERISK, this.ch);
+        tok = new Token(Token.ASTERISK, this.ch);
         break;
       case '<':
-        tok = new Token(Types.LT, this.ch);
+        tok = new Token(Token.LT, this.ch);
         break;
       case '>':
-        tok = new Token(Types.GT, this.ch);
+        tok = new Token(Token.GT, this.ch);
         break;
       case ';':
-        tok = new Token(Types.SEMICOLON, this.ch);
+        tok = new Token(Token.SEMICOLON, this.ch);
         break;
       case ',':
-        tok = new Token(Types.COMMA, this.ch);
+        tok = new Token(Token.COMMA, this.ch);
         break;
       case '{':
-        tok = new Token(Types.LBRACE, this.ch);
+        tok = new Token(Token.LBRACE, this.ch);
         break;
       case '}':
-        tok = new Token(Types.RBRACE, this.ch);
+        tok = new Token(Token.RBRACE, this.ch);
         break;
       case '(':
-        tok = new Token(Types.LPAREN, this.ch);
+        tok = new Token(Token.LPAREN, this.ch);
         break;
       case ')':
-        tok = new Token(Types.RPAREN, this.ch);
+        tok = new Token(Token.RPAREN, this.ch);
         break;
       case 0:
         tok.Literal = '';
-        tok.Type = Types.EOF;
+        tok.Type = Token.EOF;
         break;
 
       default:
@@ -83,11 +83,11 @@ export class Lexer {
           tok.Type = LookupIdent(tok.Literal);
           return tok;
         } else if (isDigit(this.ch)) {
-          tok.Type = Types.INT;
+          tok.Type = Token.INT;
           tok.Literal = this.readNumber();
           return tok;
         } else {
-          tok = new Token(Types.ILLEGAL, this.ch);
+          tok = new Token(Token.ILLEGAL, this.ch);
         }
     }
 

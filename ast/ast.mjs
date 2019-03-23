@@ -123,3 +123,20 @@ export class Identifier extends Expression {
     return this.Value;
   }
 }
+
+export class IntegerLiteral extends Identifier {
+  constructor(token, value) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Value = value;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return this.Token.Literal;
+  }
+}
