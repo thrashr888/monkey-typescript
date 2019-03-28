@@ -1,6 +1,6 @@
 export class Node {
   TokenLiteral() {
-    return '';
+    return this.Token.Literal;
   }
 
   String() {
@@ -49,10 +49,6 @@ export class LetStatement extends Statement {
     this.Value = value;
   }
 
-  TokenLiteral() {
-    return this.Token.Literal;
-  }
-
   String() {
     let out = '';
 
@@ -70,10 +66,6 @@ export class ReturnStatement extends Statement {
 
     this.Token = token;
     this.ReturnValue = null;
-  }
-
-  TokenLiteral() {
-    return this.Token.Literal;
   }
 
   String() {
@@ -95,10 +87,6 @@ export class ExpressionStatement extends Statement {
     this.Expression = null;
   }
 
-  TokenLiteral() {
-    return this.Token.Literal;
-  }
-
   String() {
     if (this.Expression !== null) {
       return this.Expression.String();
@@ -115,10 +103,6 @@ export class Identifier extends Expression {
     this.Value = value;
   }
 
-  TokenLiteral() {
-    return this.Token.Literal;
-  }
-
   String() {
     return this.Value;
   }
@@ -132,11 +116,21 @@ export class IntegerLiteral extends Identifier {
     this.Value = value;
   }
 
-  TokenLiteral() {
+  String() {
     return this.Token.Literal;
+  }
+}
+
+export class PrefixExpression extends Expression {
+  constructor(token, operator = null, right = null) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Operator = operator;
+    this.Right = right;
   }
 
   String() {
-    return this.Token.Literal;
+    return `(${this.Operator}${this.Right.String()})`;
   }
 }

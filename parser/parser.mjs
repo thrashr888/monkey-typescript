@@ -1,3 +1,4 @@
+import Token from '../token/token';
 import {
   ASTProgram,
   LetStatement,
@@ -5,8 +6,8 @@ import {
   ExpressionStatement,
   Identifier,
   IntegerLiteral,
+  PrefixExpression,
 } from '../ast/ast.mjs';
-import Token from '../token/token';
 
 export const LOWEST = 1,
   EQUALS = 2, // ==
@@ -27,6 +28,8 @@ export default class Parser {
     this.prefixParseFns = {};
     this.registerPrefix(Token.IDENT, this.parseIdentifier.bind(this));
     this.registerPrefix(Token.INT, this.parseIntegerLiteral.bind(this));
+    this.registerPrefix(Token.BANG, this.parsePrefixExpression.bind(this));
+    this.registerPrefix(Token.MINUS, this.parsePrefixExpression.bind(this));
 
     this.infixParseFns = {};
 
@@ -111,11 +114,12 @@ export default class Parser {
   }
 
   parseExpression(precedence) {
-    if (!this.prefixParseFns[this.curToken.Type]) return null;
+    if (!this.prefixParseFns[this.curToken.Type]) {
+      this.noPrefixParseFnError(this.curToken.Type);
+      return null;
+    }
 
     let prefix = this.prefixParseFns[this.curToken.Type];
-    if (prefix === null) return null;
-
     let leftExp = prefix();
     return leftExp;
   }
@@ -168,5 +172,20 @@ export default class Parser {
 
   registerInfix(tokenType, fn) {
     this.infixParseFns[tokenType] = fn;
+  }
+
+  noPrefixParseFnError(t) {
+    let msg = `no prefix parse function for ${t} found`;
+    this.errors.push(msg);
+  }
+
+  parsePrefixExpression() {
+    let expression = new PrefixExpression(this.curToken, this.curToken.Literal);
+
+    this.nextToken();
+
+    expression.Right = this.parseExpression(PREFIX);
+
+    return expression;
   }
 }

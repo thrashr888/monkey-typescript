@@ -6,6 +6,7 @@ export function TestParser(t) {
   TestReturnStatements(t);
   TestIdentifierExpression(t);
   TestIntegerExpression(t);
+  TestParsingPrefixExpressions(t);
 }
 
 export function TestLetStatements(t) {
@@ -140,4 +141,58 @@ export function TestIntegerExpression(t) {
   );
   t.Assert(literal.Value === 5, `literal.Value is not 5. got=${literal.Value}`);
   t.Assert(literal.TokenLiteral() === '5', `literal.TokenLiteral is not '5'. got=${literal.TokenLiteral()}`);
+}
+
+export function TestParsingPrefixExpressions(t) {
+  let input = '5';
+  let prefixTests = [
+    { input: '!5', operator: '!', integerValue: 5 },
+    { input: '-15', operator: '-', integerValue: 15 },
+  ];
+
+  for (let i in prefixTests) {
+    let tt = prefixTests[i];
+
+    let l = new Lexer(tt.input);
+    let p = new Parser(l);
+    let program = p.ParseProgram();
+    checkParserErrors(t, p);
+
+    t.Assert(
+      program.Statements.length === 1,
+      'program.Statements does not contain 1 statements. got=%d',
+      program.Statements.length
+    );
+    let stmt = program.Statements[0];
+    t.Assert(
+      stmt.constructor.name === 'ExpressionStatement',
+      `program.Statements[0] not type ExpressionStatement. got=${stmt.constructor.name}`
+    );
+    let exp = stmt.Expression;
+    t.Assert(
+      exp.constructor.name === 'PrefixExpression',
+      `stmt not type PrefixExpression. got=${exp.constructor.name}`
+    );
+    t.Assert(exp.Operator === tt.operator, `exp.Operator is not ${tt.operator}. got=${exp.Operator}`);
+
+    if (!testIntegerLiteral(t, exp.Right, tt.integerValue)) {
+      return;
+    }
+  }
+}
+
+function testIntegerLiteral(t, il, value) {
+  let integ = il;
+  t.Assert(
+    il.constructor.name === 'IntegerLiteral',
+    `il not type IntegerLiteral. got=${il.constructor.name}`
+  );
+
+  t.Assert(integ.Value === value, `integ.Value is not ${value}. got=${integ.Value}`);
+  t.Assert(
+    integ.TokenLiteral() === '' + value,
+    `integ.TokenLiteral is not "${'' + value}". got=${integ.TokenLiteral()}`
+  );
+
+  return true;
 }
