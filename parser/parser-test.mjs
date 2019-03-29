@@ -8,6 +8,7 @@ export function TestParser(t) {
   TestIntegerExpression(t);
   TestParsingPrefixExpressions(t);
   TestParsingInfixExpressions(t);
+  TestOperatorPrecedenceParsing(t);
 }
 
 export function TestLetStatements(t) {
@@ -250,5 +251,33 @@ function TestParsingInfixExpressions(t) {
     if (!testIntegerLiteral(t, exp.Right, tt.rightValue)) {
       return;
     }
+  }
+}
+
+function TestOperatorPrecedenceParsing(t) {
+  let tests = [
+    ['-a * b', '((-a) * b)'],
+    ['!-a', '(!(-a))'],
+    ['a + b + c', '((a + b) + c)'],
+    ['a + b - c', '((a + b) - c)'],
+    ['a * b * c', '((a * b) * c)'],
+    ['a * b / c', '((a * b) / c)'],
+    ['a + b / c', '(a + (b / c))'],
+    ['a + b * c + d / e - f', '(((a + (b * c)) + (d / e)) - f)'],
+    ['3 + 4; -5 * 5', '(3 + 4)((-5) * 5)'],
+    ['5 > 4 == 3 < 4', '((5 > 4) == (3 < 4))'],
+    ['5 < 4 != 3 > 4', '((5 < 4) != (3 > 4))'],
+    ['3 + 4 * 5 == 3 * 1 + 4 * 5', '((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))'],
+  ];
+  for (let i in tests) {
+    let tt = tests[i];
+
+    let l = new Lexer(tt[0]);
+    let p = new Parser(l);
+    let program = p.ParseProgram();
+    checkParserErrors(t, p);
+
+    let actual = program.String();
+    t.Assert(actual === tt[1], 'expected=%s got=%s', tt[1], actual);
   }
 }
