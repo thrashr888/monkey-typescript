@@ -9,6 +9,7 @@ export function TestParser(t) {
   TestParsingPrefixExpressions(t);
   TestParsingInfixExpressions(t);
   TestOperatorPrecedenceParsing(t);
+  TestBooleanExpression(t);
 }
 
 export function TestLetStatements(t) {
@@ -279,5 +280,102 @@ function TestOperatorPrecedenceParsing(t) {
 
     let actual = program.String();
     t.Assert(actual === tt[1], 'expected=%s got=%s', tt[1], actual);
+  }
+}
+
+function testIdentifier(t, exp, value) {
+  let ident = exp.Identifier;
+  let ok;
+
+  ok = ident.constructor.name === 'Identifier';
+  if (!ok) {
+    t.Assert(ok, 'exp is not Identifier. got=%s', exp);
+    return false;
+  }
+
+  ok = ident.Value === value;
+  if (!ok) {
+    t.Assert(ok, 'ident.Value is not %s. got=%s', value, ident.Value);
+    return false;
+  }
+
+  ok = ident.TokenLiteral() === '' + value;
+  if (!ok) {
+    t.Assert(ok, 'ident.TokenLiteral is not %s. got=%s', value, ident.TokenLiteral());
+    return false;
+  }
+
+  return true;
+}
+
+function testLiteralExpression(t, exp, expected) {
+  switch (expected) {
+    case 'integer':
+      return testIntegerLiteral(t, exp, expected);
+    case 'integer64':
+      return testIntegerLiteral(t, exp, expected);
+    case 'string':
+      return testIdentifier(t, exp, expected);
+    default:
+      t.Errorf('type of exp not handled. got=%s', exp.constructor.name);
+      return false;
+  }
+}
+
+function testInfixExpression(t, exp, left, operator, right) {
+  let opExp = exp;
+  let ok;
+
+  ok = opExp.constructor.name === 'InfixExpression';
+  if (!ok) {
+    t.Assert(ok, 'exp not InfixExpression. got=%s(%s)', opExp.constructor.name, opExp);
+    return false;
+  }
+
+  if (!testLiteralExpression(t, opExp.Left, left)) {
+    return false;
+  }
+
+  ok = opExp.Operator === operator;
+  if (!ok) {
+    t.Assert(ok, 'opExp.Operator is not %s. got=%s', operator, opExp.Operator);
+    return false;
+  }
+
+  if (!testLiteralExpression(t, opExp.Right, right)) {
+    return false;
+  }
+
+  return true;
+}
+
+export function TestBooleanExpression(t) {
+  let tests = [['true', true], ['false', false]];
+  for (let i in tests) {
+    let tt = tests[i];
+
+    let l = new Lexer(tt[0]);
+    let p = new Parser(l);
+    let program = p.ParseProgram();
+    checkParserErrors(t, p);
+
+    t.Assert(
+      program.Statements.length === 1,
+      'program.Statements does not contain 1 statements. got=%d',
+      program.Statements.length
+    );
+
+    let stmt = program.Statements[0];
+    t.Assert(
+      stmt.constructor.name === 'ExpressionStatement',
+      `program.Statements[0] not type ExpressionStatement. got=${stmt.constructor.name}`
+    );
+
+    let boolean = stmt.Expression;
+    t.Assert(
+      boolean.constructor.name === 'AstBoolean',
+      `exp not type AstBoolean. got=${boolean.constructor.name}`
+    );
+    t.Assert(boolean.Value === tt[1], `boolean.Value is not %s. got=%s`, tt[1], boolean.Value);
   }
 }

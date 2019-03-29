@@ -8,6 +8,7 @@ import {
   IntegerLiteral,
   PrefixExpression,
   InfixExpression,
+  AstBoolean,
 } from '../ast/ast.mjs';
 
 export const LOWEST = 1,
@@ -42,6 +43,9 @@ export default class Parser {
     this.registerPrefix(Token.INT, this.parseIntegerLiteral.bind(this));
     this.registerPrefix(Token.BANG, this.parsePrefixExpression.bind(this));
     this.registerPrefix(Token.MINUS, this.parsePrefixExpression.bind(this));
+
+    this.registerPrefix(Token.TRUE, this.parseBoolean.bind(this));
+    this.registerPrefix(Token.FALSE, this.parseBoolean.bind(this));
 
     this.infixParseFns = {};
     // [
@@ -253,5 +257,9 @@ export default class Parser {
     expression.Right = this.parseExpression(precedence);
 
     return expression;
+  }
+
+  parseBoolean() {
+    return new AstBoolean(this.curToken, this.curTokenIs(Token.TRUE));
   }
 }

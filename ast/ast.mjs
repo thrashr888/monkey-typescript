@@ -149,3 +149,16 @@ export class InfixExpression extends Expression {
     return `(${this.Left.String()} ${this.Operator} ${this.Right.String()})`;
   }
 }
+
+export class AstBoolean extends Expression {
+  constructor(token, value) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Value = !!value;
+  }
+
+  String() {
+    return this.Token.Literal;
+  }
+}
