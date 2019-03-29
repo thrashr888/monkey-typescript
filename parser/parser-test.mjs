@@ -7,6 +7,7 @@ export function TestParser(t) {
   TestIdentifierExpression(t);
   TestIntegerExpression(t);
   TestParsingPrefixExpressions(t);
+  TestParsingInfixExpressions(t);
 }
 
 export function TestLetStatements(t) {
@@ -144,7 +145,6 @@ export function TestIntegerExpression(t) {
 }
 
 export function TestParsingPrefixExpressions(t) {
-  let input = '5';
   let prefixTests = [
     { input: '!5', operator: '!', integerValue: 5 },
     { input: '-15', operator: '-', integerValue: 15 },
@@ -183,16 +183,72 @@ export function TestParsingPrefixExpressions(t) {
 
 function testIntegerLiteral(t, il, value) {
   let integ = il;
-  t.Assert(
-    il.constructor.name === 'IntegerLiteral',
-    `il not type IntegerLiteral. got=${il.constructor.name}`
-  );
+  let ok;
 
-  t.Assert(integ.Value === value, `integ.Value is not ${value}. got=${integ.Value}`);
-  t.Assert(
-    integ.TokenLiteral() === '' + value,
-    `integ.TokenLiteral is not "${'' + value}". got=${integ.TokenLiteral()}`
-  );
+  ok = il.constructor.name === 'IntegerLiteral';
+  if (!ok) {
+    t.Assert(ok, `il not type IntegerLiteral. got=${il.constructor.name}`);
+    return false;
+  }
+
+  ok = integ.Value === value;
+  if (!ok) {
+    t.Assert(ok, `integ.Value is not ${value}. got=${integ.Value}`);
+    return false;
+  }
+
+  ok = integ.TokenLiteral() === '' + value; // is a string
+  if (!ok) {
+    t.Assert(ok, `integ.TokenLiteral is not "${'' + value}". got=${integ.TokenLiteral()}`);
+    return false;
+  }
 
   return true;
+}
+
+function TestParsingInfixExpressions(t) {
+  let infixTests = [
+    { input: '5 + 5;', leftValue: 5, operator: '+', rightValue: 5 },
+    { input: '5 - 5;', leftValue: 5, operator: '-', rightValue: 5 },
+    { input: '5 * 5;', leftValue: 5, operator: '*', rightValue: 5 },
+    { input: '5 / 5;', leftValue: 5, operator: '/', rightValue: 5 },
+    { input: '5 > 5;', leftValue: 5, operator: '>', rightValue: 5 },
+    { input: '5 < 5;', leftValue: 5, operator: '<', rightValue: 5 },
+    { input: '5 == 5;', leftValue: 5, operator: '==', rightValue: 5 },
+    { input: '5 != 5;', leftValue: 5, operator: '!=', rightValue: 5 },
+  ];
+  for (let i in infixTests) {
+    let tt = infixTests[i];
+
+    let l = new Lexer(tt.input);
+    let p = new Parser(l);
+    let program = p.ParseProgram();
+    checkParserErrors(t, p);
+
+    t.Assert(
+      program.Statements.length === 1,
+      'program.Statements does not contain 1 statements. got=%d',
+      program.Statements.length
+    );
+    let stmt = program.Statements[0];
+    t.Assert(
+      stmt.constructor.name === 'ExpressionStatement',
+      `program.Statements[0] not type ExpressionStatement. got=${stmt.constructor.name}`
+    );
+    let exp = stmt.Expression;
+    t.Assert(
+      exp.constructor.name === 'InfixExpression',
+      `exp not type InfixExpression. got=${exp.constructor.name}`
+    );
+
+    if (!testIntegerLiteral(t, exp.Left, tt.leftValue)) {
+      return;
+    }
+
+    t.Assert(exp.Operator === tt.operator, `exp.Operator is not ${tt.operator}. got=${exp.Operator}`);
+
+    if (!testIntegerLiteral(t, exp.Right, tt.rightValue)) {
+      return;
+    }
+  }
 }

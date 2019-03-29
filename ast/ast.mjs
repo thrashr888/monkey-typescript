@@ -134,3 +134,18 @@ export class PrefixExpression extends Expression {
     return `(${this.Operator}${this.Right.String()})`;
   }
 }
+
+export class InfixExpression extends Expression {
+  constructor(token, left = null, operator = null, right = null) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Left = left;
+    this.Operator = operator;
+    this.Right = right;
+  }
+
+  String() {
+    return `(${this.Left.String()} ${this.Operator} ${this.Right.String()})`;
+  }
+}

@@ -7,6 +7,7 @@ import {
   Identifier,
   IntegerLiteral,
   PrefixExpression,
+  InfixExpression,
 } from '../ast/ast.mjs';
 
 export const LOWEST = 1,
@@ -16,6 +17,17 @@ export const LOWEST = 1,
   PRODUCT = 5, // *
   PREFIX = 6, // X or !X
   CALL = 7; // myFunction(X)
+
+export const precedences = {
+  [Token.EQ]: EQUALS,
+  [Token.NOT_EQ]: EQUALS,
+  [Token.LT]: LESSGREATER,
+  [Token.GT]: LESSGREATER,
+  [Token.PLUS]: SUM,
+  [Token.MINUS]: SUM,
+  [Token.SLASH]: PRODUCT,
+  [Token.ASTERISK]: PRODUCT,
+};
 
 export default class Parser {
   constructor(lexer) {
@@ -32,6 +44,25 @@ export default class Parser {
     this.registerPrefix(Token.MINUS, this.parsePrefixExpression.bind(this));
 
     this.infixParseFns = {};
+    // [
+    //   Token.PLUS,
+    //   Token.MINUS,
+    //   Token.SLASH,
+    //   Token.ASTERISK,
+    //   Token.EQ,
+    //   Token.NOT_EQ,
+    //   Token.LT,
+    //   Token.GT,
+    // ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
+
+    this.registerInfix(Token.PLUS, this.parseInfixExpression.bind(this));
+    this.registerInfix(Token.MINUS, this.parseInfixExpression.bind(this));
+    this.registerInfix(Token.SLASH, this.parseInfixExpression.bind(this));
+    this.registerInfix(Token.ASTERISK, this.parseInfixExpression.bind(this));
+    this.registerInfix(Token.EQ, this.parseInfixExpression.bind(this));
+    this.registerInfix(Token.NOT_EQ, this.parseInfixExpression.bind(this));
+    this.registerInfix(Token.LT, this.parseInfixExpression.bind(this));
+    this.registerInfix(Token.GT, this.parseInfixExpression.bind(this));
 
     this.nextToken();
     this.nextToken();
@@ -121,6 +152,19 @@ export default class Parser {
 
     let prefix = this.prefixParseFns[this.curToken.Type];
     let leftExp = prefix();
+
+    while (!this.peekTokenIs(Token.SEMICOLON) && precedence < this.peekPrecedence()) {
+      if (!this.infixParseFns[this.peekToken.Type]) {
+        return leftExp;
+      }
+
+      let infix = this.infixParseFns[this.peekToken.Type];
+
+      this.nextToken();
+
+      leftExp = infix(leftExp);
+    }
+
     return leftExp;
   }
 
@@ -185,6 +229,28 @@ export default class Parser {
     this.nextToken();
 
     expression.Right = this.parseExpression(PREFIX);
+
+    return expression;
+  }
+
+  peekPrecedence() {
+    if (precedences[this.peekToken.Type]) return precedences[this.peekToken.Type];
+
+    return LOWEST;
+  }
+
+  curPrecedence() {
+    if (precedences[this.curToken.Type]) return precedences[this.curToken.Type];
+
+    return LOWEST;
+  }
+
+  parseInfixExpression(left) {
+    let expression = new InfixExpression(this.curToken, left, this.curToken.Literal);
+
+    let precedence = this.curPrecedence();
+    this.nextToken();
+    expression.Right = this.parseExpression(precedence);
 
     return expression;
   }
