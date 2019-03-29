@@ -148,8 +148,10 @@ export function TestIntegerExpression(t) {
 
 export function TestParsingPrefixExpressions(t) {
   let prefixTests = [
-    { input: '!5', operator: '!', integerValue: 5 },
-    { input: '-15', operator: '-', integerValue: 15 },
+    { input: '!5', operator: '!', value: 5 },
+    { input: '-15', operator: '-', value: 15 },
+    { input: '!true', operator: '!', value: true },
+    { input: '!false', operator: '!', value: false },
   ];
 
   for (let i in prefixTests) {
@@ -177,7 +179,7 @@ export function TestParsingPrefixExpressions(t) {
     );
     t.Assert(exp.Operator === tt.operator, `exp.Operator is not ${tt.operator}. got=${exp.Operator}`);
 
-    if (!testIntegerLiteral(t, exp.Right, tt.integerValue)) {
+    if (!testLiteralExpression(t, exp.Right, tt.value)) {
       return;
     }
   }
@@ -189,19 +191,19 @@ function testIntegerLiteral(t, il, value) {
 
   ok = il.constructor.name === 'IntegerLiteral';
   if (!ok) {
-    t.Assert(ok, `il not type IntegerLiteral. got=${il.constructor.name}`);
+    t.Assert(ok, 'il not type IntegerLiteral. got=%s', il.constructor.name);
     return false;
   }
 
   ok = integ.Value === value;
   if (!ok) {
-    t.Assert(ok, `integ.Value is not ${value}. got=${integ.Value}`);
+    t.Assert(ok, 'integ.Value is not %s. got=%s', value, integ.Value);
     return false;
   }
 
   ok = integ.TokenLiteral() === '' + value; // is a string
   if (!ok) {
-    t.Assert(ok, `integ.TokenLiteral is not "${'' + value}". got=${integ.TokenLiteral()}`);
+    t.Assert(ok, 'integ.TokenLiteral is not "%s". got=%s', '' + value, integ.TokenLiteral());
     return false;
   }
 
@@ -218,6 +220,9 @@ function TestParsingInfixExpressions(t) {
     { input: '5 < 5;', leftValue: 5, operator: '<', rightValue: 5 },
     { input: '5 == 5;', leftValue: 5, operator: '==', rightValue: 5 },
     { input: '5 != 5;', leftValue: 5, operator: '!=', rightValue: 5 },
+    { input: 'true == true', leftValue: true, operator: '==', rightValue: true },
+    { input: 'true != false', leftValue: true, operator: '!=', rightValue: false },
+    { input: 'false == false', leftValue: false, operator: '==', rightValue: false },
   ];
   for (let i in infixTests) {
     let tt = infixTests[i];
@@ -237,19 +242,8 @@ function TestParsingInfixExpressions(t) {
       stmt.constructor.name === 'ExpressionStatement',
       `program.Statements[0] not type ExpressionStatement. got=${stmt.constructor.name}`
     );
-    let exp = stmt.Expression;
-    t.Assert(
-      exp.constructor.name === 'InfixExpression',
-      `exp not type InfixExpression. got=${exp.constructor.name}`
-    );
 
-    if (!testIntegerLiteral(t, exp.Left, tt.leftValue)) {
-      return;
-    }
-
-    t.Assert(exp.Operator === tt.operator, `exp.Operator is not ${tt.operator}. got=${exp.Operator}`);
-
-    if (!testIntegerLiteral(t, exp.Right, tt.rightValue)) {
+    if (!testInfixExpression(t, stmt.Expression, tt.leftValue, tt.operator, tt.rightValue)) {
       return;
     }
   }
@@ -269,6 +263,16 @@ function TestOperatorPrecedenceParsing(t) {
     ['5 > 4 == 3 < 4', '((5 > 4) == (3 < 4))'],
     ['5 < 4 != 3 > 4', '((5 < 4) != (3 > 4))'],
     ['3 + 4 * 5 == 3 * 1 + 4 * 5', '((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))'],
+    ['true', 'true'],
+    ['false', 'false'],
+    ['3 > 5 == false', '((3 > 5) == false)'],
+    ['3 < 5 == true', '((3 < 5) == true)'],
+    ['1 + (2 + 3) + 4', '((1 + (2 + 3)) + 4)'],
+    ['(5 + 5) * 2', '((5 + 5) * 2)'],
+    ['2 / (5 + 5)', '(2 / (5 + 5))'],
+    ['(5 + 5) * 2 * (5 + 5)', '(((5 + 5) * 2) * (5 + 5))'],
+    ['-(5 + 5)', '(-(5 + 5))'],
+    ['!(true == true)', '(!(true == true))'],
   ];
   for (let i in tests) {
     let tt = tests[i];
@@ -308,14 +312,39 @@ function testIdentifier(t, exp, value) {
   return true;
 }
 
+function testBooleanLiteral(t, exp, value) {
+  let bo = exp;
+  let ok;
+
+  ok = bo.constructor.name === 'AstBoolean';
+  if (!ok) {
+    t.Assert(ok, 'exp is not AstBoolean. got=%s', exp);
+    return false;
+  }
+
+  ok = bo.Value === value;
+  if (!ok) {
+    t.Assert(ok, 'bo.Value is not %s. got=%s', value, bo.Value);
+    return false;
+  }
+
+  ok = bo.TokenLiteral() === '' + value;
+  if (!ok) {
+    t.Assert(ok, 'bo.TokenLiteral is not %s. got=%s', value, bo.TokenLiteral());
+    return false;
+  }
+
+  return true;
+}
+
 function testLiteralExpression(t, exp, expected) {
-  switch (expected) {
-    case 'integer':
+  switch (expected.constructor.name) {
+    case 'Number':
       return testIntegerLiteral(t, exp, expected);
-    case 'integer64':
-      return testIntegerLiteral(t, exp, expected);
-    case 'string':
+    case 'String':
       return testIdentifier(t, exp, expected);
+    case 'Boolean':
+      return testBooleanLiteral(t, exp, expected);
     default:
       t.Errorf('type of exp not handled. got=%s', exp.constructor.name);
       return false;

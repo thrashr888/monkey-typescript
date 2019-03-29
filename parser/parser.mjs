@@ -47,6 +47,8 @@ export default class Parser {
     this.registerPrefix(Token.TRUE, this.parseBoolean.bind(this));
     this.registerPrefix(Token.FALSE, this.parseBoolean.bind(this));
 
+    this.registerPrefix(Token.LPAREN, this.parseGroupedExpression.bind(this));
+
     this.infixParseFns = {};
     // [
     //   Token.PLUS,
@@ -261,5 +263,17 @@ export default class Parser {
 
   parseBoolean() {
     return new AstBoolean(this.curToken, this.curTokenIs(Token.TRUE));
+  }
+
+  parseGroupedExpression() {
+    this.nextToken();
+
+    let exp = this.parseExpression(LOWEST);
+
+    if (!this.expectPeek(Token.RPAREN)) {
+      return null;
+    }
+
+    return exp;
   }
 }
