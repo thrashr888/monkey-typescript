@@ -26,7 +26,7 @@ Token.NOT_EQ = '!=';
 
 // Delimiters
 Token.COMMA = ',';
-Token.SEMICOLON = ',';
+Token.SEMICOLON = ';';
 Token.LPAREN = '(';
 Token.RPAREN = ')';
 Token.LBRACE = '{';
