@@ -8,17 +8,13 @@ export class Node {
   }
 }
 
-export class Statement extends Node {
-  statementNode() {}
-}
+export class Statement extends Node {}
 
-export class Expression extends Node {
-  expressionNode() {}
-}
+export class Expression extends Node {}
 
 export class ASTProgram {
-  constructor() {
-    this.Statements = [];
+  constructor(statements = []) {
+    this.Statements = statements;
   }
 
   TokenLiteral() {
@@ -61,11 +57,11 @@ export class LetStatement extends Statement {
 }
 
 export class ReturnStatement extends Statement {
-  constructor(token) {
+  constructor(token, returnValue = null) {
     super(...arguments);
 
     this.Token = token;
-    this.ReturnValue = null;
+    this.ReturnValue = returnValue;
   }
 
   String() {
@@ -80,11 +76,11 @@ export class ReturnStatement extends Statement {
 }
 
 export class ExpressionStatement extends Statement {
-  constructor(token) {
+  constructor(token, expression = null) {
     super(...arguments);
 
     this.Token = token;
-    this.Expression = null;
+    this.Expression = expression;
   }
 
   String() {
@@ -160,5 +156,47 @@ export class AstBoolean extends Expression {
 
   String() {
     return this.Token.Literal;
+  }
+}
+
+export class IfExpression extends Expression {
+  constructor(token, expression = null, consequence = null, alternative = null) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Condition = expression;
+    this.Consequence = consequence;
+    this.Alternative = alternative;
+  }
+
+  String() {
+    let out = '';
+
+    out += `if${this.Condition.String()} ${this.Consequence.String()}`;
+
+    if (this.Alternative != null) {
+      out += `else ${this.Alternative.String()}`;
+    }
+
+    return out;
+  }
+}
+
+export class BlockStatement extends Statement {
+  constructor(token, statements = []) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Statements = statements;
+  }
+
+  String() {
+    let out = '';
+
+    for (let s of this.Statements) {
+      out += s.String();
+    }
+
+    return out;
   }
 }

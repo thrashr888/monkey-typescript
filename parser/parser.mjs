@@ -9,6 +9,8 @@ import {
   PrefixExpression,
   InfixExpression,
   AstBoolean,
+  IfExpression,
+  BlockStatement,
 } from '../ast/ast.mjs';
 
 export const LOWEST = 1,
@@ -49,26 +51,19 @@ export default class Parser {
 
     this.registerPrefix(Token.LPAREN, this.parseGroupedExpression.bind(this));
 
-    this.infixParseFns = {};
-    // [
-    //   Token.PLUS,
-    //   Token.MINUS,
-    //   Token.SLASH,
-    //   Token.ASTERISK,
-    //   Token.EQ,
-    //   Token.NOT_EQ,
-    //   Token.LT,
-    //   Token.GT,
-    // ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
+    this.registerPrefix(Token.IF, this.parseIfExpression.bind(this));
 
-    this.registerInfix(Token.PLUS, this.parseInfixExpression.bind(this));
-    this.registerInfix(Token.MINUS, this.parseInfixExpression.bind(this));
-    this.registerInfix(Token.SLASH, this.parseInfixExpression.bind(this));
-    this.registerInfix(Token.ASTERISK, this.parseInfixExpression.bind(this));
-    this.registerInfix(Token.EQ, this.parseInfixExpression.bind(this));
-    this.registerInfix(Token.NOT_EQ, this.parseInfixExpression.bind(this));
-    this.registerInfix(Token.LT, this.parseInfixExpression.bind(this));
-    this.registerInfix(Token.GT, this.parseInfixExpression.bind(this));
+    this.infixParseFns = {};
+    [
+      Token.PLUS,
+      Token.MINUS,
+      Token.SLASH,
+      Token.ASTERISK,
+      Token.EQ,
+      Token.NOT_EQ,
+      Token.LT,
+      Token.GT,
+    ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
 
     this.nextToken();
     this.nextToken();
@@ -275,5 +270,54 @@ export default class Parser {
     }
 
     return exp;
+  }
+
+  parseIfExpression() {
+    let expression = new IfExpression(this.curToken);
+
+    if (!this.expectPeek(Token.LPAREN)) {
+      return null;
+    }
+
+    this.nextToken();
+    expression.Condition = this.parseExpression(LOWEST);
+
+    if (!this.expectPeek(Token.RPAREN)) {
+      return null;
+    }
+
+    if (!this.expectPeek(Token.LBRACE)) {
+      return null;
+    }
+
+    expression.Consequence = this.parseBlockStatement();
+
+    if (this.peekTokenIs(Token.ELSE)) {
+      this.nextToken();
+
+      if (!this.expectPeek(Token.LBRACE)) {
+        return null;
+      }
+
+      expression.Alternative = this.parseBlockStatement();
+    }
+
+    return expression;
+  }
+
+  parseBlockStatement() {
+    let block = new BlockStatement(this.curToken);
+
+    this.nextToken();
+
+    while (!this.curTokenIs(Token.RBRACE) && !this.curTokenIs(Token.EOF)) {
+      let stmt = this.parseStatement();
+      if (stmt !== null) {
+        block.Statements.push(stmt);
+      }
+      this.nextToken();
+    }
+
+    return block;
   }
 }
