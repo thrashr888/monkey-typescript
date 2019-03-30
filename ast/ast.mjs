@@ -26,13 +26,8 @@ export class ASTProgram {
   }
 
   String() {
-    let out = '';
-
-    for (let s of this.Statements) {
-      out += s.String();
-    }
-
-    return out;
+    let stmts = this.Statements.map(s => s.String());
+    return stmts.join('');
   }
 }
 
@@ -213,11 +208,33 @@ export class FunctionLiteral extends BlockStatement {
   String() {
     let out = '';
 
-    let params = this.Parameters.forEach(p => p.String());
+    let params = this.Parameters.map(p => p.String());
 
     out += `${this.TokenLiteral()}(`;
     out += params.join(', ');
     out += `) ${this.Body.String()}`;
+
+    return out;
+  }
+}
+
+export class CallExpression extends Expression {
+  constructor(token, func = null, args = null) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Function = func;
+    this.Arguments = args;
+  }
+
+  String() {
+    let out = '';
+
+    let args = this.Arguments.map(a => a.String());
+
+    out += `${this.Function.String()}(`;
+    out += args.join(', ');
+    out += `)`;
 
     return out;
   }

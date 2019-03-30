@@ -12,6 +12,7 @@ import {
   IfExpression,
   BlockStatement,
   FunctionLiteral,
+  CallExpression,
 } from '../ast/ast.mjs';
 
 export const LOWEST = 1,
@@ -31,6 +32,7 @@ export const precedences = {
   [Token.MINUS]: SUM,
   [Token.SLASH]: PRODUCT,
   [Token.ASTERISK]: PRODUCT,
+  [Token.LPAREN]: CALL,
 };
 
 export default class Parser {
@@ -67,6 +69,8 @@ export default class Parser {
       Token.LT,
       Token.GT,
     ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
+
+    this.registerInfix(Token.LPAREN, this.parseCallExpression.bind(this));
 
     this.nextToken();
     this.nextToken();
@@ -368,5 +372,35 @@ export default class Parser {
     }
 
     return identifiers;
+  }
+
+  parseCallExpression(func) {
+    let exp = new CallExpression(this.curToken, func);
+    exp.Arguments = this.parseCallArguments();
+    return exp;
+  }
+
+  parseCallArguments() {
+    let args = [];
+
+    if (this.peekTokenIs(Token.RPAREN)) {
+      this.nextToken();
+      return args;
+    }
+
+    this.nextToken();
+    args.push(this.parseExpression(LOWEST));
+
+    while (this.peekTokenIs(Token.COMMA)) {
+      this.nextToken();
+      this.nextToken();
+      args.push(this.parseExpression(LOWEST));
+    }
+
+    if (!this.expectPeek(Token.RPAREN)) {
+      return null;
+    }
+
+    return args;
   }
 }

@@ -14,6 +14,7 @@ export function TestParser(t) {
   TestIfElseExpression(t);
   TestFunctionLiteralParsing(t);
   TestFunctionParameterParsing(t);
+  TestCallExpressionParsing(t);
 }
 
 export function TestLetStatements(t) {
@@ -289,6 +290,9 @@ function TestOperatorPrecedenceParsing(t) {
     ['(5 + 5) * 2 * (5 + 5)', '(((5 + 5) * 2) * (5 + 5))'],
     ['-(5 + 5)', '(-(5 + 5))'],
     ['!(true == true)', '(!(true == true))'],
+    ['a + add(b * c) + d', '((a + add((b * c))) + d)'],
+    ['add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))', 'add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))'],
+    ['add(a + b + c * d / f + g)', 'add((((a + b) + ((c * d) / f)) + g))'],
   ];
   for (let i in tests) {
     let tt = tests[i];
@@ -623,4 +627,42 @@ function TestFunctionParameterParsing(t) {
       testLiteralExpression(t, func.Parameters[i], ident);
     });
   }
+}
+
+function TestCallExpressionParsing(t) {
+  let input = 'add(1, 2 * 3, 4 + 5)';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  t.Assert(
+    stmt.constructor.name === 'ExpressionStatement',
+    'program.Statements[0] not type ExpressionStatement. got=%s',
+    stmt.constructor.name
+  );
+
+  let exp = stmt.Expression;
+  t.Assert(
+    exp.constructor.name === 'CallExpression',
+    'stmt.Expression is not type CallExpression. got=',
+    exp.constructor.name
+  );
+
+  if (!testIdentifier(t, exp.Function, 'add')) {
+    return;
+  }
+
+  t.Assert(exp.Arguments.length === 3, 'wrong length of arguments. want 3. got=', exp.Arguments.length);
+
+  testLiteralExpression(t, exp.Arguments[0], 1);
+  testInfixExpression(t, exp.Arguments[1], 2, '*', 3);
+  testInfixExpression(t, exp.Arguments[2], 4, '+', 5);
 }
