@@ -113,13 +113,21 @@ export default class Parser {
   parseLetStatement() {
     let stmt = new LetStatement(this.curToken);
 
-    if (!this.expectPeek(Token.IDENT)) return null;
+    if (!this.expectPeek(Token.IDENT)) {
+      return null;
+    }
 
     stmt.Name = new Identifier(this.curToken, this.curToken.Literal);
 
-    if (!this.expectPeek(Token.ASSIGN)) return null;
+    if (!this.expectPeek(Token.ASSIGN)) {
+      return null;
+    }
 
-    while (!this.curTokenIs(Token.SEMICOLON)) {
+    this.nextToken();
+
+    stmt.Value = this.parseExpression(LOWEST);
+
+    if (this.peekTokenIs(Token.SEMICOLON)) {
       this.nextToken();
     }
 
@@ -131,9 +139,9 @@ export default class Parser {
 
     this.nextToken();
 
-    // TODO add expression
+    stmt.ReturnValue = this.parseExpression(LOWEST);
 
-    while (!this.curTokenIs(Token.SEMICOLON)) {
+    if (this.peekTokenIs(Token.SEMICOLON)) {
       this.nextToken();
     }
 

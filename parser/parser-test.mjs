@@ -18,31 +18,36 @@ export function TestParser(t) {
 }
 
 export function TestLetStatements(t) {
-  let input = `
-let x = 5;
-let y = 10;
-let foobar = 838383;
-`;
-
-  let l = new Lexer(input);
-  let p = new Parser(l);
-  let program = p.ParseProgram();
-  checkParserErrors(t, p);
-
-  t.Assert(program !== null, 'ParseProgram() returned nil');
-  t.Assert(
-    program.Statements.length === 3,
-    'program.Statements does not contain 3 statements. got=%d',
-    program.Statements.length
-  );
-
-  let tests = [['x'], ['y'], ['foobar']];
+  let tests = [
+    { input: 'let x = 5;', expectedIdentifier: 'x', expectedValue: 5 },
+    { input: 'let y = true;', expectedIdentifier: 'y', expectedValue: true },
+    { input: 'let foobar = y;', expectedIdentifier: 'foobar', expectedValue: 'y' },
+  ];
 
   for (let i in tests) {
     let tt = tests[i];
-    let stmt = program.Statements[i];
 
-    t.Assert(testLetStatement(t, stmt, tt[0]), 'testLetStatement failed');
+    let l = new Lexer(tt.input);
+    let p = new Parser(l);
+    let program = p.ParseProgram();
+    checkParserErrors(t, p);
+
+    t.Assert(program !== null, 'ParseProgram() returned nil');
+    t.Assert(
+      program.Statements.length === 1,
+      'program.Statements does not contain 3 statements. got=%d',
+      program.Statements.length
+    );
+
+    let stmt = program.Statements[0];
+    if (!testLetStatement(t, stmt, tt.expectedIdentifier)) {
+      return;
+    }
+
+    let val = stmt.Value;
+    if (!testLiteralExpression(t, val, tt.expectedValue)) {
+      return;
+    }
   }
 }
 
