@@ -200,3 +200,25 @@ export class BlockStatement extends Statement {
     return out;
   }
 }
+
+export class FunctionLiteral extends BlockStatement {
+  constructor(token, parameters = [], body = null) {
+    super(...arguments);
+
+    this.Token = token;
+    this.Parameters = parameters;
+    this.Body = body;
+  }
+
+  String() {
+    let out = '';
+
+    let params = this.Parameters.forEach(p => p.String());
+
+    out += `${this.TokenLiteral()}(`;
+    out += params.join(', ');
+    out += `) ${this.Body.String()}`;
+
+    return out;
+  }
+}

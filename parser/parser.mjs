@@ -11,6 +11,7 @@ import {
   AstBoolean,
   IfExpression,
   BlockStatement,
+  FunctionLiteral,
 } from '../ast/ast.mjs';
 
 export const LOWEST = 1,
@@ -52,6 +53,8 @@ export default class Parser {
     this.registerPrefix(Token.LPAREN, this.parseGroupedExpression.bind(this));
 
     this.registerPrefix(Token.IF, this.parseIfExpression.bind(this));
+
+    this.registerPrefix(Token.FUNCTION, this.parseFunctionLiteral.bind(this));
 
     this.infixParseFns = {};
     [
@@ -319,5 +322,51 @@ export default class Parser {
     }
 
     return block;
+  }
+
+  parseFunctionLiteral() {
+    let lit = new FunctionLiteral(this.curToken);
+
+    if (!this.expectPeek(Token.LPAREN)) {
+      return null;
+    }
+
+    lit.Parameters = this.parseFunctionParameters();
+
+    if (!this.expectPeek(Token.LBRACE)) {
+      return null;
+    }
+
+    lit.Body = this.parseBlockStatement();
+
+    return lit;
+  }
+
+  parseFunctionParameters() {
+    let identifiers = [];
+
+    if (this.peekTokenIs(Token.RPAREN)) {
+      this.nextToken();
+      return identifiers;
+    }
+
+    this.nextToken();
+
+    let ident = new Identifier(this.curToken, this.curToken.Literal);
+    identifiers.push(ident);
+
+    while (this.peekTokenIs(Token.COMMA)) {
+      this.nextToken();
+      this.nextToken();
+
+      ident = new Identifier(this.curToken, this.curToken.Literal);
+      identifiers.push(ident);
+    }
+
+    if (!this.expectPeek(Token.RPAREN)) {
+      return null;
+    }
+
+    return identifiers;
   }
 }

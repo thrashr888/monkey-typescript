@@ -12,6 +12,8 @@ export function TestParser(t) {
   TestBooleanExpression(t);
   TestIfExpression(t);
   TestIfElseExpression(t);
+  TestFunctionLiteralParsing(t);
+  TestFunctionParameterParsing(t);
 }
 
 export function TestLetStatements(t) {
@@ -539,5 +541,86 @@ function TestIfElseExpression(t) {
 
   if (!testIdentifier(t, alternative.Expression, 'y')) {
     return;
+  }
+}
+
+function TestFunctionLiteralParsing(t) {
+  let input = 'fn(x, y) { x + y; }';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  t.Assert(
+    stmt.constructor.name === 'ExpressionStatement',
+    'program.Statements[0] not type ExpressionStatement. got=%s',
+    stmt.constructor.name
+  );
+
+  let func = stmt.Expression;
+  t.Assert(
+    func.constructor.name === 'FunctionLiteral',
+    'stmt.Expression is not type FunctionLiteral. got=',
+    func.constructor.name
+  );
+  t.Assert(
+    func.Parameters.length === 2,
+    'function literal parameters wrong. want 2. got=',
+    func.Parameters.length
+  );
+
+  testLiteralExpression(t, func.Parameters[0], 'x');
+  testLiteralExpression(t, func.Parameters[1], 'y');
+
+  t.Assert(
+    func.Body.Statements.length === 1,
+    'function.Body.Statements has not 1 statements. got=',
+    func.Body.Statements.length
+  );
+
+  let bodyStmt = func.Body.Statements[0];
+  t.Assert(
+    bodyStmt.constructor.name === 'ExpressionStatement',
+    'function body statement is not type ExpressionStatement. got=',
+    bodyStmt.constructor.name
+  );
+
+  testInfixExpression(t, bodyStmt.Expression, 'x', '+', 'y');
+}
+
+function TestFunctionParameterParsing(t) {
+  let tests = [
+    { input: 'fn() {};', expectedParams: [] },
+    { input: 'fn(x) {};', expectedParams: ['x'] },
+    { input: 'fn(x, y, z) {};', expectedParams: ['x', 'y', 'z'] },
+  ];
+  for (let i in tests) {
+    let tt = tests[i];
+
+    let l = new Lexer(tt.input);
+    let p = new Parser(l);
+    let program = p.ParseProgram();
+    checkParserErrors(t, p);
+
+    let stmt = program.Statements[0];
+    let func = stmt.Expression;
+
+    t.Assert(
+      func.Parameters.length === tt.expectedParams.length,
+      'func.Parameters does not contain %d statements. got=%d',
+      tt.expectedParams.length,
+      func.Parameters.length
+    );
+
+    tt.expectedParams.forEach((ident, i) => {
+      testLiteralExpression(t, func.Parameters[i], ident);
+    });
   }
 }
