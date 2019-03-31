@@ -4,7 +4,7 @@ import process from 'process';
 
 const PROMPT = '>> ';
 
-export function Start(input) {
+export function Start(input: NodeJS.ReadStream) {
   process.stdout.write(PROMPT);
 
   let prevLine;
@@ -43,9 +43,9 @@ const MONKEY_FACE = `            __,__
            '-----'
 `;
 
-function printParserErrors(errors) {
+function printParserErrors(errors: Array<string>) {
   console.log(MONKEY_FACE);
   console.log('Woops! We ran into some monkey business here!');
   console.log(' parser errors:');
-  errors.forEach(msg => console.log(`\t${msg}`));
+  errors.forEach((msg: string) => console.log(`\t${msg}`));
 }

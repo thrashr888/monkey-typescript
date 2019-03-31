@@ -1,11 +1,12 @@
 import Token from '../token/token';
 import Lexer from './lexer';
+import Test from '../test';
 
-export function TestLexer(t) {
+export function TestLexer(t: Test) {
   TestNextToken(t);
 }
 
-export function TestNextToken(t) {
+export function TestNextToken(t: Test) {
   let input = `let five = 5;
 let ten = 10;
 

@@ -11,3 +11,8 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 golang-interpreter
+
+# Javascript Dependencies
+node_modules
+npm-debug.log
+build/

@@ -1,7 +1,25 @@
 import Lexer from '../lexer/lexer';
 import Parser from './parser';
+import Test from '../test';
+import {
+  AstBoolean,
+  ASTProgram,
+  BlockStatement,
+  CallExpression,
+  Expression,
+  ExpressionStatement,
+  FunctionLiteral,
+  Identifier,
+  IfExpression,
+  InfixExpression,
+  IntegerLiteral,
+  LetStatement,
+  PrefixExpression,
+  ReturnStatement,
+  Statement,
+} from '../ast/ast';
 
-export function TestParser(t) {
+export function TestParser(t: Test) {
   TestLetStatements(t);
   TestReturnStatements(t);
   TestIdentifierExpression(t);
@@ -17,7 +35,7 @@ export function TestParser(t) {
   TestCallExpressionParsing(t);
 }
 
-export function TestLetStatements(t) {
+export function TestLetStatements(t: Test) {
   let tests = [
     { input: 'let x = 5;', expectedIdentifier: 'x', expectedValue: 5 },
     { input: 'let y = true;', expectedIdentifier: 'y', expectedValue: true },
@@ -51,7 +69,7 @@ export function TestLetStatements(t) {
   }
 }
 
-function checkParserErrors(t, p) {
+function checkParserErrors(t: Test, p: Parser) {
   let errors = p.Errors();
   if (errors.length === 0) return;
 
@@ -63,9 +81,9 @@ function checkParserErrors(t, p) {
   t.FailNow();
 }
 
-function testLetStatement(t, stmt, name) {
+function testLetStatement(t: Test, stmt: Statement, name: string): boolean {
   t.Assert(stmt.TokenLiteral() === 'let', `s.TokenLiteral not 'let'. got=${stmt.TokenLiteral()}`);
-  t.Assert(stmt.constructor.name === 'LetStatement', `s not got=LetStatement. got=${stmt.constructor.name}`);
+  t.Assert(stmt instanceof LetStatement, `s not got=LetStatement. got=${stmt.constructor.name}`);
   t.Assert(stmt.Name.Value === name, `stmt.Name.Value not ${name}. got=${stmt.Name.Value}`);
   t.Assert(
     stmt.Name.TokenLiteral() === name,
@@ -74,7 +92,7 @@ function testLetStatement(t, stmt, name) {
   return true;
 }
 
-export function TestReturnStatements(t) {
+export function TestReturnStatements(t: Test) {
   let input = `
 return 5;
 return 10;
@@ -94,16 +112,12 @@ return 838383;
   );
 
   for (let stmt of program.Statements) {
-    t.Assert(
-      stmt.constructor.name === 'ReturnStatement',
-      'stmt not type ReturnStatement. got=%s',
-      stmt.constructor.name
-    );
+    t.Assert(stmt instanceof ReturnStatement, 'stmt not type ReturnStatement. got=%s', stmt.constructor.name);
     t.Assert(stmt.TokenLiteral() === 'return', 'stmt.TokenLiteral not "return". got=%s', stmt.TokenLiteral());
   }
 }
 
-export function TestIdentifierExpression(t) {
+export function TestIdentifierExpression(t: Test) {
   let input = 'foobar';
 
   let l = new Lexer(input);
@@ -118,16 +132,12 @@ export function TestIdentifierExpression(t) {
   );
   let stmt = program.Statements[0];
   t.Assert(
-    stmt.constructor.name === 'ExpressionStatement',
+    stmt instanceof ExpressionStatement,
     'program.Statements[0] not type ExpressionStatement. got=%s',
     stmt.constructor.name
   );
   let ident = stmt.Expression;
-  t.Assert(
-    ident.constructor.name === 'Identifier',
-    'exp not type Identifier. got=%s',
-    ident.constructor.name
-  );
+  t.Assert(ident instanceof Identifier, 'exp not type Identifier. got=%s', ident.constructor.name);
   t.Assert(ident.Value === 'foobar', 'ident.Value is not "foobar". got=%s', ident.Value);
   t.Assert(
     ident.TokenLiteral() === 'foobar',
@@ -136,7 +146,7 @@ export function TestIdentifierExpression(t) {
   );
 }
 
-export function TestIntegerExpression(t) {
+export function TestIntegerExpression(t: Test) {
   let input = '5';
 
   let l = new Lexer(input);
@@ -151,13 +161,13 @@ export function TestIntegerExpression(t) {
   );
   let stmt = program.Statements[0];
   t.Assert(
-    stmt.constructor.name === 'ExpressionStatement',
+    stmt instanceof ExpressionStatement,
     'program.Statements[0] not type ExpressionStatement. got=%s',
     stmt.constructor.name
   );
   let literal = stmt.Expression;
   t.Assert(
-    literal.constructor.name === 'IntegerLiteral',
+    literal instanceof IntegerLiteral,
     'exp not type IntegerLiteral. got=%s',
     literal.constructor.name
   );
@@ -165,7 +175,7 @@ export function TestIntegerExpression(t) {
   t.Assert(literal.TokenLiteral() === '5', 'literal.TokenLiteral is not "5". got=%s', literal.TokenLiteral());
 }
 
-export function TestParsingPrefixExpressions(t) {
+export function TestParsingPrefixExpressions(t: Test) {
   let prefixTests = [
     { input: '!5', operator: '!', value: 5 },
     { input: '-15', operator: '-', value: 15 },
@@ -188,16 +198,12 @@ export function TestParsingPrefixExpressions(t) {
     );
     let stmt = program.Statements[0];
     t.Assert(
-      stmt.constructor.name === 'ExpressionStatement',
+      stmt instanceof ExpressionStatement,
       'program.Statements[0] not type ExpressionStatement. got=%s',
       stmt.constructor.name
     );
     let exp = stmt.Expression;
-    t.Assert(
-      exp.constructor.name === 'PrefixExpression',
-      'stmt not type PrefixExpression. got=%s',
-      exp.constructor.name
-    );
+    t.Assert(exp instanceof PrefixExpression, 'stmt not type PrefixExpression. got=%s', exp.constructor.name);
     t.Assert(exp.Operator === tt.operator, 'exp.Operator is not %s. got=%s', tt.operator, exp.Operator);
 
     if (!testLiteralExpression(t, exp.Right, tt.value)) {
@@ -206,11 +212,11 @@ export function TestParsingPrefixExpressions(t) {
   }
 }
 
-function testIntegerLiteral(t, il, value) {
+function testIntegerLiteral(t: Test, il: Expression, value: number): boolean {
   let integ = il;
   let ok;
 
-  ok = il.constructor.name === 'IntegerLiteral';
+  ok = il instanceof IntegerLiteral;
   if (!ok) {
     t.Assert(ok, 'il not type IntegerLiteral. got=%s', il.constructor.name);
     return false;
@@ -231,7 +237,7 @@ function testIntegerLiteral(t, il, value) {
   return true;
 }
 
-function TestParsingInfixExpressions(t) {
+function TestParsingInfixExpressions(t: Test) {
   let infixTests = [
     { input: '5 + 5;', leftValue: 5, operator: '+', rightValue: 5 },
     { input: '5 - 5;', leftValue: 5, operator: '-', rightValue: 5 },
@@ -260,7 +266,7 @@ function TestParsingInfixExpressions(t) {
     );
     let stmt = program.Statements[0];
     t.Assert(
-      stmt.constructor.name === 'ExpressionStatement',
+      stmt instanceof ExpressionStatement,
       'program.Statements[0] not type ExpressionStatement. got=%s',
       stmt.constructor.name
     );
@@ -271,7 +277,7 @@ function TestParsingInfixExpressions(t) {
   }
 }
 
-function TestOperatorPrecedenceParsing(t) {
+function TestOperatorPrecedenceParsing(t: Test) {
   let tests = [
     ['-a * b', '((-a) * b)'],
     ['!-a', '(!(-a))'],
@@ -312,11 +318,11 @@ function TestOperatorPrecedenceParsing(t) {
   }
 }
 
-function testIdentifier(t, exp, value) {
+function testIdentifier(t: Test, exp: Expression, value: string): boolean {
   let ident = exp;
   let ok;
 
-  ok = ident.constructor.name === 'Identifier';
+  ok = ident instanceof Identifier;
   if (!ok) {
     t.Assert(ok, 'exp is not Identifier. got=%s', exp);
     return false;
@@ -337,11 +343,11 @@ function testIdentifier(t, exp, value) {
   return true;
 }
 
-function testBooleanLiteral(t, exp, value) {
+function testBooleanLiteral(t: Test, exp: Expression, value: boolean): boolean {
   let bo = exp;
   let ok;
 
-  ok = bo.constructor.name === 'AstBoolean';
+  ok = bo instanceof AstBoolean;
   if (!ok) {
     t.Assert(ok, 'exp is not AstBoolean. got=%s', exp);
     return false;
@@ -362,7 +368,7 @@ function testBooleanLiteral(t, exp, value) {
   return true;
 }
 
-function testLiteralExpression(t, exp, expected) {
+function testLiteralExpression(t: Test, exp: Expression, expected: any): boolean {
   switch (expected.constructor.name) {
     case 'Number':
       return testIntegerLiteral(t, exp, expected);
@@ -376,11 +382,11 @@ function testLiteralExpression(t, exp, expected) {
   }
 }
 
-function testInfixExpression(t, exp, left, operator, right) {
+function testInfixExpression(t: Test, exp: Expression, left: any, operator: string, right: any): boolean {
   let opExp = exp;
   let ok;
 
-  ok = opExp.constructor.name === 'InfixExpression';
+  ok = opExp instanceof InfixExpression;
   if (!ok) {
     t.Assert(ok, 'exp not InfixExpression. got=%s(%s)', opExp.constructor.name, opExp);
     return false;
@@ -403,7 +409,7 @@ function testInfixExpression(t, exp, left, operator, right) {
   return true;
 }
 
-export function TestBooleanExpression(t) {
+export function TestBooleanExpression(t: Test) {
   let tests = [['true', true], ['false', false]];
   for (let i in tests) {
     let tt = tests[i];
@@ -421,22 +427,18 @@ export function TestBooleanExpression(t) {
 
     let stmt = program.Statements[0];
     t.Assert(
-      stmt.constructor.name === 'ExpressionStatement',
+      stmt instanceof ExpressionStatement,
       'program.Statements[0] not type ExpressionStatement. got=%s',
       stmt.constructor.name
     );
 
     let boolean = stmt.Expression;
-    t.Assert(
-      boolean.constructor.name === 'AstBoolean',
-      'exp not type AstBoolean. got=%s',
-      boolean.constructor.name
-    );
+    t.Assert(boolean instanceof AstBoolean, 'exp not type AstBoolean. got=%s', boolean.constructor.name);
     t.Assert(boolean.Value === tt[1], 'boolean.Value is not %s. got=%s', tt[1], boolean.Value);
   }
 }
 
-function TestIfExpression(t) {
+function TestIfExpression(t: Test) {
   let input = 'if (x < y) { x }';
 
   let l = new Lexer(input);
@@ -451,14 +453,14 @@ function TestIfExpression(t) {
   );
   let stmt = program.Statements[0];
   t.Assert(
-    stmt.constructor.name === 'ExpressionStatement',
+    stmt instanceof ExpressionStatement,
     'program.Statements[0] not type ExpressionStatement. got=%s',
     stmt.constructor.name
   );
 
   let exp = stmt.Expression;
   t.Assert(
-    exp.constructor.name === 'IfExpression',
+    exp instanceof IfExpression,
     'stmt.Expression is not type IfExpression. got=',
     exp.constructor.name
   );
@@ -475,7 +477,7 @@ function TestIfExpression(t) {
 
   let consequence = exp.Consequence.Statements[0];
   t.Assert(
-    consequence.constructor.name === 'ExpressionStatement',
+    consequence instanceof ExpressionStatement,
     'Statements[0] is not ExpressionStatement. got=%s',
     consequence.constructor.name
   );
@@ -487,7 +489,7 @@ function TestIfExpression(t) {
   t.Assert(exp.Alternative === null, 'exp.Alternative.Statements was not null. got=%s', exp.Alternative);
 }
 
-function TestIfElseExpression(t) {
+function TestIfElseExpression(t: Test) {
   let input = 'if (x < y) { x } else { y }';
 
   let l = new Lexer(input);
@@ -502,14 +504,14 @@ function TestIfElseExpression(t) {
   );
   let stmt = program.Statements[0];
   t.Assert(
-    stmt.constructor.name === 'ExpressionStatement',
+    stmt instanceof ExpressionStatement,
     'program.Statements[0] not type ExpressionStatement. got=%s',
     stmt.constructor.name
   );
 
   let exp = stmt.Expression;
   t.Assert(
-    exp.constructor.name === 'IfExpression',
+    exp instanceof IfExpression,
     'stmt.Expression is not type IfExpression. got=',
     exp.constructor.name
   );
@@ -526,7 +528,7 @@ function TestIfElseExpression(t) {
 
   let consequence = exp.Consequence.Statements[0];
   t.Assert(
-    consequence.constructor.name === 'ExpressionStatement',
+    consequence instanceof ExpressionStatement,
     'Statements[0] is not ExpressionStatement. got=%s',
     consequence.constructor.name
   );
@@ -543,7 +545,7 @@ function TestIfElseExpression(t) {
 
   let alternative = exp.Alternative.Statements[0];
   t.Assert(
-    alternative.constructor.name === 'ExpressionStatement',
+    alternative instanceof ExpressionStatement,
     'Statements[0] is not ExpressionStatement. got=%s',
     alternative.constructor.name
   );
@@ -553,7 +555,7 @@ function TestIfElseExpression(t) {
   }
 }
 
-function TestFunctionLiteralParsing(t) {
+function TestFunctionLiteralParsing(t: Test) {
   let input = 'fn(x, y) { x + y; }';
 
   let l = new Lexer(input);
@@ -568,14 +570,14 @@ function TestFunctionLiteralParsing(t) {
   );
   let stmt = program.Statements[0];
   t.Assert(
-    stmt.constructor.name === 'ExpressionStatement',
+    stmt instanceof ExpressionStatement,
     'program.Statements[0] not type ExpressionStatement. got=%s',
     stmt.constructor.name
   );
 
   let func = stmt.Expression;
   t.Assert(
-    func.constructor.name === 'FunctionLiteral',
+    func instanceof FunctionLiteral,
     'stmt.Expression is not type FunctionLiteral. got=',
     func.constructor.name
   );
@@ -596,7 +598,7 @@ function TestFunctionLiteralParsing(t) {
 
   let bodyStmt = func.Body.Statements[0];
   t.Assert(
-    bodyStmt.constructor.name === 'ExpressionStatement',
+    bodyStmt instanceof ExpressionStatement,
     'function body statement is not type ExpressionStatement. got=',
     bodyStmt.constructor.name
   );
@@ -604,7 +606,7 @@ function TestFunctionLiteralParsing(t) {
   testInfixExpression(t, bodyStmt.Expression, 'x', '+', 'y');
 }
 
-function TestFunctionParameterParsing(t) {
+function TestFunctionParameterParsing(t: Test) {
   let tests = [
     { input: 'fn() {};', expectedParams: [] },
     { input: 'fn(x) {};', expectedParams: ['x'] },
@@ -634,7 +636,7 @@ function TestFunctionParameterParsing(t) {
   }
 }
 
-function TestCallExpressionParsing(t) {
+function TestCallExpressionParsing(t: Test) {
   let input = 'add(1, 2 * 3, 4 + 5)';
 
   let l = new Lexer(input);
@@ -649,14 +651,14 @@ function TestCallExpressionParsing(t) {
   );
   let stmt = program.Statements[0];
   t.Assert(
-    stmt.constructor.name === 'ExpressionStatement',
+    stmt instanceof ExpressionStatement,
     'program.Statements[0] not type ExpressionStatement. got=%s',
     stmt.constructor.name
   );
 
   let exp = stmt.Expression;
   t.Assert(
-    exp.constructor.name === 'CallExpression',
+    exp instanceof CallExpression,
     'stmt.Expression is not type CallExpression. got=',
     exp.constructor.name
   );

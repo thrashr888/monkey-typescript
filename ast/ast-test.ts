@@ -1,11 +1,12 @@
-import { ASTProgram, LetStatement, Identifier } from './ast.mjs';
+import { ASTProgram, LetStatement, Identifier } from './ast';
 import Token from '../token/token';
+import Test from '../test';
 
-export function TestAst(t) {
+export function TestAst(t: Test) {
   TestString(t);
 }
 
-export function TestString(t) {
+export function TestString(t: Test) {
   let program = new ASTProgram();
   program.Statements = [
     new LetStatement(

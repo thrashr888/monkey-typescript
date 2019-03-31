@@ -1,17 +1,19 @@
 import Token, { LookupIdent } from '../token/token';
 
 export default class Lexer {
-  constructor(input) {
+  input: string;
+  position: number = 0; // current position in input (points to current char)
+  readPosition: number = 0; // current reading position in input (after current char)
+  ch: string | number | null = null; // current char under examination
+
+  constructor(input: string) {
     this.input = input;
-    this.position = 0; // current position in input (points to current char)
-    this.readPosition = 0; // current reading position in input (after current char)
-    this.ch = null; // current char under examination
 
     this.readChar();
   }
 
   NextToken() {
-    let tok = new Token();
+    let tok;
 
     this.skipWhitespace();
 
@@ -73,21 +75,17 @@ export default class Lexer {
         tok = new Token(Token.RPAREN, this.ch);
         break;
       case 0:
-        tok.Literal = '';
-        tok.Type = Token.EOF;
+        tok = new Token(Token.EOF, '');
         break;
 
       default:
         if (isLetter(this.ch)) {
-          tok.Literal = this.readIdentifier();
-          tok.Type = LookupIdent(tok.Literal);
-          return tok;
+          let literal = this.readIdentifier();
+          return new Token(literal, literal);
         } else if (isDigit(this.ch)) {
-          tok.Type = Token.INT;
-          tok.Literal = this.readNumber();
-          return tok;
+          return new Token(Token.INT, this.readNumber());
         } else {
-          tok = new Token(Token.ILLEGAL, this.ch);
+          tok = new Token(Token.ILLEGAL, '' + this.ch);
         }
     }
 
@@ -138,12 +136,13 @@ export default class Lexer {
   }
 }
 
-function isLetter(ch) {
+function isLetter(ch: string | number | null) {
   if (!ch) return false;
   return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch === '_' || ch === '-';
 }
 
-function isDigit(ch) {
+function isDigit(ch: string | number | null) {
   if (!ch) return false;
+  if (typeof ch === 'number') return true;
   return '0123456789'.indexOf(ch) !== -1;
 }

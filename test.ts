@@ -3,14 +3,14 @@ import { TestLexer } from './lexer/lexer-test';
 import { TestParser } from './parser/parser-test';
 
 export default class Test {
-  constructor() {
-    this.TotalCount = 0;
-    this.PassCount = 0;
-    this.FailCount = 0;
-    this.SkipCount = 0;
-  }
+  TotalCount: number = 0;
+  PassCount: number = 0;
+  FailCount: number = 0;
+  SkipCount: number = 0;
 
-  Error(...args) {
+  constructor() {}
+
+  Error(...args: any) {
     this.FailCount++;
     console.error(...args);
   }
@@ -22,26 +22,26 @@ export default class Test {
   Failed() {
     return !!this.FailCount;
   }
-  Fatal(...args) {
+  Fatal(...args: any) {
     this.FailCount++;
     console.error(...args);
     throw new Error('FAIL');
   }
   // Fatalf(format, ...args) {}
   // Helper() {}
-  Log(...args) {
+  Log(...args: any) {
     console.log(...args);
   }
-  Logf(format, ...args) {
+  Logf(format: string, ...args: any) {
     console.log(format, ...args);
   }
   // Name() {}
-  Skip(...args) {
+  Skip(...args: any) {
     this.SkipCount++;
     console.info('Skipped', ...args);
   }
   // SkipNow() {}
-  Skipf(format, ...args) {
+  Skipf(format: string, ...args: any) {
     this.SkipCount++;
     console.info('Skipped', format, ...args);
   }
@@ -49,7 +49,7 @@ export default class Test {
     return !!this.SkipCount;
   }
 
-  Assert(test, message, ...args) {
+  Assert(test: boolean, message: string, ...args: any) {
     this.TotalCount++;
 
     if (test) {
@@ -60,12 +60,12 @@ export default class Test {
     this.Errorf(message, ...args);
   }
 
-  Fatalf(format, ...args) {
+  Fatalf(format: string, ...args: any) {
     this.FailCount++;
     throw new Error(format);
   }
 
-  Errorf(format, ...args) {
+  Errorf(format: string, ...args: any) {
     this.FailCount++;
 
     var err = new Error();

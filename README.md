@@ -1,29 +1,23 @@
-# gi
+# golang-interpreter
 
-working through a golang interpreter book
+Working through a golang interpreter book.
 
 ## Build
 
     $ go build
+    $ nvm use
+    $ npm install
 
 ## Run
 
     $ go run main.go
-
-or
-
-    $ nvm use
-    $ node --experimental-modules main.mjs
+    $ npm start
 
 # Test
 
     $ go test .
-
-or
-
-    $ node --experimental-modules test.mjs
+    $ npm run test
 
 or watch for file changes
 
-    $ npm i -g nodemon
-    $ nodemon --experimental-modules test.mjs
+    $ npm run test:live

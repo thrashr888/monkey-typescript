@@ -1,19 +1,22 @@
 import Token from '../token/token';
+import Lexer from '../lexer/lexer';
 import {
-  ASTProgram,
-  LetStatement,
-  ReturnStatement,
-  ExpressionStatement,
-  Identifier,
-  IntegerLiteral,
-  PrefixExpression,
-  InfixExpression,
   AstBoolean,
-  IfExpression,
+  ASTProgram,
   BlockStatement,
-  FunctionLiteral,
   CallExpression,
-} from '../ast/ast.mjs';
+  Expression,
+  ExpressionStatement,
+  FunctionLiteral,
+  Identifier,
+  IfExpression,
+  InfixExpression,
+  IntegerLiteral,
+  LetStatement,
+  PrefixExpression,
+  ReturnStatement,
+  Statement,
+} from '../ast/ast';
 
 export const LOWEST = 1,
   EQUALS = 2, // ==
@@ -36,14 +39,18 @@ export const precedences = {
 };
 
 export default class Parser {
-  constructor(lexer) {
+  l: Lexer;
+  errors: Array<string> = [];
+
+  curToken: Token | null = null;
+  peekToken: Token | null = null;
+
+  prefixParseFns: { [index: string]: Function } = {};
+  infixParseFns: { [index: string]: Function } = {};
+
+  constructor(lexer: Lexer) {
     this.l = lexer;
-    this.errors = [];
 
-    this.curToken = null;
-    this.peekToken = null;
-
-    this.prefixParseFns = {};
     this.registerPrefix(Token.IDENT, this.parseIdentifier.bind(this));
     this.registerPrefix(Token.INT, this.parseIntegerLiteral.bind(this));
     this.registerPrefix(Token.BANG, this.parsePrefixExpression.bind(this));
@@ -58,7 +65,6 @@ export default class Parser {
 
     this.registerPrefix(Token.FUNCTION, this.parseFunctionLiteral.bind(this));
 
-    this.infixParseFns = {};
     [
       Token.PLUS,
       Token.MINUS,
@@ -99,7 +105,9 @@ export default class Parser {
     return program;
   }
 
-  parseStatement() {
+  parseStatement(): Statement | null {
+    if (this.curToken === null) return null;
+
     switch (this.curToken.Type) {
       case Token.LET:
         return this.parseLetStatement();
@@ -110,7 +118,9 @@ export default class Parser {
     }
   }
 
-  parseLetStatement() {
+  parseLetStatement(): Statement | null {
+    if (this.curToken === null) return null;
+
     let stmt = new LetStatement(this.curToken);
 
     if (!this.expectPeek(Token.IDENT)) {
@@ -135,6 +145,8 @@ export default class Parser {
   }
 
   parseReturnStatement() {
+    if (this.curToken === null) return null;
+
     let stmt = new ReturnStatement(this.curToken);
 
     this.nextToken();
@@ -149,6 +161,8 @@ export default class Parser {
   }
 
   parseExpressionStatement() {
+    if (this.curToken === null) return null;
+
     let stmt = new ExpressionStatement(this.curToken);
 
     stmt.Expression = this.parseExpression(LOWEST);
@@ -160,7 +174,10 @@ export default class Parser {
     return stmt;
   }
 
-  parseExpression(precedence) {
+  parseExpression(precedence: number) {
+    if (this.curToken === null) return null;
+    if (this.peekToken === null) return null;
+
     if (!this.prefixParseFns[this.curToken.Type]) {
       this.noPrefixParseFnError(this.curToken.Type);
       return null;
@@ -185,10 +202,13 @@ export default class Parser {
   }
 
   parseIdentifier() {
+    if (this.curToken === null) return null;
     return new Identifier(this.curToken, this.curToken.Literal);
   }
 
   parseIntegerLiteral() {
+    if (this.curToken === null) return null;
+
     let lit = new IntegerLiteral(this.curToken);
 
     try {
@@ -203,15 +223,19 @@ export default class Parser {
     }
   }
 
-  curTokenIs(t) {
+  curTokenIs(t: string) {
+    if (this.curToken === null) return null;
+
     return this.curToken.Type === t;
   }
 
-  peekTokenIs(t) {
+  peekTokenIs(t: string) {
+    if (this.peekToken === null) return null;
+
     return this.peekToken.Type === t;
   }
 
-  expectPeek(t) {
+  expectPeek(t: string) {
     if (this.peekTokenIs(t)) {
       this.nextToken();
       return true;
@@ -221,25 +245,29 @@ export default class Parser {
     }
   }
 
-  peekError(t) {
+  peekError(t: string): void {
+    if (this.peekToken === null) return;
+
     let msg = `expected next token to be ${t}, got ${this.peekToken.Type} instead`;
     this.errors.push(msg);
   }
 
-  registerPrefix(tokenType, fn) {
+  registerPrefix(tokenType: string, fn: Function) {
     this.prefixParseFns[tokenType] = fn;
   }
 
-  registerInfix(tokenType, fn) {
+  registerInfix(tokenType: string, fn: Function) {
     this.infixParseFns[tokenType] = fn;
   }
 
-  noPrefixParseFnError(t) {
+  noPrefixParseFnError(t: string) {
     let msg = `no prefix parse function for ${t} found`;
     this.errors.push(msg);
   }
 
   parsePrefixExpression() {
+    if (this.curToken === null) return null;
+
     let expression = new PrefixExpression(this.curToken, this.curToken.Literal);
 
     this.nextToken();
@@ -250,18 +278,24 @@ export default class Parser {
   }
 
   peekPrecedence() {
+    if (this.peekToken === null) return LOWEST;
+
     if (precedences[this.peekToken.Type]) return precedences[this.peekToken.Type];
 
     return LOWEST;
   }
 
   curPrecedence() {
+    if (this.curToken === null) return null;
+
     if (precedences[this.curToken.Type]) return precedences[this.curToken.Type];
 
     return LOWEST;
   }
 
-  parseInfixExpression(left) {
+  parseInfixExpression(left: Expression) {
+    if (this.curToken === null) return null;
+
     let expression = new InfixExpression(this.curToken, left, this.curToken.Literal);
 
     let precedence = this.curPrecedence();
@@ -272,6 +306,8 @@ export default class Parser {
   }
 
   parseBoolean() {
+    if (this.curToken === null) return null;
+
     return new AstBoolean(this.curToken, this.curTokenIs(Token.TRUE));
   }
 
@@ -288,6 +324,8 @@ export default class Parser {
   }
 
   parseIfExpression() {
+    if (this.curToken === null) return null;
+
     let expression = new IfExpression(this.curToken);
 
     if (!this.expectPeek(Token.LPAREN)) {
@@ -321,6 +359,8 @@ export default class Parser {
   }
 
   parseBlockStatement() {
+    if (this.curToken === null) return null;
+
     let block = new BlockStatement(this.curToken);
 
     this.nextToken();
@@ -337,6 +377,8 @@ export default class Parser {
   }
 
   parseFunctionLiteral() {
+    if (this.curToken === null) return null;
+
     let lit = new FunctionLiteral(this.curToken);
 
     if (!this.expectPeek(Token.LPAREN)) {
@@ -355,7 +397,9 @@ export default class Parser {
   }
 
   parseFunctionParameters() {
-    let identifiers = [];
+    if (this.curToken === null) return null;
+
+    let identifiers: Array<Identifier> = [];
 
     if (this.peekTokenIs(Token.RPAREN)) {
       this.nextToken();
@@ -376,20 +420,22 @@ export default class Parser {
     }
 
     if (!this.expectPeek(Token.RPAREN)) {
-      return null;
+      return [];
     }
 
     return identifiers;
   }
 
-  parseCallExpression(func) {
+  parseCallExpression(func: Expression) {
+    if (this.curToken === null) return null;
+
     let exp = new CallExpression(this.curToken, func);
     exp.Arguments = this.parseCallArguments();
     return exp;
   }
 
-  parseCallArguments() {
-    let args = [];
+  parseCallArguments(): Array<Expression> | null {
+    let args: Array<Expression> = [];
 
     if (this.peekTokenIs(Token.RPAREN)) {
       this.nextToken();

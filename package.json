@@ -1,0 +1,30 @@
+{
+  "name": "golang-interpreter",
+  "version": "1.0.0",
+  "description": "working through a golang interpreter book",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build:live",
+    "build": "tsc -p .",
+    "build:live": "nodemon --watch '**/*.ts' --exec 'ts-node' index.ts",
+    "test": "tsc -p test.ts",
+    "test:live": "nodemon --watch '**/*.ts' --exec 'ts-node' test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thrashr888/golang-interpreter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thrashr888/golang-interpreter/issues"
+  },
+  "homepage": "https://github.com/thrashr888/golang-interpreter#readme",
+  "devDependencies": {
+    "@types/node": "^11.12.2",
+    "nodemon": "^1.18.10",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.4.1"
+  }
+}
