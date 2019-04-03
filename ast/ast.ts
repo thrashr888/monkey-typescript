@@ -130,10 +130,10 @@ export class IntegerLiteral extends Expression {
 }
 
 export class PrefixExpression extends Expression {
-  Operator: string | null;
+  Operator: string;
   Right: Expression | null;
 
-  constructor(token: Token, operator = null, right = null) {
+  constructor(token: Token, operator: string, right = null) {
     super(token);
 
     this.Token = token;
@@ -148,11 +148,11 @@ export class PrefixExpression extends Expression {
 }
 
 export class InfixExpression extends Expression {
-  Left: Expression | null;
-  Operator: string | null;
+  Left: Expression;
+  Operator: string;
   Right: Expression | null;
 
-  constructor(token: Token, left = null, operator = null, right = null) {
+  constructor(token: Token, left: Expression, operator: string, right = null) {
     super(token);
 
     this.Token = token;

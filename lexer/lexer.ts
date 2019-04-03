@@ -1,4 +1,4 @@
-import Token, { LookupIdent } from '../token/token';
+import Token, { TokenType } from '../token/token';
 
 export default class Lexer {
   input: string;
@@ -23,59 +23,59 @@ export default class Lexer {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(Token.EQ, literal);
+          tok = new Token(TokenType.EQ, literal);
         } else {
-          tok = new Token(Token.ASSIGN, this.ch);
+          tok = new Token(TokenType.ASSIGN, this.ch);
         }
         break;
       case '+':
-        tok = new Token(Token.PLUS, this.ch);
+        tok = new Token(TokenType.PLUS, this.ch);
         break;
       case '-':
-        tok = new Token(Token.MINUS, this.ch);
+        tok = new Token(TokenType.MINUS, this.ch);
         break;
       case '!':
         if (this.peekChar() === '=') {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(Token.NOT_EQ, literal);
+          tok = new Token(TokenType.NOT_EQ, literal);
         } else {
-          tok = new Token(Token.BANG, this.ch);
+          tok = new Token(TokenType.BANG, this.ch);
         }
         break;
       case '/':
-        tok = new Token(Token.SLASH, this.ch);
+        tok = new Token(TokenType.SLASH, this.ch);
         break;
       case '*':
-        tok = new Token(Token.ASTERISK, this.ch);
+        tok = new Token(TokenType.ASTERISK, this.ch);
         break;
       case '<':
-        tok = new Token(Token.LT, this.ch);
+        tok = new Token(TokenType.LT, this.ch);
         break;
       case '>':
-        tok = new Token(Token.GT, this.ch);
+        tok = new Token(TokenType.GT, this.ch);
         break;
       case ';':
-        tok = new Token(Token.SEMICOLON, this.ch);
+        tok = new Token(TokenType.SEMICOLON, this.ch);
         break;
       case ',':
-        tok = new Token(Token.COMMA, this.ch);
+        tok = new Token(TokenType.COMMA, this.ch);
         break;
       case '{':
-        tok = new Token(Token.LBRACE, this.ch);
+        tok = new Token(TokenType.LBRACE, this.ch);
         break;
       case '}':
-        tok = new Token(Token.RBRACE, this.ch);
+        tok = new Token(TokenType.RBRACE, this.ch);
         break;
       case '(':
-        tok = new Token(Token.LPAREN, this.ch);
+        tok = new Token(TokenType.LPAREN, this.ch);
         break;
       case ')':
-        tok = new Token(Token.RPAREN, this.ch);
+        tok = new Token(TokenType.RPAREN, this.ch);
         break;
       case 0:
-        tok = new Token(Token.EOF, '');
+        tok = new Token(TokenType.EOF, '');
         break;
 
       default:
@@ -83,9 +83,9 @@ export default class Lexer {
           let literal = this.readIdentifier();
           return new Token(literal, literal);
         } else if (isDigit(this.ch)) {
-          return new Token(Token.INT, this.readNumber());
+          return new Token(TokenType.INT, this.readNumber());
         } else {
-          tok = new Token(Token.ILLEGAL, '' + this.ch);
+          tok = new Token(TokenType.ILLEGAL, '' + this.ch);
         }
     }
 

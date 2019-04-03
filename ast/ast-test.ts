@@ -1,5 +1,5 @@
 import { ASTProgram, LetStatement, Identifier } from './ast';
-import Token from '../token/token';
+import Token, { TokenType } from '../token/token';
 import Test from '../test';
 
 export function TestAst(t: Test) {
@@ -10,9 +10,9 @@ export function TestString(t: Test) {
   let program = new ASTProgram();
   program.Statements = [
     new LetStatement(
-      new Token(Token.LET, 'let'),
-      new Identifier(new Token(Token.IDENT, 'myVar'), 'myVar'),
-      new Identifier(new Token(Token.IDENT, 'anotherVar'), 'anotherVar')
+      new Token(TokenType.LET, 'let'),
+      new Identifier(new Token(TokenType.IDENT, 'myVar'), 'myVar'),
+      new Identifier(new Token(TokenType.IDENT, 'anotherVar'), 'anotherVar')
     ),
   ];
 
