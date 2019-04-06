@@ -2,10 +2,11 @@
   "name": "golang-interpreter",
   "version": "1.0.0",
   "description": "working through a golang interpreter book",
-  "main": "index.js",
+  "main": "build/index",
+  "types": "build/index",
   "scripts": {
     "start": "npm run build:live",
-    "build": "ts-node -p .",
+    "build": "tsc -p .",
     "build:live": "nodemon --watch '**/*.ts' --exec 'ts-node' index.ts",
     "test": "ts-node -p test.ts",
     "test:live": "nodemon --watch '**/*.ts' --exec 'ts-node' test.ts",

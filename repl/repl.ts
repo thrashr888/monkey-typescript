@@ -4,7 +4,7 @@ import process from 'process';
 
 const PROMPT = '>> ';
 
-export function Start(input: NodeJS.ReadStream) {
+export default function Start(input: NodeJS.ReadStream) {
   process.stdout.write(PROMPT);
 
   let prevLine;
