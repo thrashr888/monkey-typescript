@@ -7,16 +7,6 @@ export interface Node {
   String(): string;
 }
 
-export interface Statement extends Node {
-  TokenLiteral(): string;
-  String(): string;
-}
-
-export interface Expression extends Node {
-  TokenLiteral(): string;
-  String(): string;
-}
-
 export class ASTProgram implements Node {
   Statements: Statement[] = [];
 
@@ -37,6 +27,10 @@ export class ASTProgram implements Node {
     return stmts.join('');
   }
 }
+
+export interface Statement extends Node {}
+
+export interface Expression extends Node {}
 
 export class LetStatement implements Statement {
   Token: Token;
