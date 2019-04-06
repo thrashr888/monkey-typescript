@@ -1,28 +1,24 @@
 import Token from '../token/token';
 
-export class Node {
-  Token: Token;
+export type AnyNodeType = Node | Statement | Expression | ASTProgram;
 
-  constructor(token: Token) {
-    this.Token = token;
-  }
-
-  TokenLiteral(): string {
-    if (this.Token !== null && this.Token.Literal !== null) return '' + this.Token.Literal;
-    return '';
-  }
-
-  String(): string {
-    return '';
-  }
+export interface Node {
+  TokenLiteral(): string;
+  String(): string;
 }
 
-export class Statement extends Node {}
+export interface Statement extends Node {
+  TokenLiteral(): string;
+  String(): string;
+}
 
-export class Expression extends Node {}
+export interface Expression extends Node {
+  TokenLiteral(): string;
+  String(): string;
+}
 
-export class ASTProgram {
-  Statements: Array<Statement> = [];
+export class ASTProgram implements Node {
+  Statements: Statement[] = [];
 
   constructor(statements = []) {
     this.Statements = statements;
@@ -42,15 +38,19 @@ export class ASTProgram {
   }
 }
 
-export class LetStatement extends Statement {
-  Name: Identifier | null;
-  Value: Expression | Identifier | null;
+export class LetStatement implements Statement {
+  Token: Token;
+  Name: Identifier;
+  Value: Expression | Identifier;
 
-  constructor(token: Token, name: Identifier | null = null, value: Expression | Identifier | null = null) {
-    super(token);
-
+  constructor(token: Token, name: Identifier, value: Expression | Identifier) {
+    this.Token = token;
     this.Name = name;
     this.Value = value;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String(): string {
@@ -65,14 +65,17 @@ export class LetStatement extends Statement {
   }
 }
 
-export class ReturnStatement extends Statement {
+export class ReturnStatement implements Statement {
+  Token: Token;
   ReturnValue: Expression | null;
 
   constructor(token: Token, returnValue = null) {
-    super(token);
-
     this.Token = token;
     this.ReturnValue = returnValue;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String() {
@@ -86,14 +89,17 @@ export class ReturnStatement extends Statement {
   }
 }
 
-export class ExpressionStatement extends Statement {
-  Expression: Expression | null;
+export class ExpressionStatement implements Statement {
+  Token: Token;
+  Expression: Expression;
 
-  constructor(token: Token, expression = null) {
-    super(token);
-
+  constructor(token: Token, expression: Expression) {
     this.Token = token;
     this.Expression = expression;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String(): string {
@@ -103,14 +109,17 @@ export class ExpressionStatement extends Statement {
   }
 }
 
-export class Identifier extends Expression {
+export class Identifier implements Expression {
+  Token: Token;
   Value: string;
 
   constructor(token: Token, value: string) {
-    super(token);
-
     this.Token = token;
     this.Value = value;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String(): string {
@@ -118,27 +127,37 @@ export class Identifier extends Expression {
   }
 }
 
-export class IntegerLiteral extends Expression {
-  Value: number | null = null;
+export class IntegerLiteral implements Expression {
+  Token: Token;
+  Value: number;
 
-  constructor(token: Token, value = null) {
-    super(token);
-
+  constructor(token: Token, value: number) {
     this.Token = token;
     this.Value = value;
   }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
+  }
+
+  String(): string {
+    return this.Token.Literal;
+  }
 }
 
-export class PrefixExpression extends Expression {
+export class PrefixExpression implements Expression {
+  Token: Token;
   Operator: string;
-  Right: Expression | null;
+  Right: Expression;
 
-  constructor(token: Token, operator: string, right = null) {
-    super(token);
-
+  constructor(token: Token, operator: string, right: Expression) {
     this.Token = token;
     this.Operator = operator;
     this.Right = right;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String(): string {
@@ -147,18 +166,21 @@ export class PrefixExpression extends Expression {
   }
 }
 
-export class InfixExpression extends Expression {
+export class InfixExpression implements Expression {
+  Token: Token;
   Left: Expression;
   Operator: string;
-  Right: Expression | null;
+  Right: Expression;
 
-  constructor(token: Token, left: Expression, operator: string, right = null) {
-    super(token);
-
+  constructor(token: Token, left: Expression, operator: string, right: Expression) {
     this.Token = token;
     this.Left = left;
     this.Operator = operator;
     this.Right = right;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String(): string {
@@ -171,29 +193,44 @@ export class InfixExpression extends Expression {
   }
 }
 
-export class AstBoolean extends Expression {
+export class AstBoolean implements Expression {
+  Token: Token;
   Value: boolean;
 
   constructor(token: Token, value: boolean) {
-    super(token);
-
     this.Token = token;
     this.Value = value;
   }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
+  }
+
+  String(): string {
+    return this.Token.Literal;
+  }
 }
 
-export class IfExpression extends Expression {
-  Condition: Expression | null;
-  Consequence: BlockStatement | null;
+export class IfExpression implements Expression {
+  Token: Token;
+  Condition: Expression;
+  Consequence: BlockStatement;
   Alternative: BlockStatement | null;
 
-  constructor(token: Token, expression = null, consequence = null, alternative = null) {
-    super(token);
-
+  constructor(
+    token: Token,
+    expression: Expression,
+    consequence: BlockStatement,
+    alternative: BlockStatement | null = null
+  ) {
     this.Token = token;
     this.Condition = expression;
     this.Consequence = consequence;
     this.Alternative = alternative;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String() {
@@ -208,14 +245,17 @@ export class IfExpression extends Expression {
   }
 }
 
-export class BlockStatement extends Statement {
-  Statements: Array<Statement> = [];
+export class BlockStatement implements Statement {
+  Token: Token;
+  Statements: Statement[] = [];
 
   constructor(token: Token, statements = []) {
-    super(token);
-
     this.Token = token;
     this.Statements = statements;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String(): string {
@@ -229,16 +269,19 @@ export class BlockStatement extends Statement {
   }
 }
 
-export class FunctionLiteral extends BlockStatement {
-  Parameters: Array<Identifier> = [];
-  Body: BlockStatement | null;
+export class FunctionLiteral implements Statement {
+  Token: Token;
+  Parameters: Identifier[] = [];
+  Body: BlockStatement;
 
-  constructor(token: Token, parameters = [], body = null) {
-    super(token);
-
+  constructor(token: Token, parameters: Identifier[] = [], body: BlockStatement) {
     this.Token = token;
     this.Parameters = parameters;
     this.Body = body;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
   }
 
   String(): string {
@@ -256,22 +299,25 @@ export class FunctionLiteral extends BlockStatement {
   }
 }
 
-export class CallExpression extends Expression {
+export class CallExpression implements Expression {
+  Token: Token;
   Function: Expression;
-  Arguments: Array<Expression> | null;
+  Arguments: Expression[] | null;
 
-  constructor(token: Token, func: Expression, args = []) {
-    super(token);
-
+  constructor(token: Token, func: Expression, args: Expression[] | null = []) {
     this.Token = token;
     this.Function = func;
     this.Arguments = args;
   }
 
+  TokenLiteral(): string {
+    return this.Token.Literal;
+  }
+
   String(): string {
     let out = '';
 
-    let args: Array<string> = [];
+    let args: string[] = [];
 
     if (this.Arguments) args = this.Arguments.map(a => a.String());
 

@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run build:live",
-    "build": "tsc -p .",
+    "build": "ts-node -p .",
     "build:live": "nodemon --watch '**/*.ts' --exec 'ts-node' index.ts",
-    "test": "tsc -p test.ts",
-    "test:live": "nodemon --watch '**/*.ts' --exec 'ts-node' test.ts"
+    "test": "ts-node -p test.ts",
+    "test:live": "nodemon --watch '**/*.ts' --exec 'ts-node' test.ts",
+    "clean": "rm -rf build"
   },
   "repository": {
     "type": "git",
@@ -22,9 +23,9 @@
   },
   "homepage": "https://github.com/thrashr888/golang-interpreter#readme",
   "devDependencies": {
-    "@types/node": "^11.12.2",
+    "@types/node": "^11.13.0",
     "nodemon": "^1.18.10",
     "ts-node": "^8.0.3",
-    "typescript": "^3.4.1"
+    "typescript": "^3.4.2"
   }
 }

@@ -43,7 +43,7 @@ const MONKEY_FACE = `            __,__
            '-----'
 `;
 
-function printParserErrors(errors: Array<string>) {
+function printParserErrors(errors: string[]) {
   console.log(MONKEY_FACE);
   console.log('Woops! We ran into some monkey business here!');
   console.log(' parser errors:');

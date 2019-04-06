@@ -1,4 +1,5 @@
 import { TestAst } from './ast/ast-test';
+import { TestEval } from './evaluator/evaluator-test';
 import { TestLexer } from './lexer/lexer-test';
 import { TestParser } from './parser/parser-test';
 
@@ -87,6 +88,7 @@ export function main() {
   let t = new Test();
 
   TestAst(t);
+  TestEval(t);
   TestLexer(t);
   TestParser(t);
 

@@ -40,7 +40,7 @@ export const precedences = {
 
 export default class Parser {
   l: Lexer;
-  errors: Array<string> = [];
+  errors: string[] = [];
 
   curToken: Token;
   peekToken: Token;
@@ -119,13 +119,13 @@ export default class Parser {
   }
 
   parseLetStatement(): Statement | null {
-    let stmt = new LetStatement(this.curToken);
+    let curToken = this.curToken;
 
     if (!this.expectPeek(TokenType.IDENT)) {
       return null;
     }
 
-    stmt.Name = new Identifier(this.curToken, this.curToken.Literal);
+    let Name = new Identifier(this.curToken, this.curToken.Literal);
 
     if (!this.expectPeek(TokenType.ASSIGN)) {
       return null;
@@ -133,13 +133,13 @@ export default class Parser {
 
     this.nextToken();
 
-    stmt.Value = this.parseExpression(LOWEST);
+    let Value = this.parseExpression(LOWEST);
 
     if (this.peekTokenIs(TokenType.SEMICOLON)) {
       this.nextToken();
     }
 
-    return stmt;
+    return new LetStatement(curToken, Name, Value);
   }
 
   parseReturnStatement() {
@@ -157,15 +157,15 @@ export default class Parser {
   }
 
   parseExpressionStatement() {
-    let stmt = new ExpressionStatement(this.curToken);
+    let curToken = this.curToken;
 
-    stmt.Expression = this.parseExpression(LOWEST);
+    let Expression = this.parseExpression(LOWEST);
 
     if (this.peekTokenIs(TokenType.SEMICOLON)) {
       this.nextToken();
     }
 
-    return stmt;
+    return new ExpressionStatement(curToken, Expression);
   }
 
   parseExpression(precedence: number) {
@@ -197,13 +197,8 @@ export default class Parser {
   }
 
   parseIntegerLiteral() {
-    let lit = new IntegerLiteral(this.curToken);
-
     try {
-      let value = parseInt(this.curToken.Literal, 10);
-      lit.Value = value;
-
-      return lit;
+      return new IntegerLiteral(this.curToken, parseInt(this.curToken.Literal, 10));
     } catch {
       let msg = `could not parse ${this.curToken.Literal} as integer`;
       this.errors.push(msg);
@@ -250,13 +245,12 @@ export default class Parser {
   }
 
   parsePrefixExpression() {
-    let expression = new PrefixExpression(this.curToken, this.curToken.Literal);
+    let curToken = this.curToken;
+    let curLiteral = this.curToken.Literal;
 
     this.nextToken();
 
-    expression.Right = this.parseExpression(PREFIX);
-
-    return expression;
+    return new PrefixExpression(curToken, curLiteral, this.parseExpression(PREFIX));
   }
 
   peekPrecedence() {
@@ -274,13 +268,13 @@ export default class Parser {
   }
 
   parseInfixExpression(left: Expression) {
-    let expression = new InfixExpression(this.curToken, left, this.curToken.Literal);
+    let curToken = this.curToken;
+    let curLiteral = this.curToken.Literal;
 
     let precedence = this.curPrecedence();
     this.nextToken();
-    expression.Right = this.parseExpression(precedence);
 
-    return expression;
+    return new InfixExpression(curToken, left, curLiteral, this.parseExpression(precedence));
   }
 
   parseBoolean() {
@@ -300,14 +294,14 @@ export default class Parser {
   }
 
   parseIfExpression() {
-    let expression = new IfExpression(this.curToken);
+    let curToken = this.curToken;
 
     if (!this.expectPeek(TokenType.LPAREN)) {
       return null;
     }
 
     this.nextToken();
-    expression.Condition = this.parseExpression(LOWEST);
+    let Condition = this.parseExpression(LOWEST);
 
     if (!this.expectPeek(TokenType.RPAREN)) {
       return null;
@@ -317,8 +311,9 @@ export default class Parser {
       return null;
     }
 
-    expression.Consequence = this.parseBlockStatement();
+    let Consequence = this.parseBlockStatement();
 
+    let Alternative = null;
     if (this.peekTokenIs(TokenType.ELSE)) {
       this.nextToken();
 
@@ -326,10 +321,10 @@ export default class Parser {
         return null;
       }
 
-      expression.Alternative = this.parseBlockStatement();
+      Alternative = this.parseBlockStatement();
     }
 
-    return expression;
+    return new IfExpression(curToken, Condition, Consequence, Alternative);
   }
 
   parseBlockStatement() {
@@ -349,25 +344,25 @@ export default class Parser {
   }
 
   parseFunctionLiteral() {
-    let lit = new FunctionLiteral(this.curToken);
+    let curToken = this.curToken;
 
     if (!this.expectPeek(TokenType.LPAREN)) {
       return null;
     }
 
-    lit.Parameters = this.parseFunctionParameters();
+    let Parameters = this.parseFunctionParameters();
 
     if (!this.expectPeek(TokenType.LBRACE)) {
       return null;
     }
 
-    lit.Body = this.parseBlockStatement();
+    let Body = this.parseBlockStatement();
 
-    return lit;
+    return new FunctionLiteral(this.curToken, Parameters, Body);
   }
 
-  parseFunctionParameters() {
-    let identifiers: Array<Identifier> = [];
+  parseFunctionParameters(): Identifier[] {
+    let identifiers: Identifier[] = [];
 
     if (this.peekTokenIs(TokenType.RPAREN)) {
       this.nextToken();
@@ -395,13 +390,11 @@ export default class Parser {
   }
 
   parseCallExpression(func: Expression) {
-    let exp = new CallExpression(this.curToken, func);
-    exp.Arguments = this.parseCallArguments();
-    return exp;
+    return new CallExpression(this.curToken, func, this.parseCallArguments());
   }
 
-  parseCallArguments(): Array<Expression> | null {
-    let args: Array<Expression> = [];
+  parseCallArguments(): Expression[] | null {
+    let args: Expression[] = [];
 
     if (this.peekTokenIs(TokenType.RPAREN)) {
       this.nextToken();
