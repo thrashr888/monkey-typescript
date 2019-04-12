@@ -4,6 +4,8 @@ export const INTEGER_OBJ = 'INTEGER',
   BOOLEAN_OBJ = 'BOOLEAN',
   NULL_OBJ = 'NULL';
 
+export type AnyObject = OInteger | OBoolean | ONull;
+
 export default interface OObject {
   Type(): string;
   Inspect(): string;

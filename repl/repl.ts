@@ -1,5 +1,6 @@
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
+import Eval from '../evaluator/evaluator';
 import process from 'process';
 
 const PROMPT = '>> ';
@@ -23,7 +24,10 @@ export default function Start(input: NodeJS.ReadStream) {
       return;
     }
 
-    console.log(program.String());
+    let evaluated = Eval(program);
+    if (evaluated !== null) {
+      console.log(evaluated.Inspect());
+    }
 
     prevLine = line;
     process.stdout.write(PROMPT);

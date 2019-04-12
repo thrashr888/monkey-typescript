@@ -95,12 +95,12 @@ export function main() {
 
   console.log('==> Start TestAst');
   TestAst(t);
-  console.log('==> Start TestEval');
-  TestEval(t);
   console.log('==> Start TestLexer');
   TestLexer(t);
   console.log('==> Start TestParser');
   TestParser(t);
+  console.log('==> Start TestEval');
+  TestEval(t);
 
   if (t.FailCount > 0) {
     console.error(`\x1b[31m\n==> ${t.FailCount} of ${t.TotalCount} tests failed\x1b[0m\n`);
@@ -108,7 +108,11 @@ export function main() {
     return;
   }
 
+  if (t.SkipCount > 0) {
+    console.error(`\x1b[34m\n==> ${t.SkipCount} tests skipped\x1b[0m\n`);
+  }
   console.info(`\x1b[32m==> ${t.PassCount} of ${t.TotalCount} tests passed\x1b[0m\n`);
+
   process.exit(0);
 }
 

@@ -71,17 +71,17 @@ export function TestLetStatements(t: Test) {
 
     let stmt = program.Statements[0];
     if (!testLetStatement(t, stmt, tt.expectedIdentifier)) {
-      return;
+      continue;
     }
 
     if (!(stmt instanceof LetStatement)) {
       t.Errorf(`s not got=LetStatement. got=${typeof stmt}`);
-      return false;
+      continue;
     }
 
     let val = stmt.Value;
     if (!testLiteralExpression(t, val, tt.expectedValue)) {
-      return;
+      continue;
     }
   }
 }
@@ -226,19 +226,19 @@ export function TestParsingPrefixExpressions(t: Test) {
     let stmt = program.Statements[0];
     if (!(stmt instanceof ExpressionStatement)) {
       t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
-      return;
+      continue;
     }
 
     let exp = stmt.Expression;
     if (!(exp instanceof PrefixExpression)) {
       t.Errorf('stmt not type PrefixExpression. got=%s', typeof exp);
-      return;
+      continue;
     }
 
     t.Assert(exp.Operator === tt.operator, 'exp.Operator is not %s. got=%s', tt.operator, exp.Operator);
 
     if (!testLiteralExpression(t, exp.Right, tt.value)) {
-      return;
+      continue;
     }
   }
 }
@@ -299,11 +299,11 @@ function TestParsingInfixExpressions(t: Test) {
     let stmt = program.Statements[0];
     if (!(stmt instanceof ExpressionStatement)) {
       t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
-      return;
+      continue;
     }
 
     if (!testInfixExpression(t, stmt.Expression, tt.leftValue, tt.operator, tt.rightValue)) {
-      return;
+      continue;
     }
   }
 }
@@ -452,13 +452,13 @@ export function TestBooleanExpression(t: Test) {
     let stmt = program.Statements[0];
     if (!(stmt instanceof ExpressionStatement)) {
       t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
-      return;
+      continue;
     }
 
     let boolean = stmt.Expression;
     if (!(boolean instanceof AstBoolean)) {
       t.Errorf('exp not type AstBoolean. got=%s', typeof boolean);
-      return;
+      continue;
     }
     t.Assert(boolean.Value === tt.expected, 'boolean.Value is not %s. got=%s', tt.expected, boolean.Value);
   }
@@ -646,14 +646,14 @@ function TestFunctionParameterParsing(t: Test) {
     let stmt = program.Statements[0];
     if (!(stmt instanceof ExpressionStatement)) {
       t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
-      return;
+      continue;
     }
 
     let func = stmt.Expression;
 
     if (!(func instanceof FunctionLiteral)) {
       t.Errorf('func not type FunctionLiteral. got=%s', typeof func);
-      return;
+      continue;
     }
 
     t.Assert(
