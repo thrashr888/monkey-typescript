@@ -1,5 +1,5 @@
 import Test from '../test';
-import OObject, { OInteger, OBoolean } from '../object/object';
+import OObject, { OInteger, OBoolean, OError } from '../object/object';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval, { NULL } from './evaluator';
@@ -15,6 +15,8 @@ export function TestEval(t: Test) {
   TestIfElseExpressions(t);
   console.log('║  └ TestReturnStatements');
   TestReturnStatements(t);
+  console.log('║  └ TestErrorHandling');
+  TestErrorHandling(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -156,6 +158,48 @@ if (10 > 1) {
     }
 
     testIntegerObject(t, evaluated, tt.expected);
+  }
+}
+
+export function TestErrorHandling(t: Test) {
+  let tests = [
+    { input: '5 + true;', expected: 'type mismatch: INTEGER + BOOLEAN' },
+    { input: '5 + true; 5;', expected: 'type mismatch: INTEGER + BOOLEAN' },
+    { input: '-true', expected: 'unknown operator: -BOOLEAN' },
+    { input: 'true + false;', expected: 'unknown operator: BOOLEAN + BOOLEAN' },
+    { input: 'true + false + true + false;', expected: 'unknown operator: BOOLEAN + BOOLEAN' },
+    { input: '5; true + false; 5', expected: 'unknown operator: BOOLEAN + BOOLEAN' },
+    { input: 'if (10 > 1) { true + false; }', expected: 'unknown operator: BOOLEAN + BOOLEAN' },
+    {
+      input: `
+if (10 > 1) {
+  if (10 > 1) {
+    return true + false;
+  }
+
+  return 1;
+}
+`,
+      expected: 'unknown operator: BOOLEAN + BOOLEAN',
+    },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Errorf('input not evaluated. from=%s; got=%s', tt.input, evaluated);
+      continue;
+    }
+
+    let errObj = evaluated;
+    if (!(errObj instanceof OError)) {
+      t.Errorf('no error object returned. got=%s', errObj.constructor.name);
+      continue;
+    }
+
+    if ((errObj as OError).Message !== tt.expected) {
+      t.Errorf('wrong error message. expected=%s, got=%s', tt.expected, (errObj as OError).Message);
+    }
   }
 }
 

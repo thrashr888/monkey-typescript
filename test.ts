@@ -106,14 +106,15 @@ export function main() {
 
   if (t.FailCount > 0) {
     console.error(
-      `\x1b[31m║\n╠══> \x1b[1m${t.FailCount} of ${t.TotalCount}\x1b[0m\x1b[31m tests failed ❌\n║\x1b[0m\n`
+      `\x1b[31m║\n╠══> \x1b[1m${t.FailCount} of ${t.TotalCount}\x1b[0m\x1b[31m tests failed ❌\n║\x1b[0m`
     );
+    console.log(`\x1b[36m║ \x1b[1mEnd tests\n\x1b[0m\x1b[36m╚═══════════>\x1b[0m`);
     process.exit(1);
     return;
   }
 
   if (t.SkipCount > 0) {
-    console.info(`\x1b[34m║\n╠══> ${t.SkipCount} tests skipped ℹ️\n║\x1b[0m`);
+    console.info(`\x1b[34m║\n╠══> \x1b[1m${t.SkipCount}\x1b[0m\x1b[34m tests skipped ℹ️\n║\x1b[0m`);
   }
   console.info(
     `\x1b[32m║\n╠══> \x1b[1m${t.PassCount} of ${t.TotalCount}\x1b[0m\x1b[32m tests passed ✅\n║\x1b[0m`

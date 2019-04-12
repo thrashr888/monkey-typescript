@@ -1,3 +1,4 @@
+import util from 'util';
 import {
   AnyNodeType,
   Statement,
@@ -19,6 +20,8 @@ import OObject, {
   INTEGER_OBJ,
   ReturnValue,
   RETURN_VALUE_OBJ,
+  OError,
+  ERROR_OBJ,
 } from '../object/object';
 
 export const NULL = new ONull(),
@@ -36,10 +39,13 @@ export default function Eval(node: AnyNodeType | null): OObject | null {
     return nativeBoolToBooleanObject(node.Value);
   } else if (node instanceof PrefixExpression) {
     let right = Eval(node.Right);
+    if (isError(right)) return right;
     return evalPrefixExpression(node.Operator, right);
   } else if (node instanceof InfixExpression) {
     let left = Eval(node.Left);
+    if (isError(left)) return left;
     let right = Eval(node.Right);
+    if (isError(right)) return right;
     return evalInfixExpression(node.Operator, left, right);
   } else if (node instanceof BlockStatement) {
     return evalBlockStatement(node);
@@ -47,6 +53,7 @@ export default function Eval(node: AnyNodeType | null): OObject | null {
     return evalIfExpression(node);
   } else if (node instanceof ReturnStatement) {
     let val = Eval(node.ReturnValue);
+    if (isError(val)) return val;
     return val ? new ReturnValue(val) : null;
   }
 
@@ -61,6 +68,8 @@ function evalProgram(program: ASTProgram): OObject | null {
 
     if (result instanceof ReturnValue) {
       return result.Value;
+    } else if (result instanceof OError) {
+      return result;
     }
   }
 
@@ -73,8 +82,11 @@ function evalBlockStatement(program: BlockStatement): OObject | null {
   for (let statement of program.Statements) {
     result = Eval(statement);
 
-    if (result !== null && result.Type() === RETURN_VALUE_OBJ) {
-      return result;
+    if (result !== null) {
+      let rt = result.Type();
+      if (rt === RETURN_VALUE_OBJ || rt === ERROR_OBJ) {
+        return result;
+      }
     }
   }
 
@@ -93,9 +105,9 @@ function evalPrefixExpression(operator: string, right: OObject | null): OObject 
     case '!':
       return evalBangOperatorExpression(right);
     case '-':
-      return evalMinusOperatorExpression(right);
+      return evalMinusPrefixOperatorExpression(right);
     default:
-      return NULL;
+      return newError('unknown operator: %s%s', operator, right ? right.Type() : null);
   }
 }
 
@@ -113,11 +125,11 @@ function evalBangOperatorExpression(right: AnyObject | null): OObject {
   return FALSE;
 }
 
-function evalMinusOperatorExpression(right: AnyObject | null): OObject {
+function evalMinusPrefixOperatorExpression(right: AnyObject | null): OObject {
   if (!right) return FALSE;
 
   if (right.Type() !== INTEGER_OBJ) {
-    return NULL;
+    return newError('unknown operator: -%s', right.Type());
   } else if (!(right instanceof OInteger)) {
     return NULL;
   }
@@ -127,16 +139,21 @@ function evalMinusOperatorExpression(right: AnyObject | null): OObject {
 }
 
 function evalInfixExpression(operator: string, left: OObject | null, right: OObject | null): OObject {
-  if (!left) return NULL;
-
   if (left instanceof OInteger && right instanceof OInteger) {
     return evalIntegerInfixExpression(operator, left, right);
   } else if (operator === '==') {
     return nativeBoolToBooleanObject(left === right);
   } else if (operator === '!=') {
     return nativeBoolToBooleanObject(left !== right);
+  } else if (left !== null && right !== null && left.Type() !== right.Type()) {
+    return newError('type mismatch: %s %s %s', left.Type(), operator, right.Type());
   } else {
-    return NULL;
+    return newError(
+      'unknown operator: %s %s %s',
+      left ? left.Type() : null,
+      operator,
+      right ? right.Type() : null
+    );
   }
 }
 
@@ -162,12 +179,13 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
     case '!=':
       return nativeBoolToBooleanObject(leftVal !== rightVal);
     default:
-      return NULL;
+      return newError('unknown operator: %s %s %s', left.Type(), operator, right.Type());
   }
 }
 
 function evalIfExpression(ie: IfExpression): OObject | null {
   let condition = Eval(ie.Condition);
+  if (isError(condition)) return condition;
 
   if (isTruthy(condition)) {
     return Eval(ie.Consequence);
@@ -189,4 +207,19 @@ function isTruthy(obj: OObject | null): boolean {
     default:
       return true;
   }
+}
+
+function newError(format: string, ...args: any[]): OError {
+  return new OError(printf(format, ...args));
+}
+
+function printf(...args: any[]): string {
+  return [...args].reduce((p, c) => p.replace(/%s/, c));
+}
+
+function isError(obj: OObject | null): boolean {
+  if (obj !== null) {
+    return obj.Type() === ERROR_OBJ;
+  }
+  return false;
 }

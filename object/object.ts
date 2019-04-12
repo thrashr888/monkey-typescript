@@ -3,7 +3,8 @@ type ObjectType = string;
 export const INTEGER_OBJ = 'INTEGER',
   BOOLEAN_OBJ = 'BOOLEAN',
   NULL_OBJ = 'NULL',
-  RETURN_VALUE_OBJ = 'RETURN_VALUE';
+  RETURN_VALUE_OBJ = 'RETURN_VALUE',
+  ERROR_OBJ = 'ERROR';
 
 export type AnyObject = OInteger | OBoolean | ONull;
 
@@ -22,7 +23,7 @@ export class OInteger implements OObject {
   Type() {
     return INTEGER_OBJ;
   }
-  Inspect(): string {
+  Inspect() {
     return String(this.Value);
   }
 }
@@ -37,7 +38,7 @@ export class OBoolean implements OObject {
   Type() {
     return BOOLEAN_OBJ;
   }
-  Inspect(): string {
+  Inspect() {
     return this.Value ? 'true' : 'false';
   }
 }
@@ -46,7 +47,7 @@ export class ONull implements OObject {
   Type() {
     return NULL_OBJ;
   }
-  Inspect(): string {
+  Inspect() {
     return 'null';
   }
 }
@@ -61,7 +62,22 @@ export class ReturnValue implements OObject {
   Type() {
     return RETURN_VALUE_OBJ;
   }
-  Inspect(): string {
+  Inspect() {
     return this.Value.Inspect();
+  }
+}
+
+export class OError implements OObject {
+  Message: string;
+
+  constructor(message: string) {
+    this.Message = message;
+  }
+
+  Type() {
+    return ERROR_OBJ;
+  }
+  Inspect() {
+    return `Error: ${this.Message}`;
   }
 }
