@@ -1,7 +1,6 @@
 import util from 'util';
 import {
   AnyNodeType,
-  Statement,
   ASTProgram,
   ExpressionStatement,
   IntegerLiteral,
@@ -11,60 +10,70 @@ import {
   BlockStatement,
   IfExpression,
   ReturnStatement,
+  LetStatement,
+  Identifier,
 } from '../ast/ast';
 import OObject, {
+  AnyObject,
+  NullableOObject,
   OInteger,
   OBoolean,
   ONull,
-  AnyObject,
-  INTEGER_OBJ,
   ReturnValue,
-  RETURN_VALUE_OBJ,
   OError,
+  INTEGER_OBJ,
+  RETURN_VALUE_OBJ,
   ERROR_OBJ,
 } from '../object/object';
+import Environment from '../object/environment';
 
 export const NULL = new ONull(),
   TRUE = new OBoolean(true),
   FALSE = new OBoolean(false);
 
-export default function Eval(node: AnyNodeType | null): OObject | null {
+export default function Eval(node: AnyNodeType | null, env: Environment): NullableOObject {
   if (node instanceof ASTProgram) {
-    return evalProgram(node);
+    return evalProgram(node, env);
   } else if (node instanceof ExpressionStatement) {
-    return Eval(node.Expression);
+    return Eval(node.Expression, env);
   } else if (node instanceof IntegerLiteral) {
     return new OInteger(node.Value);
   } else if (node instanceof AstBoolean) {
     return nativeBoolToBooleanObject(node.Value);
   } else if (node instanceof PrefixExpression) {
-    let right = Eval(node.Right);
+    let right = Eval(node.Right, env);
     if (isError(right)) return right;
     return evalPrefixExpression(node.Operator, right);
   } else if (node instanceof InfixExpression) {
-    let left = Eval(node.Left);
+    let left = Eval(node.Left, env);
     if (isError(left)) return left;
-    let right = Eval(node.Right);
+    let right = Eval(node.Right, env);
     if (isError(right)) return right;
     return evalInfixExpression(node.Operator, left, right);
   } else if (node instanceof BlockStatement) {
-    return evalBlockStatement(node);
+    return evalBlockStatement(node, env);
   } else if (node instanceof IfExpression) {
-    return evalIfExpression(node);
+    return evalIfExpression(node, env);
   } else if (node instanceof ReturnStatement) {
-    let val = Eval(node.ReturnValue);
+    let val = Eval(node.ReturnValue, env);
     if (isError(val)) return val;
     return val ? new ReturnValue(val) : null;
+  } else if (node instanceof LetStatement) {
+    let val = Eval(node.Value, env);
+    if (isNotError(val)) env.Set(node.Name.Value, val);
+    return val;
+  } else if (node instanceof Identifier) {
+    return evalIdentifier(node, env);
   }
 
   return null;
 }
 
-function evalProgram(program: ASTProgram): OObject | null {
-  let result: OObject | null = null;
+function evalProgram(program: ASTProgram, env: Environment): NullableOObject {
+  let result: NullableOObject = null;
 
   for (let statement of program.Statements) {
-    result = Eval(statement);
+    result = Eval(statement, env);
 
     if (result instanceof ReturnValue) {
       return result.Value;
@@ -76,11 +85,11 @@ function evalProgram(program: ASTProgram): OObject | null {
   return result;
 }
 
-function evalBlockStatement(program: BlockStatement): OObject | null {
-  let result: OObject | null = null;
+function evalBlockStatement(program: BlockStatement, env: Environment): NullableOObject {
+  let result: NullableOObject = null;
 
   for (let statement of program.Statements) {
-    result = Eval(statement);
+    result = Eval(statement, env);
 
     if (result !== null) {
       let rt = result.Type();
@@ -100,7 +109,7 @@ function nativeBoolToBooleanObject(input: boolean): OBoolean {
   return FALSE;
 }
 
-function evalPrefixExpression(operator: string, right: OObject | null): OObject {
+function evalPrefixExpression(operator: string, right: NullableOObject): OObject {
   switch (operator) {
     case '!':
       return evalBangOperatorExpression(right);
@@ -138,7 +147,7 @@ function evalMinusPrefixOperatorExpression(right: AnyObject | null): OObject {
   return new OInteger(-value);
 }
 
-function evalInfixExpression(operator: string, left: OObject | null, right: OObject | null): OObject {
+function evalInfixExpression(operator: string, left: NullableOObject, right: NullableOObject): OObject {
   if (left instanceof OInteger && right instanceof OInteger) {
     return evalIntegerInfixExpression(operator, left, right);
   } else if (operator === '==') {
@@ -183,20 +192,29 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
   }
 }
 
-function evalIfExpression(ie: IfExpression): OObject | null {
-  let condition = Eval(ie.Condition);
+function evalIfExpression(ie: IfExpression, env: Environment): NullableOObject {
+  let condition = Eval(ie.Condition, env);
   if (isError(condition)) return condition;
 
   if (isTruthy(condition)) {
-    return Eval(ie.Consequence);
+    return Eval(ie.Consequence, env);
   } else if (ie.Alternative !== null) {
-    return Eval(ie.Alternative);
+    return Eval(ie.Alternative, env);
   } else {
     return NULL;
   }
 }
 
-function isTruthy(obj: OObject | null): boolean {
+function evalIdentifier(node: Identifier, env: Environment): NullableOObject {
+  let val = env.Get(node.Value);
+  if (val === null) {
+    return newError('identifier not found: %s', node.Value);
+  }
+
+  return val;
+}
+
+function isTruthy(obj: NullableOObject): boolean {
   switch (obj) {
     case NULL:
       return false;
@@ -217,9 +235,16 @@ function printf(...args: any[]): string {
   return [...args].reduce((p, c) => p.replace(/%s/, c));
 }
 
-function isError(obj: OObject | null): boolean {
+function isError(obj: NullableOObject): obj is OObject {
   if (obj !== null) {
     return obj.Type() === ERROR_OBJ;
   }
   return false;
+}
+
+function isNotError(obj: NullableOObject): obj is OObject {
+  if (obj !== null) {
+    return obj.Type() !== ERROR_OBJ;
+  }
+  return true;
 }

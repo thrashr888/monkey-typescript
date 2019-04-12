@@ -1,5 +1,3 @@
-type ObjectType = string;
-
 export const INTEGER_OBJ = 'INTEGER',
   BOOLEAN_OBJ = 'BOOLEAN',
   NULL_OBJ = 'NULL',
@@ -7,6 +5,7 @@ export const INTEGER_OBJ = 'INTEGER',
   ERROR_OBJ = 'ERROR';
 
 export type AnyObject = OInteger | OBoolean | ONull;
+export type NullableOObject = OObject | null;
 
 export default interface OObject {
   Type(): string;

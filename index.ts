@@ -10,7 +10,9 @@ export function main(): void {
   let input = process.stdin;
   input.setEncoding('utf-8');
 
-  Start(input);
+  let output = process.stdout;
+
+  Start(input, output);
 }
 
 main();

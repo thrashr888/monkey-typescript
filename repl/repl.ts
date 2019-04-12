@@ -2,13 +2,14 @@ import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval from '../evaluator/evaluator';
 import process from 'process';
+import Environment from '../object/environment';
 
 const PROMPT = '>> ';
 
-export default function Start(input: NodeJS.ReadStream) {
-  process.stdout.write(PROMPT);
+export default function Start(input: NodeJS.ReadStream, out: NodeJS.WriteStream) {
+  out.write(PROMPT);
 
-  let prevLine;
+  let env = new Environment();
 
   input.on('data', line => {
     if (line === 'exit\n') process.exit();
@@ -20,17 +21,17 @@ export default function Start(input: NodeJS.ReadStream) {
 
     if (p.Errors().length !== 0) {
       printParserErrors(p.Errors());
-      process.stdout.write(PROMPT);
+      out.write(PROMPT);
       return;
     }
 
-    let evaluated = Eval(program);
+    let evaluated = Eval(program, env);
     if (evaluated !== null) {
-      console.log(evaluated.Inspect());
+      out.write(evaluated.Inspect());
+      out.write('\n');
     }
 
-    prevLine = line;
-    process.stdout.write(PROMPT);
+    out.write(PROMPT);
   });
 }
 

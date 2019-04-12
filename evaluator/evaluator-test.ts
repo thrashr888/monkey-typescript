@@ -1,8 +1,9 @@
 import Test from '../test';
-import OObject, { OInteger, OBoolean, OError } from '../object/object';
+import OObject, { OInteger, OBoolean, OError, NullableOObject } from '../object/object';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval, { NULL } from './evaluator';
+import Environment from '../object/environment';
 
 export function TestEval(t: Test) {
   console.log('║  ├ TestEvalIntegerExpression');
@@ -13,10 +14,12 @@ export function TestEval(t: Test) {
   TestBangOperator(t);
   console.log('║  ├ TestIfElseExpressions');
   TestIfElseExpressions(t);
-  console.log('║  └ TestReturnStatements');
+  console.log('║  ├ TestReturnStatements');
   TestReturnStatements(t);
-  console.log('║  └ TestErrorHandling');
+  console.log('║  ├ TestErrorHandling');
   TestErrorHandling(t);
+  console.log('║  └ TestErrorHandling');
+  TestLetStatements(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -41,7 +44,7 @@ export function TestEvalIntegerExpression(t: Test) {
   for (let tt of tests) {
     let evaluated = testEval(tt.input);
     if (!evaluated) {
-      t.Skipf('input not evaluated. got=%s', evaluated);
+      t.Errorf('input not evaluated. got=%s', evaluated);
       continue;
     }
 
@@ -75,7 +78,7 @@ export function TestEvalBooleanExpression(t: Test) {
   for (let tt of tests) {
     let evaluated = testEval(tt.input);
     if (!evaluated) {
-      t.Skipf('input not evaluated. got=%s', evaluated);
+      t.Errorf('input not evaluated. got=%s', evaluated);
       continue;
     }
 
@@ -96,7 +99,7 @@ export function TestBangOperator(t: Test) {
   for (let tt of tests) {
     let evaluated = testEval(tt.input);
     if (!evaluated) {
-      t.Skipf('input not evaluated. got=%s', evaluated);
+      t.Errorf('input not evaluated. got=%s', evaluated);
       continue;
     }
 
@@ -118,7 +121,7 @@ export function TestIfElseExpressions(t: Test) {
   for (let tt of tests) {
     let evaluated = testEval(tt.input);
     if (!evaluated) {
-      t.Skipf('input not evaluated. got=%s', evaluated);
+      t.Errorf('input not evaluated. got=%s', evaluated);
       continue;
     }
 
@@ -153,7 +156,7 @@ if (10 > 1) {
   for (let tt of tests) {
     let evaluated = testEval(tt.input);
     if (!evaluated) {
-      t.Skipf('input not evaluated. got=%s', evaluated);
+      t.Errorf('input not evaluated. got=%s', evaluated);
       continue;
     }
 
@@ -182,6 +185,7 @@ if (10 > 1) {
 `,
       expected: 'unknown operator: BOOLEAN + BOOLEAN',
     },
+    { input: 'foobar', expected: 'identifier not found: foobar' },
   ];
 
   for (let tt of tests) {
@@ -197,18 +201,38 @@ if (10 > 1) {
       continue;
     }
 
-    if ((errObj as OError).Message !== tt.expected) {
-      t.Errorf('wrong error message. expected=%s, got=%s', tt.expected, (errObj as OError).Message);
+    if (errObj.Message !== tt.expected) {
+      t.Errorf('wrong error message. expected=%s, got=%s', tt.expected, errObj.Message);
     }
   }
 }
 
-function testEval(input: string): OObject | null {
+export function TestLetStatements(t: Test) {
+  let tests = [
+    { input: 'let a = 5;', expected: 5 },
+    { input: 'let a = 5 * 5; a;', expected: 25 },
+    { input: 'let a = 5; let b = a; b;', expected: 5 },
+    { input: 'let a = 5; let b = a; let c = a + b + 5; c;', expected: 15 },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Errorf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    testIntegerObject(t, evaluated, tt.expected);
+  }
+}
+
+function testEval(input: string): NullableOObject {
   let l = new Lexer(input);
   let p = new Parser(l);
+  let env = new Environment();
   let program = p.ParseProgram();
 
-  return Eval(program);
+  return Eval(program, env);
 }
 
 function testIntegerObject(t: Test, obj: OObject, expected: number): boolean {

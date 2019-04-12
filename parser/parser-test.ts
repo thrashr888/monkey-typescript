@@ -2,7 +2,6 @@ import Lexer from '../lexer/lexer';
 import Parser from './parser';
 import Test from '../test';
 import {
-  AnyNodeType,
   AstBoolean,
   CallExpression,
   Expression,
