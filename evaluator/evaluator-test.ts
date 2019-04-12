@@ -2,23 +2,19 @@ import Test from '../test';
 import OObject, { OInteger, OBoolean } from '../object/object';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
-import Eval from './evaluator';
+import Eval, { NULL } from './evaluator';
 
 export function TestEval(t: Test) {
-  console.log('    - TestEvalIntegerExpression');
+  console.log('║  ├ TestEvalIntegerExpression');
   TestEvalIntegerExpression(t);
-  console.log('    - TestEvalBooleanExpression');
+  console.log('║  ├ TestEvalBooleanExpression');
   TestEvalBooleanExpression(t);
-  console.log('    - TestBangOperator');
+  console.log('║  ├ TestBangOperator');
   TestBangOperator(t);
-}
-
-function testEval(input: string): OObject | null {
-  let l = new Lexer(input);
-  let p = new Parser(l);
-  let program = p.ParseProgram();
-
-  return Eval(program);
+  console.log('║  ├ TestIfElseExpressions');
+  TestIfElseExpressions(t);
+  console.log('║  └ TestReturnStatements');
+  TestReturnStatements(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -49,22 +45,6 @@ export function TestEvalIntegerExpression(t: Test) {
 
     testIntegerObject(t, evaluated, tt.expected);
   }
-}
-
-function testIntegerObject(t: Test, obj: OObject, expected: number): boolean {
-  let result = obj;
-
-  if (!(result instanceof OInteger)) {
-    t.Errorf('object is not Integer. got=%s', typeof result);
-    return false;
-  }
-
-  if (result.Value !== expected) {
-    t.Errorf('object has wrong value. got=%s, want=%d', result.Value, expected);
-    return false;
-  }
-
-  return true;
 }
 
 export function TestEvalBooleanExpression(t: Test) {
@@ -101,22 +81,6 @@ export function TestEvalBooleanExpression(t: Test) {
   }
 }
 
-function testBooleanObject(t: Test, obj: OObject, expected: boolean): boolean {
-  let result = obj;
-
-  if (!(result instanceof OBoolean)) {
-    t.Errorf('object is not OBoolean. got=%s', result.constructor.name);
-    return false;
-  }
-
-  if (result.Value !== expected) {
-    t.Errorf('object has wrong value. got=%s, want=%s', result.Value, expected);
-    return false;
-  }
-
-  return true;
-}
-
 export function TestBangOperator(t: Test) {
   let tests = [
     { input: '!true', expected: false },
@@ -136,4 +100,110 @@ export function TestBangOperator(t: Test) {
 
     testBooleanObject(t, evaluated, tt.expected);
   }
+}
+
+export function TestIfElseExpressions(t: Test) {
+  let tests = [
+    { input: 'if (true) { 10 }', expected: 10 },
+    { input: 'if (false) { 10 }', expected: null },
+    { input: 'if (1) { 10 }', expected: 10 },
+    { input: 'if (1 < 2) { 10 }', expected: 10 },
+    { input: 'if (1 > 2) { 10 }', expected: null },
+    { input: 'if (1 > 2) { 10 } else { 20 }', expected: 20 },
+    { input: 'if (1 < 2) { 10 } else { 20 }', expected: 10 },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Skipf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    if (typeof tt.expected === 'number') {
+      testIntegerObject(t, evaluated, tt.expected);
+    } else {
+      testNullObject(t, evaluated);
+    }
+  }
+}
+
+export function TestReturnStatements(t: Test) {
+  let tests = [
+    {
+      input: `
+if (10 > 1) {
+  if (10 > 1) {
+    return 10;
+  }
+
+  return 1;
+}
+    `,
+      expected: 10,
+    },
+    { input: 'return 10;', expected: 10 },
+    { input: 'return 10; 9', expected: 10 },
+    { input: 'return 2 * 5; 9', expected: 10 },
+    { input: '9; return 2 * 5; 9', expected: 10 },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Skipf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    testIntegerObject(t, evaluated, tt.expected);
+  }
+}
+
+function testEval(input: string): OObject | null {
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+
+  return Eval(program);
+}
+
+function testIntegerObject(t: Test, obj: OObject, expected: number): boolean {
+  let result = obj;
+
+  if (!(result instanceof OInteger)) {
+    t.Errorf('object is not Integer. got=%s', typeof result);
+    return false;
+  }
+
+  if (result.Value !== expected) {
+    t.Errorf('object has wrong value. got=%s, want=%d', result.Value, expected);
+    return false;
+  }
+
+  return true;
+}
+
+function testBooleanObject(t: Test, obj: OObject, expected: boolean): boolean {
+  let result = obj;
+
+  if (!(result instanceof OBoolean)) {
+    t.Errorf('object is not OBoolean. got=%s', result.constructor.name);
+    return false;
+  }
+
+  if (result.Value !== expected) {
+    t.Errorf('object has wrong value. got=%s, want=%s', result.Value, expected);
+    return false;
+  }
+
+  return true;
+}
+
+function testNullObject(t: Test, obj: OObject): boolean {
+  if (obj !== NULL) {
+    t.Errorf('object is not NULL. got=%s (%s)', obj.constructor.name, obj);
+    return false;
+  }
+
+  return true;
 }

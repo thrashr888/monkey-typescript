@@ -93,25 +93,33 @@ export default class Test {
 export function main() {
   let t = new Test();
 
-  console.log('==> Start TestAst');
+  console.log(`\x1b[36m╔═════════════>\n║ \x1b[1mStart tests\n\x1b[0m\x1b[36m║\x1b[0m`);
+
+  console.log('║\n╠══╕ \x1b[1mStart TestAst\x1b[0m');
   TestAst(t);
-  console.log('==> Start TestLexer');
+  console.log('║\n╠══╕ \x1b[1mStart TestLexer\x1b[0m');
   TestLexer(t);
-  console.log('==> Start TestParser');
+  console.log('║\n╠══╕ \x1b[1mStart TestParser\x1b[0m');
   TestParser(t);
-  console.log('==> Start TestEval');
+  console.log('║\n╠══╕ \x1b[1mStart TestEval\x1b[0m');
   TestEval(t);
 
   if (t.FailCount > 0) {
-    console.error(`\x1b[31m\n==> ${t.FailCount} of ${t.TotalCount} tests failed\x1b[0m\n`);
+    console.error(
+      `\x1b[31m║\n╠══> \x1b[1m${t.FailCount} of ${t.TotalCount}\x1b[0m\x1b[31m tests failed ❌\n║\x1b[0m\n`
+    );
     process.exit(1);
     return;
   }
 
   if (t.SkipCount > 0) {
-    console.error(`\x1b[34m\n==> ${t.SkipCount} tests skipped\x1b[0m\n`);
+    console.info(`\x1b[34m║\n╠══> ${t.SkipCount} tests skipped ℹ️\n║\x1b[0m`);
   }
-  console.info(`\x1b[32m==> ${t.PassCount} of ${t.TotalCount} tests passed\x1b[0m\n`);
+  console.info(
+    `\x1b[32m║\n╠══> \x1b[1m${t.PassCount} of ${t.TotalCount}\x1b[0m\x1b[32m tests passed ✅\n║\x1b[0m`
+  );
+
+  console.log(`\x1b[36m║ \x1b[1mEnd tests\n\x1b[0m\x1b[36m╚═══════════>\x1b[0m`);
 
   process.exit(0);
 }

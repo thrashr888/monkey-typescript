@@ -7,8 +7,19 @@ import {
   AstBoolean,
   PrefixExpression,
   InfixExpression,
+  BlockStatement,
+  IfExpression,
+  ReturnStatement,
 } from '../ast/ast';
-import OObject, { OInteger, OBoolean, ONull, AnyObject, INTEGER_OBJ } from '../object/object';
+import OObject, {
+  OInteger,
+  OBoolean,
+  ONull,
+  AnyObject,
+  INTEGER_OBJ,
+  ReturnValue,
+  RETURN_VALUE_OBJ,
+} from '../object/object';
 
 export const NULL = new ONull(),
   TRUE = new OBoolean(true),
@@ -16,7 +27,7 @@ export const NULL = new ONull(),
 
 export default function Eval(node: AnyNodeType | null): OObject | null {
   if (node instanceof ASTProgram) {
-    return evalStatements(node.Statements);
+    return evalProgram(node);
   } else if (node instanceof ExpressionStatement) {
     return Eval(node.Expression);
   } else if (node instanceof IntegerLiteral) {
@@ -30,16 +41,41 @@ export default function Eval(node: AnyNodeType | null): OObject | null {
     let left = Eval(node.Left);
     let right = Eval(node.Right);
     return evalInfixExpression(node.Operator, left, right);
+  } else if (node instanceof BlockStatement) {
+    return evalBlockStatement(node);
+  } else if (node instanceof IfExpression) {
+    return evalIfExpression(node);
+  } else if (node instanceof ReturnStatement) {
+    let val = Eval(node.ReturnValue);
+    return val ? new ReturnValue(val) : null;
   }
 
   return null;
 }
 
-function evalStatements(stmts: Statement[]): OObject | null {
+function evalProgram(program: ASTProgram): OObject | null {
   let result: OObject | null = null;
 
-  for (let statement of stmts) {
+  for (let statement of program.Statements) {
     result = Eval(statement);
+
+    if (result instanceof ReturnValue) {
+      return result.Value;
+    }
+  }
+
+  return result;
+}
+
+function evalBlockStatement(program: BlockStatement): OObject | null {
+  let result: OObject | null = null;
+
+  for (let statement of program.Statements) {
+    result = Eval(statement);
+
+    if (result !== null && result.Type() === RETURN_VALUE_OBJ) {
+      return result;
+    }
   }
 
   return result;
@@ -127,5 +163,30 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
       return nativeBoolToBooleanObject(leftVal !== rightVal);
     default:
       return NULL;
+  }
+}
+
+function evalIfExpression(ie: IfExpression): OObject | null {
+  let condition = Eval(ie.Condition);
+
+  if (isTruthy(condition)) {
+    return Eval(ie.Consequence);
+  } else if (ie.Alternative !== null) {
+    return Eval(ie.Alternative);
+  } else {
+    return NULL;
+  }
+}
+
+function isTruthy(obj: OObject | null): boolean {
+  switch (obj) {
+    case NULL:
+      return false;
+    case TRUE:
+      return true;
+    case FALSE:
+      return false;
+    default:
+      return true;
   }
 }

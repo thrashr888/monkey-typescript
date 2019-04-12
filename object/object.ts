@@ -2,7 +2,8 @@ type ObjectType = string;
 
 export const INTEGER_OBJ = 'INTEGER',
   BOOLEAN_OBJ = 'BOOLEAN',
-  NULL_OBJ = 'NULL';
+  NULL_OBJ = 'NULL',
+  RETURN_VALUE_OBJ = 'RETURN_VALUE';
 
 export type AnyObject = OInteger | OBoolean | ONull;
 
@@ -47,5 +48,20 @@ export class ONull implements OObject {
   }
   Inspect(): string {
     return 'null';
+  }
+}
+
+export class ReturnValue implements OObject {
+  Value: OObject;
+
+  constructor(value: OObject) {
+    this.Value = value;
+  }
+
+  Type() {
+    return RETURN_VALUE_OBJ;
+  }
+  Inspect(): string {
+    return this.Value.Inspect();
   }
 }

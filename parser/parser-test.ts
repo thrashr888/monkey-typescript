@@ -19,31 +19,31 @@ import {
 } from '../ast/ast';
 
 export function TestParser(t: Test) {
-  console.log('    - TestLetStatements');
+  console.log('║  ├ TestLetStatements');
   TestLetStatements(t);
-  console.log('    - TestReturnStatements');
+  console.log('║  ├ TestReturnStatements');
   TestReturnStatements(t);
-  console.log('    - TestIdentifierExpression');
+  console.log('║  ├ TestIdentifierExpression');
   TestIdentifierExpression(t);
-  console.log('    - TestIntegerExpression');
+  console.log('║  ├ TestIntegerExpression');
   TestIntegerExpression(t);
-  console.log('    - TestParsingPrefixExpressions');
+  console.log('║  ├ TestParsingPrefixExpressions');
   TestParsingPrefixExpressions(t);
-  console.log('    - TestParsingInfixExpressions');
+  console.log('║  ├ TestParsingInfixExpressions');
   TestParsingInfixExpressions(t);
-  console.log('    - TestOperatorPrecedenceParsing');
+  console.log('║  ├ TestOperatorPrecedenceParsing');
   TestOperatorPrecedenceParsing(t);
-  console.log('    - TestBooleanExpression');
+  console.log('║  ├ TestBooleanExpression');
   TestBooleanExpression(t);
-  console.log('    - TestIfExpression');
+  console.log('║  ├ TestIfExpression');
   TestIfExpression(t);
-  console.log('    - TestIfElseExpression');
+  console.log('║  ├ TestIfElseExpression');
   TestIfElseExpression(t);
-  console.log('    - TestFunctionLiteralParsing');
+  console.log('║  ├ TestFunctionLiteralParsing');
   TestFunctionLiteralParsing(t);
-  console.log('    - TestFunctionParameterParsing');
+  console.log('║  ├ TestFunctionParameterParsing');
   TestFunctionParameterParsing(t);
-  console.log('    - TestCallExpressionParsing');
+  console.log('║  └ TestCallExpressionParsing');
   TestCallExpressionParsing(t);
 }
 

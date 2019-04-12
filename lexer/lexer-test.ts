@@ -3,7 +3,7 @@ import Lexer from './lexer';
 import Test from '../test';
 
 export function TestLexer(t: Test) {
-  console.log('    - TestNextToken');
+  console.log('║  └ TestNextToken');
   TestNextToken(t);
 }
 
