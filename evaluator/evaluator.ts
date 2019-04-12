@@ -12,6 +12,9 @@ import {
   ReturnStatement,
   LetStatement,
   Identifier,
+  FunctionLiteral,
+  CallExpression,
+  Expression,
 } from '../ast/ast';
 import OObject, {
   AnyObject,
@@ -24,8 +27,9 @@ import OObject, {
   INTEGER_OBJ,
   RETURN_VALUE_OBJ,
   ERROR_OBJ,
+  OFunction,
 } from '../object/object';
-import Environment from '../object/environment';
+import Environment, { NewEnclosedEnvironment } from '../object/environment';
 
 export const NULL = new ONull(),
   TRUE = new OBoolean(true),
@@ -64,6 +68,18 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return val;
   } else if (node instanceof Identifier) {
     return evalIdentifier(node, env);
+  } else if (node instanceof FunctionLiteral) {
+    return new OFunction(node.Parameters, node.Body, env);
+  } else if (node instanceof CallExpression) {
+    let func = Eval(node.Function, env);
+    if (isNotError(func)) {
+      let args = evalExpressions(node.Arguments, env);
+      if (args.length === 1 && isError(args[0])) {
+        return args[0];
+      }
+      return applyFunction(func, args);
+    }
+    return func;
   }
 
   return null;
@@ -212,6 +228,53 @@ function evalIdentifier(node: Identifier, env: Environment): NullableOObject {
   }
 
   return val;
+}
+
+function evalExpressions(exps: Expression[], env: Environment): OObject[] {
+  let result: OObject[] = [];
+
+  for (let e of exps) {
+    let evaluated = Eval(e, env);
+    if (isNotError(evaluated)) {
+      result.push(evaluated);
+      continue;
+    }
+    if (isError(evaluated)) {
+      return [evaluated];
+    }
+  }
+
+  return result;
+}
+
+function applyFunction(fn: OObject, args: OObject[]): NullableOObject {
+  let func = fn;
+  if (!(func instanceof OFunction)) {
+    return newError('not a function: %s', fn.Type());
+  }
+
+  let extendedEnv = extendedFunctionEnv(func, args);
+  let evaluated = Eval(func.Body, extendedEnv);
+  return unwrapReturnValue(evaluated);
+}
+
+function extendedFunctionEnv(fn: OFunction, args: OObject[]): Environment {
+  let env = NewEnclosedEnvironment(fn.Env);
+
+  for (let [paramIdx, param] of fn.Parameters.entries()) {
+    env.Set(param.Value, args[paramIdx]);
+  }
+
+  return env;
+}
+
+function unwrapReturnValue(obj: NullableOObject): NullableOObject {
+  let returnValue = obj;
+  if (returnValue instanceof ReturnValue) {
+    return returnValue.Value;
+  }
+
+  return obj;
 }
 
 function isTruthy(obj: NullableOObject): boolean {

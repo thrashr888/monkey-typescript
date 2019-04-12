@@ -1,8 +1,12 @@
+import { Identifier, BlockStatement } from '../ast/ast';
+import Environment from './environment';
+
 export const INTEGER_OBJ = 'INTEGER',
   BOOLEAN_OBJ = 'BOOLEAN',
   NULL_OBJ = 'NULL',
   RETURN_VALUE_OBJ = 'RETURN_VALUE',
-  ERROR_OBJ = 'ERROR';
+  ERROR_OBJ = 'ERROR',
+  FUNCTION_OBJ = 'FUNCTION';
 
 export type AnyObject = OInteger | OBoolean | ONull;
 export type NullableOObject = OObject | null;
@@ -78,5 +82,26 @@ export class OError implements OObject {
   }
   Inspect() {
     return `Error: ${this.Message}`;
+  }
+}
+
+export class OFunction implements OObject {
+  Parameters: Identifier[];
+  Body: BlockStatement;
+  Env: Environment;
+
+  constructor(parameters: Identifier[], body: BlockStatement, env: Environment) {
+    this.Parameters = parameters;
+    this.Body = body;
+    this.Env = env;
+  }
+
+  Type() {
+    return FUNCTION_OBJ;
+  }
+  Inspect() {
+    let params: string[] = this.Parameters.map(p => p.String());
+
+    return `fn(${params.join(', ')}) {\n ${this.Body.String()}\n}`;
   }
 }

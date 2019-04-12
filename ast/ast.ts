@@ -298,9 +298,9 @@ export class FunctionLiteral implements Statement {
 export class CallExpression implements Expression {
   Token: Token;
   Function: Expression;
-  Arguments: Expression[] | null;
+  Arguments: Expression[];
 
-  constructor(token: Token, func: Expression, args: Expression[] | null = []) {
+  constructor(token: Token, func: Expression, args: Expression[] = []) {
     this.Token = token;
     this.Function = func;
     this.Arguments = args;

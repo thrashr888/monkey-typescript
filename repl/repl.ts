@@ -2,14 +2,14 @@ import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval from '../evaluator/evaluator';
 import process from 'process';
-import Environment from '../object/environment';
+import { NewEnvironment } from '../object/environment';
 
 const PROMPT = '>> ';
 
 export default function Start(input: NodeJS.ReadStream, out: NodeJS.WriteStream) {
   out.write(PROMPT);
 
-  let env = new Environment();
+  let env = NewEnvironment();
 
   input.on('data', line => {
     if (line === 'exit\n') process.exit();

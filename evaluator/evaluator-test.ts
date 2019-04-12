@@ -1,9 +1,9 @@
 import Test from '../test';
-import OObject, { OInteger, OBoolean, OError, NullableOObject } from '../object/object';
+import OObject, { OInteger, OBoolean, OError, NullableOObject, OFunction } from '../object/object';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval, { NULL } from './evaluator';
-import Environment from '../object/environment';
+import { NewEnvironment } from '../object/environment';
 
 export function TestEval(t: Test) {
   console.log('║  ├ TestEvalIntegerExpression');
@@ -18,8 +18,14 @@ export function TestEval(t: Test) {
   TestReturnStatements(t);
   console.log('║  ├ TestErrorHandling');
   TestErrorHandling(t);
-  console.log('║  └ TestErrorHandling');
+  console.log('║  ├ TestLetStatements');
   TestLetStatements(t);
+  console.log('║  ├ TestFunctionObject');
+  TestFunctionObject(t);
+  console.log('║  ├ TestFunctionApplication');
+  TestFunctionApplication(t);
+  console.log('║  └ TestClosures');
+  TestClosures(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -226,10 +232,78 @@ export function TestLetStatements(t: Test) {
   }
 }
 
+function TestFunctionObject(t: Test) {
+  let input = 'fn(x) { x + 2; };';
+
+  let evaluated = testEval(input);
+  if (!evaluated) {
+    t.Errorf('input not evaluated. got=%s', evaluated);
+    return;
+  }
+
+  let fn = evaluated;
+  if (!(fn instanceof OFunction)) {
+    t.Errorf('object is not OFunction. got=%s', fn.constructor.name);
+    return;
+  }
+
+  if (fn.Parameters.length !== 1) {
+    t.Fatalf('function has wrong parameters. Parameters=%s', fn.Parameters);
+  }
+
+  let expectedBody = '(x + 2)';
+
+  if (fn.Body.String() !== expectedBody) {
+    t.Fatalf('body is not %s. got=%s', expectedBody, fn.Body.String());
+  }
+}
+
+function TestFunctionApplication(t: Test) {
+  let tests = [
+    { input: 'let identity = fn(x) { x; }; identity(5);', expected: 5 },
+    { input: 'let identity = fn(x) { return x; }; identity(5);', expected: 5 },
+    { input: 'let double = fn(x) { x * 2; }; double(5);', expected: 10 },
+    { input: 'let add = fn(x, y) { x + y; }; add(5, 5);', expected: 10 },
+    { input: 'let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));', expected: 20 },
+    { input: 'fn(x) { x; }(5)', expected: 5 },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Errorf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    testIntegerObject(t, evaluated, tt.expected);
+  }
+}
+
+function TestClosures(t: Test) {
+  let input = `
+let newAdder = fn(x){
+  fn(y) { x + y };
+};
+
+let addTwo = newAdder(2);
+addTwo(3);
+`;
+
+  // let counter = fn(x) { if(x > 500){ true } else { let foobar=9999; counter(x+1); } }; counter(0);
+
+  let evaluated = testEval(input);
+  if (!evaluated) {
+    t.Errorf('input not evaluated. got=%s', evaluated);
+    return;
+  }
+
+  testIntegerObject(t, evaluated, 5);
+}
+
 function testEval(input: string): NullableOObject {
   let l = new Lexer(input);
   let p = new Parser(l);
-  let env = new Environment();
+  let env = NewEnvironment();
   let program = p.ParseProgram();
 
   return Eval(program, env);

@@ -395,7 +395,7 @@ export default class Parser {
     return new CallExpression(this.curToken, func, this.parseCallArguments());
   }
 
-  parseCallArguments(): Expression[] | null {
+  parseCallArguments(): Expression[] {
     let args: Expression[] = [];
 
     if (this.peekTokenIs(TokenType.RPAREN)) {
@@ -413,7 +413,7 @@ export default class Parser {
     }
 
     if (!this.expectPeek(TokenType.RPAREN)) {
-      return null;
+      return [];
     }
 
     return args;
