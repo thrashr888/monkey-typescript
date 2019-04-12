@@ -19,18 +19,31 @@ import {
 } from '../ast/ast';
 
 export function TestParser(t: Test) {
+  console.log('    - TestLetStatements');
   TestLetStatements(t);
+  console.log('    - TestReturnStatements');
   TestReturnStatements(t);
+  console.log('    - TestIdentifierExpression');
   TestIdentifierExpression(t);
+  console.log('    - TestIntegerExpression');
   TestIntegerExpression(t);
+  console.log('    - TestParsingPrefixExpressions');
   TestParsingPrefixExpressions(t);
+  console.log('    - TestParsingInfixExpressions');
   TestParsingInfixExpressions(t);
+  console.log('    - TestOperatorPrecedenceParsing');
   TestOperatorPrecedenceParsing(t);
+  console.log('    - TestBooleanExpression');
   TestBooleanExpression(t);
+  console.log('    - TestIfExpression');
   TestIfExpression(t);
+  console.log('    - TestIfElseExpression');
   TestIfElseExpression(t);
+  console.log('    - TestFunctionLiteralParsing');
   TestFunctionLiteralParsing(t);
+  console.log('    - TestFunctionParameterParsing');
   TestFunctionParameterParsing(t);
+  console.log('    - TestCallExpressionParsing');
   TestCallExpressionParsing(t);
 }
 
@@ -78,6 +91,7 @@ function checkParserErrors(t: Test, p: Parser) {
   if (errors.length === 0) return;
 
   t.Errorf('parser has %d errors', errors.length);
+
   for (let err of errors) {
     t.Errorf('parser error: %s', err);
   }
@@ -229,7 +243,7 @@ export function TestParsingPrefixExpressions(t: Test) {
   }
 }
 
-function testIntegerLiteral(t: Test, il: Expression, value: number): boolean {
+function testIntegerLiteral(t: Test, il: Expression, value: Number): boolean {
   let integ = il;
   let ok;
 
@@ -267,6 +281,7 @@ function TestParsingInfixExpressions(t: Test) {
     { input: 'true != false', leftValue: true, operator: '!=', rightValue: false },
     { input: 'false == false', leftValue: false, operator: '==', rightValue: false },
   ];
+
   for (let i in infixTests) {
     let tt = infixTests[i];
 
@@ -321,6 +336,7 @@ function TestOperatorPrecedenceParsing(t: Test) {
     ['add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))', 'add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))'],
     ['add(a + b + c * d / f + g)', 'add((((a + b) + ((c * d) / f)) + g))'],
   ];
+
   for (let i in tests) {
     let tt = tests[i];
 
@@ -330,11 +346,11 @@ function TestOperatorPrecedenceParsing(t: Test) {
     checkParserErrors(t, p);
 
     let actual = program.String();
-    t.Assert(actual === tt[1], 'expected=%s got=%s', tt[1], actual);
+    t.Assert(actual === tt[1], 'operator precedence expected=%s got=%s', tt[1], actual);
   }
 }
 
-function testIdentifier(t: Test, exp: Expression, value: string): boolean {
+function testIdentifier(t: Test, exp: Expression, value: String): boolean {
   let ident = exp;
 
   if (!(ident instanceof Identifier)) {
@@ -355,7 +371,7 @@ function testIdentifier(t: Test, exp: Expression, value: string): boolean {
   return true;
 }
 
-function testBooleanLiteral(t: Test, exp: Expression, value: boolean): boolean {
+function testBooleanLiteral(t: Test, exp: Expression, value: Boolean): boolean {
   let bo = exp;
   let ok;
 
@@ -380,15 +396,15 @@ function testBooleanLiteral(t: Test, exp: Expression, value: boolean): boolean {
 }
 
 function testLiteralExpression(t: Test, exp: Expression, expected: any): boolean {
-  if (exp instanceof Number) {
+  if (typeof expected === 'number') {
     return testIntegerLiteral(t, exp, expected);
-  } else if (exp instanceof String) {
+  } else if (typeof expected === 'string') {
     return testIdentifier(t, exp, expected);
-  } else if (exp instanceof Boolean) {
+  } else if (typeof expected === 'boolean') {
     return testBooleanLiteral(t, exp, expected);
   }
 
-  t.Errorf('type of exp not handled. got=%s', typeof exp);
+  t.Errorf('type of expected (%s) not handled. got=%s', typeof expected, exp.constructor.name);
   return false;
 }
 
@@ -396,7 +412,7 @@ function testInfixExpression(t: Test, exp: Expression, left: any, operator: stri
   let opExp = exp;
 
   if (!(opExp instanceof InfixExpression)) {
-    t.Errorf('exp not InfixExpression. got=%s(%s)', typeof opExp, opExp);
+    t.Errorf('exp not InfixExpression. got=%s(%s)', opExp.constructor.name, opExp);
     return false;
   }
 
@@ -418,6 +434,7 @@ function testInfixExpression(t: Test, exp: Expression, left: any, operator: stri
 
 export function TestBooleanExpression(t: Test) {
   let tests = [{ input: 'true', expected: true }, { input: 'false', expected: false }];
+
   for (let i in tests) {
     let tt = tests[i];
 
@@ -617,6 +634,7 @@ function TestFunctionParameterParsing(t: Test) {
     { input: 'fn(x) {};', expectedParams: ['x'] },
     { input: 'fn(x, y, z) {};', expectedParams: ['x', 'y', 'z'] },
   ];
+
   for (let i in tests) {
     let tt = tests[i];
 

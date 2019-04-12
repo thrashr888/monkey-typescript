@@ -5,6 +5,7 @@ import Parser from '../parser/parser';
 import Eval from './evaluator';
 
 export function TestEval(t: Test) {
+  console.log('    - TestEvalIntegerExpression');
   TestEvalIntegerExpression(t);
 }
 

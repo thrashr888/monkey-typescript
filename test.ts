@@ -12,11 +12,13 @@ export default class Test {
   constructor() {}
 
   Error(...args: any) {
+    this.TotalCount++;
     this.FailCount++;
-    console.error(...args);
+    console.error('\x1b[31m%s\x1b[0m', ...args);
   }
   // Errorf(format, ...args) {}
   Fail() {
+    this.TotalCount++;
     this.FailCount++;
   }
   // FailNow() {}
@@ -24,8 +26,9 @@ export default class Test {
     return !!this.FailCount;
   }
   Fatal(...args: any) {
+    this.TotalCount++;
     this.FailCount++;
-    console.error(...args);
+    console.error('\x1b[31m%s\x1b[0m', ...args);
     throw new Error('FAIL');
   }
   // Fatalf(format, ...args) {}
@@ -39,12 +42,12 @@ export default class Test {
   // Name() {}
   Skip(...args: any) {
     this.SkipCount++;
-    console.info('Skipped', ...args);
+    console.info('\x1b[34mSkipped %s\x1b[0m', ...args);
   }
   // SkipNow() {}
   Skipf(format: string, ...args: any) {
     this.SkipCount++;
-    console.info('Skipped', format, ...args);
+    console.info(`\x1b[34mSkipped ${format}\x1b[0m`, ...args);
   }
   Skipped() {
     return !!this.SkipCount;
@@ -62,11 +65,13 @@ export default class Test {
   }
 
   Fatalf(format: string, ...args: any) {
+    this.TotalCount++;
     this.FailCount++;
     throw new Error(format);
   }
 
   Errorf(format: string, ...args: any) {
+    this.TotalCount++;
     this.FailCount++;
 
     var err = new Error();
@@ -75,10 +80,11 @@ export default class Test {
     // var stack = err.stack;
     // Error.prepareStackTrace = orig;
 
-    console.error(format, ...args);
+    console.error(`\x1b[31m${format}\x1b[0m`, ...args);
   }
 
   FailNow() {
+    this.TotalCount++;
     this.FailCount++;
     throw new Error('FAIL');
   }
@@ -87,18 +93,22 @@ export default class Test {
 export function main() {
   let t = new Test();
 
+  console.log('==> Start TestAst');
   TestAst(t);
+  console.log('==> Start TestEval');
   TestEval(t);
+  console.log('==> Start TestLexer');
   TestLexer(t);
+  console.log('==> Start TestParser');
   TestParser(t);
 
   if (t.FailCount > 0) {
-    console.log(`${t.FailCount}/${t.TotalCount} tests failed`);
+    console.error(`\x1b[31m\n==> ${t.FailCount} of ${t.TotalCount} tests failed\x1b[0m\n`);
     process.exit(1);
     return;
   }
 
-  console.info(`${t.PassCount}/${t.TotalCount} tests passed`);
+  console.info(`\x1b[32m==> ${t.PassCount} of ${t.TotalCount} tests passed\x1b[0m\n`);
   process.exit(0);
 }
 

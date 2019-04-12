@@ -155,7 +155,9 @@ export class PrefixExpression implements Expression {
   }
 
   String(): string {
-    if (this.Right !== null) `(${this.Operator}${this.Right.String()})`;
+    if (this.Right !== null) {
+      return `(${this.Operator}${this.Right.String()})`;
+    }
     return `(${this.Operator})`;
   }
 }

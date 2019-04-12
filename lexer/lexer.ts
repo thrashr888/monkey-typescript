@@ -1,4 +1,4 @@
-import Token, { TokenType } from '../token/token';
+import Token, { TokenType, LookupIdent } from '../token/token';
 
 export default class Lexer {
   input: string;
@@ -81,7 +81,8 @@ export default class Lexer {
       default:
         if (isLetter(this.ch)) {
           let literal = this.readIdentifier();
-          return new Token(literal, literal);
+          let type = LookupIdent(literal);
+          return new Token(type, literal);
         } else if (isDigit(this.ch)) {
           return new Token(TokenType.INT, this.readNumber());
         } else {

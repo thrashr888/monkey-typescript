@@ -198,7 +198,9 @@ export default class Parser {
 
   parseIntegerLiteral() {
     try {
-      return new IntegerLiteral(this.curToken, parseInt(this.curToken.Literal, 10));
+      let value = parseInt(this.curToken.Literal, 10);
+      let lit = new IntegerLiteral(this.curToken, value);
+      return lit;
     } catch {
       let msg = `could not parse ${this.curToken.Literal} as integer`;
       this.errors.push(msg);

@@ -3,6 +3,7 @@ import Token, { TokenType } from '../token/token';
 import Test from '../test';
 
 export function TestAst(t: Test) {
+  console.log('    - TestString');
   TestString(t);
 }
 
