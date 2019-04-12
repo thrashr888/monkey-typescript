@@ -4,6 +4,7 @@ import {
   ASTProgram,
   ExpressionStatement,
   IntegerLiteral,
+  StringLiteral,
   AstBoolean,
   PrefixExpression,
   InfixExpression,
@@ -28,6 +29,7 @@ import OObject, {
   RETURN_VALUE_OBJ,
   ERROR_OBJ,
   OFunction,
+  OString,
 } from '../object/object';
 import Environment, { NewEnclosedEnvironment } from '../object/environment';
 
@@ -42,6 +44,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return Eval(node.Expression, env);
   } else if (node instanceof IntegerLiteral) {
     return new OInteger(node.Value);
+  } else if (node instanceof StringLiteral) {
+    return new OString(node.Value);
   } else if (node instanceof AstBoolean) {
     return nativeBoolToBooleanObject(node.Value);
   } else if (node instanceof PrefixExpression) {
@@ -166,6 +170,8 @@ function evalMinusPrefixOperatorExpression(right: AnyObject | null): OObject {
 function evalInfixExpression(operator: string, left: NullableOObject, right: NullableOObject): OObject {
   if (left instanceof OInteger && right instanceof OInteger) {
     return evalIntegerInfixExpression(operator, left, right);
+  } else if (left instanceof OString && right instanceof OString) {
+    return evalStringInfixExpression(operator, left, right);
   } else if (operator === '==') {
     return nativeBoolToBooleanObject(left === right);
   } else if (operator === '!=') {
@@ -206,6 +212,16 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
     default:
       return newError('unknown operator: %s %s %s', left.Type(), operator, right.Type());
   }
+}
+
+function evalStringInfixExpression(operator: string, left: OString, right: OString): OObject {
+  if (operator !== '+') {
+    return newError('unknown operator: %s %s %s', left.Type(), operator, right.Type());
+  }
+
+  let leftVal = left.Value;
+  let rightVal = right.Value;
+  return new OString(leftVal + rightVal);
 }
 
 function evalIfExpression(ie: IfExpression, env: Environment): NullableOObject {

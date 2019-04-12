@@ -16,6 +16,7 @@ import {
   PrefixExpression,
   ReturnStatement,
   Statement,
+  StringLiteral,
 } from '../ast/ast';
 
 export const LOWEST = 1,
@@ -53,6 +54,7 @@ export default class Parser {
 
     this.registerPrefix(TokenType.IDENT, this.parseIdentifier.bind(this));
     this.registerPrefix(TokenType.INT, this.parseIntegerLiteral.bind(this));
+    this.registerPrefix(TokenType.STRING, this.parseStringLiteral.bind(this));
     this.registerPrefix(TokenType.BANG, this.parsePrefixExpression.bind(this));
     this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression.bind(this));
 
@@ -206,6 +208,10 @@ export default class Parser {
       this.errors.push(msg);
       return null;
     }
+  }
+
+  parseStringLiteral() {
+    return new StringLiteral(this.curToken, this.curToken.Literal);
   }
 
   curTokenIs(t: string) {

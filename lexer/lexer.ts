@@ -74,6 +74,9 @@ export default class Lexer {
       case ')':
         tok = new Token(TokenType.RPAREN, this.ch);
         break;
+      case '"':
+        tok = new Token(TokenType.STRING, this.readString());
+        break;
       case 0:
         tok = new Token(TokenType.EOF, '');
         break;
@@ -110,6 +113,17 @@ export default class Lexer {
 
     this.position = this.readPosition;
     this.readPosition += 1;
+  }
+
+  readString() {
+    let position = this.position + 1;
+    while (true) {
+      this.readChar();
+      if (this.ch === '"' || this.ch === 0) {
+        break;
+      }
+    }
+    return this.input.slice(position, this.position);
   }
 
   peekChar() {

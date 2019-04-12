@@ -324,3 +324,21 @@ export class CallExpression implements Expression {
     return out;
   }
 }
+
+export class StringLiteral implements Expression {
+  Token: Token;
+  Value: string;
+
+  constructor(token: Token, value: string) {
+    this.Token = token;
+    this.Value = value;
+  }
+
+  TokenLiteral(): string {
+    return this.Token.Literal;
+  }
+
+  String(): string {
+    return this.Token.Literal;
+  }
+}

@@ -1,5 +1,5 @@
 import Test from '../test';
-import OObject, { OInteger, OBoolean, OError, NullableOObject, OFunction } from '../object/object';
+import OObject, { OInteger, OBoolean, OError, NullableOObject, OFunction, OString } from '../object/object';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval, { NULL } from './evaluator';
@@ -24,8 +24,12 @@ export function TestEval(t: Test) {
   TestFunctionObject(t);
   console.log('║  ├ TestFunctionApplication');
   TestFunctionApplication(t);
-  console.log('║  └ TestClosures');
+  console.log('║  ├ TestClosures');
   TestClosures(t);
+  console.log('║  ├ TestStringLiteral');
+  TestStringLiteral(t);
+  console.log('║  └ TestStringConcatination');
+  TestStringConcatination(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -192,6 +196,7 @@ if (10 > 1) {
       expected: 'unknown operator: BOOLEAN + BOOLEAN',
     },
     { input: 'foobar', expected: 'identifier not found: foobar' },
+    { input: '"Hello" - "World"', expected: 'unknown operator: STRING - STRING' },
   ];
 
   for (let tt of tests) {
@@ -289,8 +294,6 @@ let addTwo = newAdder(2);
 addTwo(3);
 `;
 
-  // let counter = fn(x) { if(x > 500){ true } else { let foobar=9999; counter(x+1); } }; counter(0);
-
   let evaluated = testEval(input);
   if (!evaluated) {
     t.Errorf('input not evaluated. got=%s', evaluated);
@@ -298,6 +301,46 @@ addTwo(3);
   }
 
   testIntegerObject(t, evaluated, 5);
+}
+
+function TestStringLiteral(t: Test) {
+  let input = '"Hello World!"';
+
+  let evaluated = testEval(input);
+  if (!evaluated) {
+    t.Errorf('input not evaluated. got=%s', evaluated);
+    return;
+  }
+
+  let str = evaluated;
+  if (!(str instanceof OString)) {
+    t.Errorf('object is not OString. got=%s', str.constructor.name);
+    return;
+  }
+
+  if (str.Value !== 'Hello World!') {
+    t.Errorf('String has wrong value. got=%s', str.Value);
+  }
+}
+
+function TestStringConcatination(t: Test) {
+  let input = '"Hello" + " " + "World!"';
+
+  let evaluated = testEval(input);
+  if (!evaluated) {
+    t.Errorf('input not evaluated. got=%s', evaluated);
+    return;
+  }
+
+  let str = evaluated;
+  if (!(str instanceof OString)) {
+    t.Errorf('object is not OString. got=%s, %s', str.constructor.name, str.Inspect());
+    return;
+  }
+
+  if (str.Value !== 'Hello World!') {
+    t.Errorf('String has wrong value. got=%s', str.Value);
+  }
 }
 
 function testEval(input: string): NullableOObject {

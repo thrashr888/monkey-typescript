@@ -15,6 +15,7 @@ export const TokenType: { [index: string]: string } = {
   // Identifiers + literals
   IDENT: 'IDENT', // add, foobar, x, y, ...
   INT: 'INT', // 1343456
+  STRING: 'STRING', // "foo", "Hello, World!"
 
   // Operators
   ASSIGN: '=',

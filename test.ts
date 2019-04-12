@@ -95,14 +95,19 @@ export function main() {
 
   console.log(`\x1b[36m╔═════════════>\n║ \x1b[1mStart tests\n\x1b[0m\x1b[36m║\x1b[0m`);
 
-  console.log('║\n╠══╕ \x1b[1mStart TestAst\x1b[0m');
-  TestAst(t);
-  console.log('║\n╠══╕ \x1b[1mStart TestLexer\x1b[0m');
-  TestLexer(t);
-  console.log('║\n╠══╕ \x1b[1mStart TestParser\x1b[0m');
-  TestParser(t);
-  console.log('║\n╠══╕ \x1b[1mStart TestEval\x1b[0m');
-  TestEval(t);
+  console.time('║ tests');
+  try {
+    console.log('║\n╠══╕ \x1b[1mStart TestAst\x1b[0m');
+    TestAst(t);
+    console.log('║\n╠══╕ \x1b[1mStart TestLexer\x1b[0m');
+    TestLexer(t);
+    console.log('║\n╠══╕ \x1b[1mStart TestParser\x1b[0m');
+    TestParser(t);
+    console.log('║\n╠══╕ \x1b[1mStart TestEval\x1b[0m');
+    TestEval(t);
+  } catch {}
+  console.log('║');
+  console.timeEnd('║ tests');
 
   if (t.FailCount > 0) {
     console.error(
@@ -117,7 +122,7 @@ export function main() {
     console.info(`\x1b[34m║\n╠══> \x1b[1m${t.SkipCount}\x1b[0m\x1b[34m tests skipped ℹ️\n║\x1b[0m`);
   }
   console.info(
-    `\x1b[32m║\n╠══> \x1b[1m${t.PassCount} of ${t.TotalCount}\x1b[0m\x1b[32m tests passed ✅\n║\x1b[0m`
+    `\x1b[32m║\n╠══> \x1b[1m${t.PassCount} of ${t.TotalCount}\x1b[0m\x1b[32m assertions passed ✅\n║\x1b[0m`
   );
 
   console.log(`\x1b[36m║ \x1b[1mEnd tests\n\x1b[0m\x1b[36m╚═══════════>\x1b[0m`);

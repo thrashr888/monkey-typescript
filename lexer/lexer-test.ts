@@ -27,6 +27,8 @@ if (5 < 10) {
 
 10 == 10;
 10 != 9;
+"foobar"
+"foo bar"
 `;
 
   let tests = [
@@ -103,6 +105,8 @@ if (5 < 10) {
     [TokenType.NOT_EQ, '!='],
     [TokenType.INT, '9'],
     [TokenType.SEMICOLON, ';'],
+    [TokenType.STRING, 'foobar'],
+    [TokenType.STRING, 'foo bar'],
     [TokenType.EOF, ''],
   ];
 

@@ -11,6 +11,7 @@ import {
   IfExpression,
   InfixExpression,
   IntegerLiteral,
+  StringLiteral,
   LetStatement,
   PrefixExpression,
   ReturnStatement,
@@ -26,6 +27,8 @@ export function TestParser(t: Test) {
   TestIdentifierExpression(t);
   console.log('║  ├ TestIntegerExpression');
   TestIntegerExpression(t);
+  console.log('║  ├ TestStringLiteralExpression');
+  TestStringLiteralExpression(t);
   console.log('║  ├ TestParsingPrefixExpressions');
   TestParsingPrefixExpressions(t);
   console.log('║  ├ TestParsingInfixExpressions');
@@ -199,6 +202,39 @@ export function TestIntegerExpression(t: Test) {
 
   t.Assert(literal.Value === 5, 'literal.Value is not 5. got=%s', literal.Value);
   t.Assert(literal.TokenLiteral() === '5', 'literal.TokenLiteral is not "5". got=%s', literal.TokenLiteral());
+}
+
+export function TestStringLiteralExpression(t: Test) {
+  let input = '"hello world"';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  if (!(stmt instanceof ExpressionStatement)) {
+    t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
+    return;
+  }
+
+  let literal = stmt.Expression;
+  if (!(literal instanceof StringLiteral)) {
+    t.Errorf('exp not type StringLiteral. got=%s', typeof literal);
+    return;
+  }
+
+  t.Assert(literal.Value === 'hello world', 'literal.Value is not "hello world". got=%s', literal.Value);
+  t.Assert(
+    literal.TokenLiteral() === 'hello world',
+    'literal.TokenLiteral is not "hello world". got=%s',
+    literal.TokenLiteral()
+  );
 }
 
 export function TestParsingPrefixExpressions(t: Test) {

@@ -6,7 +6,8 @@ export const INTEGER_OBJ = 'INTEGER',
   NULL_OBJ = 'NULL',
   RETURN_VALUE_OBJ = 'RETURN_VALUE',
   ERROR_OBJ = 'ERROR',
-  FUNCTION_OBJ = 'FUNCTION';
+  FUNCTION_OBJ = 'FUNCTION',
+  STRING_OBJ = 'STRING';
 
 export type AnyObject = OInteger | OBoolean | ONull;
 export type NullableOObject = OObject | null;
@@ -103,5 +104,20 @@ export class OFunction implements OObject {
     let params: string[] = this.Parameters.map(p => p.String());
 
     return `fn(${params.join(', ')}) {\n ${this.Body.String()}\n}`;
+  }
+}
+
+export class OString implements OObject {
+  Value: string;
+
+  constructor(value: string) {
+    this.Value = value;
+  }
+
+  Type() {
+    return STRING_OBJ;
+  }
+  Inspect() {
+    return this.Value;
   }
 }
