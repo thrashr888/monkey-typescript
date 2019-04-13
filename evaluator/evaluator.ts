@@ -1,4 +1,4 @@
-import util from 'util';
+import builtins from './builtins';
 import {
   AnyNodeType,
   ASTProgram,
@@ -30,6 +30,7 @@ import OObject, {
   ERROR_OBJ,
   OFunction,
   OString,
+  Builtin,
 } from '../object/object';
 import Environment, { NewEnclosedEnvironment } from '../object/environment';
 
@@ -239,11 +240,15 @@ function evalIfExpression(ie: IfExpression, env: Environment): NullableOObject {
 
 function evalIdentifier(node: Identifier, env: Environment): NullableOObject {
   let val = env.Get(node.Value);
-  if (val === null) {
-    return newError('identifier not found: %s', node.Value);
+  if (val) {
+    return val;
   }
 
-  return val;
+  if (builtins[node.Value]) {
+    return builtins[node.Value];
+  }
+
+  return newError('identifier not found: %s', node.Value);
 }
 
 function evalExpressions(exps: Expression[], env: Environment): OObject[] {
@@ -265,13 +270,15 @@ function evalExpressions(exps: Expression[], env: Environment): OObject[] {
 
 function applyFunction(fn: OObject, args: OObject[]): NullableOObject {
   let func = fn;
-  if (!(func instanceof OFunction)) {
-    return newError('not a function: %s', fn.Type());
+  if (func instanceof OFunction) {
+    let extendedEnv = extendedFunctionEnv(func, args);
+    let evaluated = Eval(func.Body, extendedEnv);
+    return unwrapReturnValue(evaluated);
+  } else if (func instanceof Builtin) {
+    return func.Fn(...args);
   }
 
-  let extendedEnv = extendedFunctionEnv(func, args);
-  let evaluated = Eval(func.Body, extendedEnv);
-  return unwrapReturnValue(evaluated);
+  return newError('not a function: %s', fn.Type());
 }
 
 function extendedFunctionEnv(fn: OFunction, args: OObject[]): Environment {
@@ -306,7 +313,7 @@ function isTruthy(obj: NullableOObject): boolean {
   }
 }
 
-function newError(format: string, ...args: any[]): OError {
+export function newError(format: string, ...args: any[]): OError {
   return new OError(printf(format, ...args));
 }
 

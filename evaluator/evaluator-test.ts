@@ -28,8 +28,10 @@ export function TestEval(t: Test) {
   TestClosures(t);
   console.log('║  ├ TestStringLiteral');
   TestStringLiteral(t);
-  console.log('║  └ TestStringConcatination');
+  console.log('║  ├ TestStringConcatination');
   TestStringConcatination(t);
+  console.log('║  └ TestBuiltinFunctions');
+  TestBuiltinFunctions(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -343,6 +345,38 @@ function TestStringConcatination(t: Test) {
   }
 }
 
+function TestBuiltinFunctions(t: Test) {
+  let tests = [
+    { input: 'len("")', expected: 0 },
+    { input: 'len("four")', expected: 4 },
+    { input: 'len("hello world")', expected: 11 },
+    { input: 'len(1)', expected: 'argument to `len` not supported, got INTEGER' },
+    { input: 'len("one", "two")', expected: 'wrong number of arguments. got=2, want=1' },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Errorf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    if (typeof tt.expected === 'number') {
+      testIntegerObject(t, evaluated, tt.expected);
+    } else if (typeof tt.expected === 'string') {
+      let errObj = evaluated;
+      if (!(errObj instanceof OError)) {
+        t.Errorf('object is not OError. got=%s, %s', typeof errObj, errObj);
+        continue;
+      }
+
+      if (errObj.Message !== tt.expected) {
+        t.Errorf('wrong error message. expected=%s, got=%s', tt.expected, errObj.Message);
+      }
+    }
+  }
+}
+
 function testEval(input: string): NullableOObject {
   let l = new Lexer(input);
   let p = new Parser(l);
@@ -356,7 +390,7 @@ function testIntegerObject(t: Test, obj: OObject, expected: number): boolean {
   let result = obj;
 
   if (!(result instanceof OInteger)) {
-    t.Errorf('object is not Integer. got=%s', typeof result);
+    t.Errorf('object is not Integer. got=%s(%s)', result.constructor.name, result);
     return false;
   }
 

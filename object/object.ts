@@ -7,7 +7,8 @@ export const INTEGER_OBJ = 'INTEGER',
   RETURN_VALUE_OBJ = 'RETURN_VALUE',
   ERROR_OBJ = 'ERROR',
   FUNCTION_OBJ = 'FUNCTION',
-  STRING_OBJ = 'STRING';
+  STRING_OBJ = 'STRING',
+  BUILTIN_OBJ = 'BUILTIN';
 
 export type AnyObject = OInteger | OBoolean | ONull;
 export type NullableOObject = OObject | null;
@@ -15,6 +16,10 @@ export type NullableOObject = OObject | null;
 export default interface OObject {
   Type(): string;
   Inspect(): string;
+}
+
+export interface BuiltinFunction {
+  (...args: OObject[]): OObject;
 }
 
 export class OInteger implements OObject {
@@ -119,5 +124,20 @@ export class OString implements OObject {
   }
   Inspect() {
     return this.Value;
+  }
+}
+
+export class Builtin implements OObject {
+  Fn: BuiltinFunction;
+
+  constructor(fn: BuiltinFunction) {
+    this.Fn = fn;
+  }
+
+  Type() {
+    return BUILTIN_OBJ;
+  }
+  Inspect() {
+    return 'builtin function';
   }
 }
