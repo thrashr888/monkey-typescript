@@ -1,14 +1,14 @@
 import { Identifier, BlockStatement } from '../ast/ast';
 import Environment from './environment';
 
-export const INTEGER_OBJ = 'INTEGER',
-  BOOLEAN_OBJ = 'BOOLEAN',
-  NULL_OBJ = 'NULL',
-  RETURN_VALUE_OBJ = 'RETURN_VALUE',
+export const BOOLEAN_OBJ = 'BOOLEAN',
+  BUILTIN_OBJ = 'BUILTIN',
   ERROR_OBJ = 'ERROR',
   FUNCTION_OBJ = 'FUNCTION',
-  STRING_OBJ = 'STRING',
-  BUILTIN_OBJ = 'BUILTIN';
+  INTEGER_OBJ = 'INTEGER',
+  NULL_OBJ = 'NULL',
+  RETURN_VALUE_OBJ = 'RETURN_VALUE',
+  STRING_OBJ = 'STRING';
 
 export type AnyObject = OInteger | OBoolean | ONull;
 export type NullableOObject = OObject | null;

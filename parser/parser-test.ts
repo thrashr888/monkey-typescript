@@ -11,11 +11,11 @@ import {
   IfExpression,
   InfixExpression,
   IntegerLiteral,
-  StringLiteral,
   LetStatement,
   PrefixExpression,
   ReturnStatement,
   Statement,
+  StringLiteral,
 } from '../ast/ast';
 
 export function TestParser(t: Test) {
