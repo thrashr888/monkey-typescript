@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"golang-interpreter/token"
+	"monkey/token"
 	"testing"
 )
 
