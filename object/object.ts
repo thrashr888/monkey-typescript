@@ -8,7 +8,8 @@ export const BOOLEAN_OBJ = 'BOOLEAN',
   INTEGER_OBJ = 'INTEGER',
   NULL_OBJ = 'NULL',
   RETURN_VALUE_OBJ = 'RETURN_VALUE',
-  STRING_OBJ = 'STRING';
+  STRING_OBJ = 'STRING',
+  ARRAY_OBJ = 'ARRAY';
 
 export type AnyObject = OInteger | OBoolean | ONull;
 export type NullableOObject = OObject | null;
@@ -139,5 +140,22 @@ export class Builtin implements OObject {
   }
   Inspect() {
     return 'builtin function';
+  }
+}
+
+export class OArray implements OObject {
+  Elements: OObject[];
+
+  constructor(elements: OObject[]) {
+    this.Elements = elements;
+  }
+
+  Type() {
+    return ARRAY_OBJ;
+  }
+  Inspect() {
+    let elements: string[] = this.Elements.map(e => e.Inspect());
+
+    return `[${elements.join(', ')}]`;
   }
 }

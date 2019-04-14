@@ -16,6 +16,8 @@ import {
   PrefixExpression,
   ReturnStatement,
   StringLiteral,
+  ArrayLiteral,
+  IndexExpression,
 } from '../ast/ast';
 import OObject, {
   AnyObject,
@@ -31,6 +33,8 @@ import OObject, {
   OString,
   RETURN_VALUE_OBJ,
   ReturnValue,
+  OArray,
+  ARRAY_OBJ,
 } from '../object/object';
 import Environment, { NewEnclosedEnvironment } from '../object/environment';
 
@@ -85,6 +89,18 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
       return applyFunction(func, args);
     }
     return func;
+  } else if (node instanceof ArrayLiteral) {
+    let elements = evalExpressions(node.Elements, env);
+    if (elements.length === 1 && isError(elements[0])) {
+      return elements[0];
+    }
+    return new OArray(elements);
+  } else if (node instanceof IndexExpression) {
+    let left = Eval(node.Left, env);
+    if (isError(left)) return left;
+    let index = Eval(node.Index, env);
+    if (isError(index)) return index;
+    return evalIndexExpression(left, index);
   }
 
   return null;
@@ -266,6 +282,28 @@ function evalExpressions(exps: Expression[], env: Environment): OObject[] {
   }
 
   return result;
+}
+
+function evalIndexExpression(left: OObject | null, index: OObject | null): OObject {
+  if (left === null || index === null) return NULL;
+
+  if (left.Type() === ARRAY_OBJ && index.Type() === INTEGER_OBJ) {
+    return evalArrayIndexExpression(left, index);
+  } else {
+    return newError('index operator not supported: %s', left.Type());
+  }
+}
+
+function evalArrayIndexExpression(array: OObject, index: OObject): OObject {
+  let arrayObject = array as OArray;
+  let idx = (index as OInteger).Value;
+  let max = arrayObject.Elements.length - 1;
+
+  if (idx < 0 || idx > max) {
+    return NULL;
+  }
+
+  return arrayObject.Elements[idx];
 }
 
 function applyFunction(fn: OObject, args: OObject[]): NullableOObject {

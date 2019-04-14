@@ -8,7 +8,9 @@ export default class Token {
   }
 }
 
-export const TokenType: { [index: string]: string } = {
+export type TokenTypeName = string;
+
+export const TokenType: { [index: string]: TokenTypeName } = {
   ILLEGAL: 'ILLEGAL',
   EOF: 'EOF',
 
@@ -16,6 +18,9 @@ export const TokenType: { [index: string]: string } = {
   IDENT: 'IDENT', // add, foobar, x, y, ...
   INT: 'INT', // 1343456
   STRING: 'STRING', // "foo", "Hello, World!"
+
+  LBRACKET: '[', // for arrays
+  RBRACKET: ']',
 
   // Operators
   ASSIGN: '=',

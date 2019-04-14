@@ -16,6 +16,8 @@ import {
   ReturnStatement,
   Statement,
   StringLiteral,
+  ArrayLiteral,
+  IndexExpression,
 } from '../ast/ast';
 
 export function TestParser(t: Test) {
@@ -45,8 +47,12 @@ export function TestParser(t: Test) {
   TestFunctionLiteralParsing(t);
   console.log('║  ├ TestFunctionParameterParsing');
   TestFunctionParameterParsing(t);
-  console.log('║  └ TestCallExpressionParsing');
+  console.log('║  ├ TestCallExpressionParsing');
   TestCallExpressionParsing(t);
+  console.log('║  ├ TestParsingArrayLiterals');
+  TestParsingArrayLiterals(t);
+  console.log('║  └ TestParsingIndexExpressions');
+  TestParsingIndexExpressions(t);
 }
 
 function TestLetStatements(t: Test) {
@@ -370,6 +376,8 @@ function TestOperatorPrecedenceParsing(t: Test) {
     ['a + add(b * c) + d', '((a + add((b * c))) + d)'],
     ['add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))', 'add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))'],
     ['add(a + b + c * d / f + g)', 'add((((a + b) + ((c * d) / f)) + g))'],
+    ['a * [1, 2, 3, 4][b * c] * d', '((a * ([1, 2, 3, 4][(b * c)])) * d)'],
+    ['add(a * b[2], b[1], 2 * [1, 2][1])', 'add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))'],
   ];
 
   for (let i in tests) {
@@ -741,4 +749,68 @@ function TestCallExpressionParsing(t: Test) {
   testLiteralExpression(t, exp.Arguments[0], 1);
   testInfixExpression(t, exp.Arguments[1], 2, '*', 3);
   testInfixExpression(t, exp.Arguments[2], 4, '+', 5);
+}
+
+function TestParsingArrayLiterals(t: Test) {
+  let input = '[1, 2 * 2, 3 + 3]';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  if (!(stmt instanceof ExpressionStatement)) {
+    t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
+    return;
+  }
+
+  let array = stmt.Expression;
+  if (!(array instanceof ArrayLiteral)) {
+    t.Errorf('stmt.Expression is not type ArrayLiteral. got=', typeof array);
+    return;
+  }
+
+  if (!array.Elements || array.Elements.length !== 3) {
+    t.Errorf('wrong length of arguments. want 3. got=', array.Elements);
+    return;
+  }
+
+  testIntegerLiteral(t, array.Elements[0], 1);
+  testInfixExpression(t, array.Elements[1], 2, '*', 2);
+  testInfixExpression(t, array.Elements[2], 3, '+', 3);
+}
+
+function TestParsingIndexExpressions(t: Test) {
+  let input = 'myArray[1 + 1]';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  if (!(stmt instanceof ExpressionStatement)) {
+    t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
+    return;
+  }
+
+  let indexExp = stmt.Expression;
+  if (!(indexExp instanceof IndexExpression)) {
+    t.Errorf('stmt.Expression is not type IndexExpression. got=', typeof indexExp);
+    return;
+  }
+
+  testIdentifier(t, indexExp.Left, 'myArray');
+  testInfixExpression(t, indexExp.Index, 1, '+', 1);
 }

@@ -1,5 +1,13 @@
 import Test from '../test';
-import OObject, { OInteger, OBoolean, OError, NullableOObject, OFunction, OString } from '../object/object';
+import OObject, {
+  OInteger,
+  OBoolean,
+  OError,
+  NullableOObject,
+  OFunction,
+  OString,
+  OArray,
+} from '../object/object';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval, { NULL } from './evaluator';
@@ -30,8 +38,12 @@ export function TestEval(t: Test) {
   TestStringLiteral(t);
   console.log('║  ├ TestStringConcatination');
   TestStringConcatination(t);
-  console.log('║  └ TestBuiltinFunctions');
+  console.log('║  ├ TestBuiltinFunctions');
   TestBuiltinFunctions(t);
+  console.log('║  ├ TestArrayLiterals');
+  TestArrayLiterals(t);
+  console.log('║  └ TestArrayIndexExpressions');
+  TestArrayIndexExpressions(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -377,6 +389,59 @@ function TestBuiltinFunctions(t: Test) {
   }
 }
 
+function TestArrayLiterals(t: Test) {
+  let input = '[1, 2 * 2, 3 + 3]';
+
+  let evaluated = testEval(input);
+  if (!evaluated) {
+    t.Errorf('input not evaluated. got=%s', evaluated);
+    return;
+  }
+
+  let result = evaluated;
+  if (!(result instanceof OArray)) {
+    t.Errorf('object is not OArray. got=%s', result.constructor.name);
+    return;
+  }
+
+  if (result.Elements.length !== 3) {
+    t.Fatalf('array has wrong num of elements. got=%s, want=3', result.Elements.length);
+  }
+
+  testIntegerObject(t, result.Elements[0], 1);
+  testIntegerObject(t, result.Elements[1], 4);
+  testIntegerObject(t, result.Elements[2], 6);
+}
+
+function TestArrayIndexExpressions(t: Test) {
+  let tests = [
+    { input: '[1, 2, 3][0]', expected: 1 },
+    { input: '[1, 2, 3][1]', expected: 2 },
+    { input: '[1, 2, 3][2]', expected: 3 },
+    { input: 'let i = 0; [1][i];', expected: 1 },
+    { input: '[1, 2, 3][1 + 1];', expected: 3 },
+    { input: 'let myArray = [1, 2, 3]; myArray[2];', expected: 3 },
+    { input: 'let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];', expected: 6 },
+    { input: 'let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]', expected: 2 },
+    { input: '[1, 2, 3][3]', expected: null },
+    { input: '[1, 2, 3][-1]', expected: null },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Errorf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    if (typeof tt.expected === 'number') {
+      testIntegerObject(t, evaluated, tt.expected);
+    } else {
+      testNullObject(t, evaluated);
+    }
+  }
+}
+
 function testEval(input: string): NullableOObject {
   let l = new Lexer(input);
   let p = new Parser(l);
@@ -390,7 +455,7 @@ function testIntegerObject(t: Test, obj: OObject, expected: number): boolean {
   let result = obj;
 
   if (!(result instanceof OInteger)) {
-    t.Errorf('object is not Integer. got=%s(%s)', result.constructor.name, result);
+    t.Errorf('object is not OInteger. got=%s(%s)', result.constructor.name, result);
     return false;
   }
 

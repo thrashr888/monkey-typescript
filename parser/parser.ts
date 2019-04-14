@@ -1,4 +1,4 @@
-import Token, { TokenType } from '../token/token';
+import Token, { TokenType, TokenTypeName } from '../token/token';
 import Lexer from '../lexer/lexer';
 import {
   AstBoolean,
@@ -17,6 +17,8 @@ import {
   ReturnStatement,
   Statement,
   StringLiteral,
+  ArrayLiteral,
+  IndexExpression,
 } from '../ast/ast';
 
 export const LOWEST = 1,
@@ -25,9 +27,10 @@ export const LOWEST = 1,
   SUM = 4, // +
   PRODUCT = 5, // *
   PREFIX = 6, // X or !X
-  CALL = 7; // myFunction(X)
+  CALL = 7, // myFunction(X)
+  INDEX = 8; // array[index]
 
-export const precedences = {
+export const precedences: { [index: string]: number } = {
   [TokenType.EQ]: EQUALS,
   [TokenType.NOT_EQ]: EQUALS,
   [TokenType.LT]: LESSGREATER,
@@ -37,6 +40,7 @@ export const precedences = {
   [TokenType.SLASH]: PRODUCT,
   [TokenType.ASTERISK]: PRODUCT,
   [TokenType.LPAREN]: CALL,
+  [TokenType.LBRACKET]: INDEX,
 };
 
 export default class Parser {
@@ -64,8 +68,8 @@ export default class Parser {
     this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression.bind(this));
 
     this.registerPrefix(TokenType.IF, this.parseIfExpression.bind(this));
-
     this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral.bind(this));
+    this.registerPrefix(TokenType.LBRACKET, this.parseArrayLiteral.bind(this));
 
     [
       TokenType.PLUS,
@@ -79,6 +83,7 @@ export default class Parser {
     ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
 
     this.registerInfix(TokenType.LPAREN, this.parseCallExpression.bind(this));
+    this.registerInfix(TokenType.LBRACKET, this.parseIndexExpression.bind(this));
 
     // equivalent to calling this.nextToken() twice
     this.peekToken = this.l.NextToken();
@@ -214,15 +219,15 @@ export default class Parser {
     return new StringLiteral(this.curToken, this.curToken.Literal);
   }
 
-  curTokenIs(t: string) {
+  curTokenIs(t: TokenTypeName) {
     return this.curToken.Type === t;
   }
 
-  peekTokenIs(t: string) {
+  peekTokenIs(t: TokenTypeName) {
     return this.peekToken.Type === t;
   }
 
-  expectPeek(t: string) {
+  expectPeek(t: TokenTypeName) {
     if (this.peekTokenIs(t)) {
       this.nextToken();
       return true;
@@ -232,18 +237,18 @@ export default class Parser {
     }
   }
 
-  peekError(t: string): void {
+  peekError(t: TokenTypeName): void {
     if (this.peekToken === null) return;
 
     let msg = `expected next token to be ${t}, got ${this.peekToken.Type} instead`;
     this.errors.push(msg);
   }
 
-  registerPrefix(tokenType: string, fn: Function) {
+  registerPrefix(tokenType: TokenTypeName, fn: Function) {
     this.prefixParseFns[tokenType] = fn;
   }
 
-  registerInfix(tokenType: string, fn: Function) {
+  registerInfix(tokenType: TokenTypeName, fn: Function) {
     this.infixParseFns[tokenType] = fn;
   }
 
@@ -398,30 +403,48 @@ export default class Parser {
   }
 
   parseCallExpression(func: Expression) {
-    return new CallExpression(this.curToken, func, this.parseCallArguments());
+    return new CallExpression(this.curToken, func, this.parseExpressionList(TokenType.RPAREN));
   }
 
-  parseCallArguments(): Expression[] {
-    let args: Expression[] = [];
+  parseArrayLiteral(): Expression {
+    return new ArrayLiteral(this.curToken, this.parseExpressionList(TokenType.RBRACKET));
+  }
 
-    if (this.peekTokenIs(TokenType.RPAREN)) {
+  parseExpressionList(end: TokenTypeName): Expression[] {
+    let list: Expression[] = [];
+
+    if (this.peekTokenIs(end)) {
       this.nextToken();
-      return args;
+      return list;
     }
 
     this.nextToken();
-    args.push(this.parseExpression(LOWEST));
+    list.push(this.parseExpression(LOWEST));
 
     while (this.peekTokenIs(TokenType.COMMA)) {
       this.nextToken();
       this.nextToken();
-      args.push(this.parseExpression(LOWEST));
+      list.push(this.parseExpression(LOWEST));
     }
 
-    if (!this.expectPeek(TokenType.RPAREN)) {
+    if (!this.expectPeek(end)) {
       return [];
     }
 
-    return args;
+    return list;
+  }
+
+  parseIndexExpression(left: Expression): Expression | null {
+    let curToken = this.curToken;
+
+    this.nextToken();
+
+    let exp = new IndexExpression(curToken, left, this.parseExpression(LOWEST));
+
+    if (!this.expectPeek(TokenType.RBRACKET)) {
+      return null;
+    }
+
+    return exp;
   }
 }

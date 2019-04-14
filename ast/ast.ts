@@ -298,3 +298,42 @@ export class StringLiteral implements Expression {
     return this.Token.Literal;
   }
 }
+
+export class ArrayLiteral implements Expression {
+  Token: Token;
+  Elements: Expression[] = [];
+
+  constructor(token: Token, elements: Expression[] = []) {
+    this.Token = token;
+    this.Elements = elements;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+  String() {
+    let out = '';
+    let elements: string[] = this.Elements.map(e => e.String());
+    out += `[${elements.join(', ')}]`;
+    return out;
+  }
+}
+
+export class IndexExpression implements Expression {
+  Token: Token;
+  Left: Expression;
+  Index: Expression;
+
+  constructor(token: Token, left: Expression, index: Expression) {
+    this.Token = token;
+    this.Left = left;
+    this.Index = index;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+  String() {
+    return `(${this.Left.String()}[${this.Index.String()}])`;
+  }
+}
