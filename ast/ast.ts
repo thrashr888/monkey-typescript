@@ -14,7 +14,7 @@ export class ASTProgram implements Node {
     this.Statements = statements;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     if (this.Statements.length > 0) {
       return this.Statements[0].TokenLiteral();
     } else {
@@ -22,9 +22,8 @@ export class ASTProgram implements Node {
     }
   }
 
-  String(): string {
-    let stmts = this.Statements.map(s => s.String());
-    return stmts.join('');
+  String() {
+    return this.Statements.map(s => s.String()).join('');
   }
 }
 
@@ -43,19 +42,12 @@ export class LetStatement implements Statement {
     this.Value = value;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
-    let out = '';
-
-    out += `${this.TokenLiteral()}`;
-    if (this.Name !== null) out += ` ${this.Name.String()} = `;
-    if (this.Value !== null) out += this.Value.String();
-    out += ';';
-
-    return out;
+  String() {
+    return `${this.TokenLiteral()} ${this.Name.String()} = ${this.Value.String()};`;
   }
 }
 
@@ -68,14 +60,13 @@ export class ReturnStatement implements Statement {
     this.ReturnValue = returnValue;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
   String() {
-    let out = '';
+    let out = `${this.TokenLiteral()}  = `;
 
-    out += `${this.TokenLiteral()}  = `;
     if (this.ReturnValue !== null) out += this.ReturnValue.String();
     out += ';';
 
@@ -92,14 +83,12 @@ export class ExpressionStatement implements Statement {
     this.Expression = expression;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
-    if (this.Expression !== null) return this.Expression.String();
-
-    return '';
+  String() {
+    return this.Expression.String();
   }
 }
 
@@ -112,11 +101,11 @@ export class Identifier implements Expression {
     this.Value = value;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
+  String() {
     return this.Value;
   }
 }
@@ -130,11 +119,11 @@ export class IntegerLiteral implements Expression {
     this.Value = value;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
+  String() {
     return this.Token.Literal;
   }
 }
@@ -150,15 +139,12 @@ export class PrefixExpression implements Expression {
     this.Right = right;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
-    if (this.Right !== null) {
-      return `(${this.Operator}${this.Right.String()})`;
-    }
-    return `(${this.Operator})`;
+  String() {
+    return `(${this.Operator}${this.Right.String()})`;
   }
 }
 
@@ -175,17 +161,12 @@ export class InfixExpression implements Expression {
     this.Right = right;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
-    let out = '(';
-    if (this.Left !== null) out += `${this.Left.String()} `;
-    out += `${this.Operator}`;
-    if (this.Right !== null) out += ` ${this.Right.String()}`;
-    out += ')';
-    return out;
+  String() {
+    return `(${this.Left.String()} ${this.Operator} ${this.Right.String()})`;
   }
 }
 
@@ -198,11 +179,11 @@ export class AstBoolean implements Expression {
     this.Value = value;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
+  String() {
     return this.Token.Literal;
   }
 }
@@ -225,15 +206,12 @@ export class IfExpression implements Expression {
     this.Alternative = alternative;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
   String() {
-    let out = '';
-
-    if (this.Condition != null) out += `${this.Condition.String()} `;
-    if (this.Consequence != null) out += `${this.Consequence.String()}`;
+    let out = `${this.Condition.String()} ${this.Consequence.String()}`;
 
     if (this.Alternative != null) out += `else ${this.Alternative.String()}`;
 
@@ -250,18 +228,12 @@ export class BlockStatement implements Statement {
     this.Statements = statements;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
-    let out = '';
-
-    for (let s of this.Statements) {
-      out += s.String();
-    }
-
-    return out;
+  String() {
+    return this.Statements.map(s => s.String()).join('');
   }
 }
 
@@ -276,22 +248,14 @@ export class FunctionLiteral implements Statement {
     this.Body = body;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
-    let out = '';
+  String() {
+    let params: string[] = this.Parameters.map(p => p.String());
 
-    let params = this.Parameters.map(p => p.String());
-
-    out += `${this.TokenLiteral()}(`;
-    out += params.join(', ');
-    out += `)`;
-
-    if (this.Body !== null) out += ` ${this.Body.String()}`;
-
-    return out;
+    return `${this.TokenLiteral()}(${params.join(', ')}) ${this.Body.String()}`;
   }
 }
 
@@ -306,22 +270,14 @@ export class CallExpression implements Expression {
     this.Arguments = args;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
-    let out = '';
+  String() {
+    let args: string[] = this.Arguments.map(a => a.String());
 
-    let args: string[] = [];
-
-    if (this.Arguments) args = this.Arguments.map(a => a.String());
-
-    out += `${this.Function.String()}(`;
-    out += args.join(', ');
-    out += `)`;
-
-    return out;
+    return `${this.Function.String()}(${args.join(', ')})`;
   }
 }
 
@@ -334,11 +290,11 @@ export class StringLiteral implements Expression {
     this.Value = value;
   }
 
-  TokenLiteral(): string {
+  TokenLiteral() {
     return this.Token.Literal;
   }
 
-  String(): string {
+  String() {
     return this.Token.Literal;
   }
 }

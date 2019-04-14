@@ -49,7 +49,7 @@ export function TestParser(t: Test) {
   TestCallExpressionParsing(t);
 }
 
-export function TestLetStatements(t: Test) {
+function TestLetStatements(t: Test) {
   let tests = [
     { input: 'let x = 5;', expectedIdentifier: 'x', expectedValue: 5 },
     { input: 'let y = true;', expectedIdentifier: 'y', expectedValue: true },
@@ -117,7 +117,7 @@ function testLetStatement(t: Test, stmt: Statement, name: string): boolean {
   return true;
 }
 
-export function TestReturnStatements(t: Test) {
+function TestReturnStatements(t: Test) {
   let input = `
 return 5;
 return 10;
@@ -142,7 +142,7 @@ return 838383;
   }
 }
 
-export function TestIdentifierExpression(t: Test) {
+function TestIdentifierExpression(t: Test) {
   let input = 'foobar';
 
   let l = new Lexer(input);
@@ -175,7 +175,7 @@ export function TestIdentifierExpression(t: Test) {
   );
 }
 
-export function TestIntegerExpression(t: Test) {
+function TestIntegerExpression(t: Test) {
   let input = '5';
 
   let l = new Lexer(input);
@@ -204,7 +204,7 @@ export function TestIntegerExpression(t: Test) {
   t.Assert(literal.TokenLiteral() === '5', 'literal.TokenLiteral is not "5". got=%s', literal.TokenLiteral());
 }
 
-export function TestStringLiteralExpression(t: Test) {
+function TestStringLiteralExpression(t: Test) {
   let input = '"hello world"';
 
   let l = new Lexer(input);
@@ -237,7 +237,7 @@ export function TestStringLiteralExpression(t: Test) {
   );
 }
 
-export function TestParsingPrefixExpressions(t: Test) {
+function TestParsingPrefixExpressions(t: Test) {
   let prefixTests = [
     { input: '!5', operator: '!', value: 5 },
     { input: '-15', operator: '-', value: 15 },
@@ -467,7 +467,7 @@ function testInfixExpression(t: Test, exp: Expression, left: any, operator: stri
   return true;
 }
 
-export function TestBooleanExpression(t: Test) {
+function TestBooleanExpression(t: Test) {
   let tests = [{ input: 'true', expected: true }, { input: 'false', expected: false }];
 
   for (let i in tests) {
