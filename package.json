@@ -16,9 +16,15 @@
     "type": "git",
     "url": "git+https://github.com/thrashr888/monkey-typescript.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "typescript",
+    "interpreter",
+    "monkey",
+    "language",
+    "javascript"
+  ],
+  "author": "Paul Thrasher <thrashr888@gmail.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/thrashr888/monkey-typescript/issues"
   },
