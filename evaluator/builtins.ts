@@ -78,9 +78,7 @@ var builtins: { [s: string]: Builtin } = {
     return new OArray([...arr.Elements, args[1]]);
   }),
   puts: new Builtin(function(...args: OObject[]): OObject {
-    for (let arg of args) {
-      console.log(arg.Inspect());
-    }
+    console.log(args.map(a => a.Inspect()).join(' '));
 
     return NULL;
   }),

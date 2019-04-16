@@ -2,6 +2,34 @@
 
 A [Monkey](https://interpreterbook.com/) language interpreter in Typescript.
 
+## Example
+
+In `example.monkey`:
+
+```javascript
+let log = fn(msg) {
+  return puts("Log:", msg);
+};
+
+log(0);
+
+let a = "1";
+log(a);
+
+let b = [1, 2, "three"];
+log(b[1]);
+
+let c = {"a": "bee", "c": "three"};
+log(c["c"]);
+```
+
+    $ npx ts-node index.ts example.monkey
+    Log: 0
+    Log: 1
+    Log: 2
+    Log: three
+    null
+
 ## Usage
 
     $ npm install monkey-typescript
@@ -31,6 +59,10 @@ console.log(evaluated.Inspect());
 ### Run
 
     $ npm start
+
+or:
+
+    $ ts-node index.ts
 
 ### Test
 
@@ -68,7 +100,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Monkey Language MIT LICENSE
+## Monkey Language and Go Interpreter MIT LICENSE
 
 Copyright (c) 2016-2017 Thorsten Ball
 

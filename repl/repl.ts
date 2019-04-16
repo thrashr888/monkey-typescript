@@ -6,51 +6,49 @@ import { NewEnvironment } from '../object/environment';
 
 const PROMPT = '>> ';
 
-export default function Start(input: NodeJS.ReadStream, out: NodeJS.WriteStream) {
-  out.write(PROMPT);
+export default function Start(input: any, output: NodeJS.WriteStream, quiet = false) {
+  if (!quiet) output.write(PROMPT);
 
   let env = NewEnvironment();
 
-  input.on('data', line => {
-    if (line === 'exit\n') process.exit();
+  input.on('data', (data: any) => {
+    if (data === 'exit\n') process.exit(0);
 
-    let l = new Lexer(line);
+    let l = new Lexer(data);
     let p = new Parser(l);
 
     let program = p.ParseProgram();
 
     if (p.Errors().length !== 0) {
-      printParserErrors(p.Errors());
-      out.write(PROMPT);
+      printParserErrors(process.stderr, p.Errors());
+      if (!quiet) output.write(PROMPT);
       return;
     }
 
     let evaluated = Eval(program, env);
     if (evaluated !== null) {
-      out.write(evaluated.Inspect());
-      out.write('\n');
+      output.write(evaluated.Inspect());
+      output.write('\n');
     }
 
-    out.write(PROMPT);
+    if (!quiet) output.write(PROMPT);
+  });
+
+  input.on('close', () => {
+    process.exit(0);
+  });
+
+  input.on('error', (err: any) => {
+    process.stderr.write(`\x1b[31m==> \t${err}\n\x1b[0m`);
   });
 }
 
-const MONKEY_FACE = `            __,__
-   .--.  .-"     "-.  .--.
-  / .. \\/  .-. .-.  \\/ .. \\
- | |  '|  /   Y   \\  |'  | |
- | \\   \\  \\ 0 | 0 /  /   / |
-  \\ '- ,\\.-"""""""-./, -' /
-   ''-' /_   ^ ^   _\\ '-''
-       |  \\._   _./  |
-       \\   \\ '~' /   /
-        '._ '-=-' _.'
-           '-----'
-`;
+function printParserErrors(output: NodeJS.WriteStream, errors: string[]) {
+  output.write(`\x1b[31m`); // red
+  output.write('Woops! We ran into some monkey business here!\n');
+  output.write('    Parser errors:\n');
 
-function printParserErrors(errors: string[]) {
-  console.log(MONKEY_FACE);
-  console.log('Woops! We ran into some monkey business here!');
-  console.log(' parser errors:');
-  errors.forEach((msg: string) => console.log(`\t${msg}`));
+  errors.forEach((msg: string) => output.write(`\t${msg}\n`));
+
+  output.write('\x1b[0m');
 }

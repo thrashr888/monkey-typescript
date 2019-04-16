@@ -179,7 +179,7 @@ export default class Parser {
 
   parseExpression(precedence: number) {
     if (!this.prefixParseFns[this.curToken.Type]) {
-      this.noPrefixParseFnError(this.curToken.Type);
+      this.noPrefixParseFnError(this.curToken);
       return null;
     }
 
@@ -254,8 +254,8 @@ export default class Parser {
     this.infixParseFns[tokenType] = fn;
   }
 
-  noPrefixParseFnError(t: string) {
-    let msg = `no prefix parse function for ${t} found`;
+  noPrefixParseFnError(t: Token) {
+    let msg = `no prefix parse function for ${t.Type} found: ${t.Literal}`;
     this.errors.push(msg);
   }
 
