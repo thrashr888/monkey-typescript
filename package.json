@@ -1,11 +1,11 @@
 {
   "name": "monkey-typescript",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Monkey language interpreter in Typescript",
   "main": "build/index",
   "types": "build/index",
   "bin": {
-    "monkey-typescript": "build/index.js"
+    "monkey-typescript": "./bin/monkey-typescript"
   },
   "scripts": {
     "start": "npm run build:live",

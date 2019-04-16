@@ -1,0 +1,12 @@
+.github
+.vscode
+
+./ast
+./evaluator
+./lexer
+./object
+./parser
+./repl
+./token
+
+test
