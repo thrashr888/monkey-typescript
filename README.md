@@ -58,6 +58,10 @@ let evaluated = Eval(program, env);
 console.log(evaluated.Inspect());
 ```
 
+## Development
+
+Contributions welcome!
+
 ### Build
 
     $ nvm use
