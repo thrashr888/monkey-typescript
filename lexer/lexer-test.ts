@@ -30,6 +30,7 @@ if (5 < 10) {
 "foobar"
 "foo bar"
 [1, 2];
+{"foo": "bar"}
 `;
 
   let tests = [
@@ -114,6 +115,11 @@ if (5 < 10) {
     [TokenType.INT, '2'],
     [TokenType.RBRACKET, ']'],
     [TokenType.SEMICOLON, ';'],
+    [TokenType.LBRACE, '{'],
+    [TokenType.STRING, 'foo'],
+    [TokenType.COLON, ':'],
+    [TokenType.STRING, 'bar'],
+    [TokenType.RBRACE, '}'],
     [TokenType.EOF, ''],
   ];
 

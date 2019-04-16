@@ -2,6 +2,7 @@ import { TestAst } from './ast/ast-test';
 import { TestEval } from './evaluator/evaluator-test';
 import { TestLexer } from './lexer/lexer-test';
 import { TestParser } from './parser/parser-test';
+import { TestObject } from './object/object-test';
 
 export default class Test {
   TotalCount: number = 0;
@@ -95,7 +96,7 @@ export function main() {
 
   console.log(`\x1b[36m╔═════════════>\n║ \x1b[1mStart tests\n\x1b[0m\x1b[36m║\x1b[0m`);
 
-  console.time('║ tests');
+  console.time('║ took');
   try {
     console.log('║\n╠══╕ \x1b[1mStart TestAst\x1b[0m');
     TestAst(t);
@@ -105,9 +106,11 @@ export function main() {
     TestParser(t);
     console.log('║\n╠══╕ \x1b[1mStart TestEval\x1b[0m');
     TestEval(t);
+    console.log('║\n╠══╕ \x1b[1mStart TestObject\x1b[0m');
+    TestObject(t);
   } catch {}
   console.log('║');
-  console.timeEnd('║ tests');
+  console.timeEnd('║ took');
 
   if (t.FailCount > 0) {
     console.error(

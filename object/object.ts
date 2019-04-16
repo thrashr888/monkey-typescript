@@ -9,18 +9,58 @@ export const BOOLEAN_OBJ = 'BOOLEAN',
   NULL_OBJ = 'NULL',
   RETURN_VALUE_OBJ = 'RETURN_VALUE',
   STRING_OBJ = 'STRING',
-  ARRAY_OBJ = 'ARRAY';
+  ARRAY_OBJ = 'ARRAY',
+  HASH_OBJ = 'HASH';
 
-export type AnyObject = OInteger | OBoolean | ONull;
+export type AnyObject = OInteger | OBoolean | OString | ONull;
 export type NullableOObject = OObject | null;
+export type Hashable = OBoolean | OInteger | OString;
 
 export default interface OObject {
   Type(): string;
   Inspect(): string;
 }
 
+export class HashKey {
+  Type: string;
+  Value: number;
+  Match: string;
+
+  constructor(type: string, value: number) {
+    this.Type = type;
+    this.Value = value;
+    this.Match = this.Type + this.Value;
+  }
+}
+
 export interface BuiltinFunction {
   (...args: OObject[]): OObject;
+}
+
+export class OBoolean implements OObject {
+  Value: boolean;
+
+  constructor(value: boolean) {
+    this.Value = value;
+  }
+
+  Type() {
+    return BOOLEAN_OBJ;
+  }
+  Inspect() {
+    return this.Value ? 'true' : 'false';
+  }
+  HashKey(): HashKey {
+    let value: number;
+
+    if (this.Value) {
+      value = 1;
+    } else {
+      value = 0;
+    }
+
+    return new HashKey(this.Type(), value);
+  }
 }
 
 export class OInteger implements OObject {
@@ -36,20 +76,8 @@ export class OInteger implements OObject {
   Inspect() {
     return String(this.Value);
   }
-}
-
-export class OBoolean implements OObject {
-  Value: boolean;
-
-  constructor(value: boolean) {
-    this.Value = value;
-  }
-
-  Type() {
-    return BOOLEAN_OBJ;
-  }
-  Inspect() {
-    return this.Value ? 'true' : 'false';
+  HashKey(): HashKey {
+    return new HashKey(this.Type(), this.Value);
   }
 }
 
@@ -113,6 +141,10 @@ export class OFunction implements OObject {
   }
 }
 
+function hashCode(str: string): number {
+  return Array.from(str).reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0);
+}
+
 export class OString implements OObject {
   Value: string;
 
@@ -125,6 +157,10 @@ export class OString implements OObject {
   }
   Inspect() {
     return this.Value;
+  }
+  HashKey(): HashKey {
+    let value = hashCode(this.Value);
+    return new HashKey(this.Type(), value);
   }
 }
 
@@ -157,5 +193,36 @@ export class OArray implements OObject {
     let elements: string[] = this.Elements.map(e => e.Inspect());
 
     return `[${elements.join(', ')}]`;
+  }
+}
+
+export type HashPairs = Map<string, HashPair>;
+
+export class HashPair {
+  Key: OObject;
+  Value: OObject;
+
+  constructor(key: OObject, value: OObject) {
+    this.Key = key;
+    this.Value = value;
+  }
+}
+
+export class OHash implements OObject {
+  Pairs: HashPairs = new Map<string, HashPair>();
+
+  constructor(pairs: HashPairs) {
+    this.Pairs = pairs;
+  }
+
+  Type() {
+    return HASH_OBJ;
+  }
+  Inspect() {
+    let pairs: string[] = [];
+
+    this.Pairs.forEach(v => pairs.push(`${v.Key.Inspect()}:${v.Value.Inspect()}`));
+
+    return `{${pairs.join(', ')}}`;
   }
 }

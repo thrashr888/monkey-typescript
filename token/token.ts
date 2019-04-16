@@ -36,6 +36,7 @@ export const TokenType: { [index: string]: TokenTypeName } = {
 
   // Delimiters
   COMMA: ',',
+  COLON: ':',
   SEMICOLON: ';',
   LPAREN: '(',
   RPAREN: ')',

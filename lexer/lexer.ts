@@ -83,6 +83,9 @@ export default class Lexer {
       case '"':
         tok = new Token(TokenType.STRING, this.readString());
         break;
+      case ':':
+        tok = new Token(TokenType.COLON, this.ch);
+        break;
       case 0:
         tok = new Token(TokenType.EOF, '');
         break;

@@ -7,10 +7,12 @@ import OObject, {
   OFunction,
   OString,
   OArray,
+  OHash,
+  HashKey,
 } from '../object/object';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
-import Eval, { NULL } from './evaluator';
+import Eval, { TRUE, FALSE, NULL } from './evaluator';
 import { NewEnvironment } from '../object/environment';
 
 export function TestEval(t: Test) {
@@ -42,8 +44,12 @@ export function TestEval(t: Test) {
   TestBuiltinFunctions(t);
   console.log('║  ├ TestArrayLiterals');
   TestArrayLiterals(t);
-  console.log('║  └ TestArrayIndexExpressions');
+  console.log('║  ├ TestArrayIndexExpressions');
   TestArrayIndexExpressions(t);
+  console.log('║  ├ TestHashLiterals');
+  TestHashLiterals(t);
+  console.log('║  └ TestHashIndexExpressions');
+  TestHashIndexExpressions(t);
 }
 
 export function TestEvalIntegerExpression(t: Test) {
@@ -211,6 +217,10 @@ if (10 > 1) {
     },
     { input: 'foobar', expected: 'identifier not found: foobar' },
     { input: '"Hello" - "World"', expected: 'unknown operator: STRING - STRING' },
+    {
+      input: `{"name": "Monkey"}[fn(x) { x }];`,
+      expected: 'unusable as hash key: FUNCTION',
+    },
   ];
 
   for (let tt of tests) {
@@ -442,6 +452,79 @@ function TestArrayIndexExpressions(t: Test) {
   }
 }
 
+function TestHashLiterals(t: Test) {
+  let input = `let two = "two";
+  {
+    "one": 10 - 9,
+    two: 1 + 1,
+    "thr" + "ee": 6 / 2,
+    4: 4,
+    true: 5,
+    false: 6
+  }`;
+
+  let evaluated = testEval(input);
+  if (!evaluated) {
+    t.Errorf('input not evaluated. got=%s', evaluated);
+    return;
+  }
+
+  let result = evaluated;
+  if (!(result instanceof OHash)) {
+    t.Errorf('object is not OHash. got=%s', result.constructor.name);
+    return;
+  }
+
+  let expected: Map<HashKey, number> = new Map([
+    [new OString('one').HashKey(), 1],
+    [new OString('two').HashKey(), 2],
+    [new OString('three').HashKey(), 3],
+    [new OInteger(4).HashKey(), 4],
+    [TRUE.HashKey(), 5],
+    [FALSE.HashKey(), 6],
+  ]);
+
+  if (result.Pairs.size !== expected.size) {
+    t.Fatalf('array has wrong num of Pairs. got=%s, want=3', result.Pairs.size);
+  }
+
+  expected.forEach((expectedValue, expectedKey) => {
+    let pair = (result as OHash).Pairs.get(expectedKey.Match);
+    if (!pair) {
+      t.Errorf('no pair for given key in Pairs. want=%s', expectedKey.Match);
+      return;
+    }
+
+    testIntegerObject(t, pair.Value, expectedValue);
+  });
+}
+
+function TestHashIndexExpressions(t: Test) {
+  let tests = [
+    { input: `{"foo": 5}["foo"]`, expected: 5 },
+    { input: `{"foo": 5}["bar"]`, expected: null },
+    { input: `let key = "foo"; {"foo": 5}[key]`, expected: 5 },
+    { input: `{}["foo"]`, expected: null },
+    { input: `{5: 5}[5]`, expected: 5 },
+    { input: `{true: 5}[true]`, expected: 5 },
+    { input: `{false: 5}[false]`, expected: 5 },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Errorf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    if (typeof tt.expected === 'number') {
+      testIntegerObject(t, evaluated, tt.expected);
+    } else {
+      testNullObject(t, evaluated);
+    }
+  }
+}
+
 function testEval(input: string): NullableOObject {
   let l = new Lexer(input);
   let p = new Parser(l);
@@ -455,7 +538,7 @@ function testIntegerObject(t: Test, obj: OObject, expected: number): boolean {
   let result = obj;
 
   if (!(result instanceof OInteger)) {
-    t.Errorf('object is not OInteger. got=%s(%s)', result.constructor.name, result);
+    t.Errorf('object is not OInteger. got=%s(%s)', result.constructor.name, Object.values(result));
     return false;
   }
 
@@ -471,7 +554,7 @@ function testBooleanObject(t: Test, obj: OObject, expected: boolean): boolean {
   let result = obj;
 
   if (!(result instanceof OBoolean)) {
-    t.Errorf('object is not OBoolean. got=%s', result.constructor.name);
+    t.Errorf('object is not OBoolean. got=%s(%s)', result.constructor.name, Object.values(result));
     return false;
   }
 

@@ -18,6 +18,7 @@ import {
   StringLiteral,
   ArrayLiteral,
   IndexExpression,
+  HashLiteral,
 } from '../ast/ast';
 import OObject, {
   AnyObject,
@@ -35,6 +36,11 @@ import OObject, {
   ReturnValue,
   OArray,
   ARRAY_OBJ,
+  HashKey,
+  HashPair,
+  OHash,
+  Hashable,
+  HASH_OBJ,
 } from '../object/object';
 import Environment, { NewEnclosedEnvironment } from '../object/environment';
 
@@ -101,6 +107,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     let index = Eval(node.Index, env);
     if (isError(index)) return index;
     return evalIndexExpression(left, index);
+  } else if (node instanceof HashLiteral) {
+    return evalHashLiteral(node, env);
   }
 
   return null;
@@ -289,6 +297,8 @@ function evalIndexExpression(left: OObject | null, index: OObject | null): OObje
 
   if (left.Type() === ARRAY_OBJ && index.Type() === INTEGER_OBJ) {
     return evalArrayIndexExpression(left, index);
+  } else if (left.Type() === HASH_OBJ) {
+    return evalHashIndexExpression(left, index);
   } else {
     return newError('index operator not supported: %s', left.Type());
   }
@@ -304,6 +314,51 @@ function evalArrayIndexExpression(array: OObject, index: OObject): OObject {
   }
 
   return arrayObject.Elements[idx];
+}
+
+function evalHashLiteral(node: HashLiteral, env: Environment): OObject {
+  let pairs = new Map<string, HashPair>();
+
+  node.Pairs.forEach((valueNode, keyNode) => {
+    let key = Eval(keyNode, env);
+    if (isError(key) || !key) {
+      return key;
+    }
+
+    let hashKey = key as Hashable;
+    if (!(hashKey instanceof OBoolean || hashKey instanceof OInteger || hashKey instanceof OString)) {
+      return newError('unusable as hash key: %s', (hashKey as OObject).Type());
+    }
+
+    let value = Eval(valueNode, env);
+    if (isError(value) || !value) {
+      return value;
+    }
+
+    let hashed = hashKey.HashKey();
+    pairs.set(hashed.Match, new HashPair(hashKey, value));
+  });
+
+  return new OHash(pairs);
+}
+
+function evalHashIndexExpression(hash: OObject, index: OObject): OObject {
+  let hashObject = hash;
+  if (!(hashObject instanceof OHash)) {
+    return newError('unusable as hash object: %s', (hashObject as OObject).Type());
+  }
+
+  let key = index;
+  if (!(key instanceof OBoolean || key instanceof OInteger || key instanceof OString)) {
+    return newError('unusable as hash key: %s', (key as OObject).Type());
+  }
+
+  let pair = hashObject.Pairs.get(key.HashKey().Match);
+  if (!pair) {
+    return NULL;
+  }
+
+  return pair.Value;
 }
 
 function applyFunction(fn: OObject, args: OObject[]): NullableOObject {

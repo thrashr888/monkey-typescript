@@ -18,6 +18,7 @@ import {
   StringLiteral,
   ArrayLiteral,
   IndexExpression,
+  HashLiteral,
 } from '../ast/ast';
 
 export function TestParser(t: Test) {
@@ -51,8 +52,14 @@ export function TestParser(t: Test) {
   TestCallExpressionParsing(t);
   console.log('║  ├ TestParsingArrayLiterals');
   TestParsingArrayLiterals(t);
-  console.log('║  └ TestParsingIndexExpressions');
+  console.log('║  ├ TestParsingIndexExpressions');
   TestParsingIndexExpressions(t);
+  console.log('║  ├ TestParsingHashLiteralsStringKeys');
+  TestParsingHashLiteralsStringKeys(t);
+  console.log('║  ├ TestParsingEmptyHashLiterals');
+  TestParsingEmptyHashLiterals(t);
+  console.log('║  └ TestParsingHashLiteralsWithExpressions');
+  TestParsingHashLiteralsWithExpressions(t);
 }
 
 function TestLetStatements(t: Test) {
@@ -289,7 +296,7 @@ function testIntegerLiteral(t: Test, il: Expression, value: Number): boolean {
   let ok;
 
   if (!(integ instanceof IntegerLiteral)) {
-    t.Errorf('il not type IntegerLiteral. got=%s', typeof il);
+    t.Errorf('il not type IntegerLiteral. got=%s', il.constructor.name);
     return false;
   }
 
@@ -576,7 +583,7 @@ function TestIfElseExpression(t: Test) {
 
   let exp = stmt.Expression;
   if (!(exp instanceof IfExpression)) {
-    t.Errorf('stmt.Expression is not type IfExpression. got=', typeof exp);
+    t.Errorf('stmt.Expression is not type IfExpression. got=%s', typeof exp);
     return;
   }
 
@@ -643,13 +650,13 @@ function TestFunctionLiteralParsing(t: Test) {
 
   let func = stmt.Expression;
   if (!(func instanceof FunctionLiteral)) {
-    t.Errorf('stmt.Expression is not type FunctionLiteral. got=', typeof func);
+    t.Errorf('stmt.Expression is not type FunctionLiteral. got=%s', typeof func);
     return;
   }
 
   t.Assert(
     func.Parameters.length === 2,
-    'function literal parameters wrong. want 2. got=',
+    'function literal parameters wrong. want 2. got=%s',
     func.Parameters.length
   );
 
@@ -658,13 +665,13 @@ function TestFunctionLiteralParsing(t: Test) {
 
   t.Assert(
     func.Body.Statements.length === 1,
-    'function.Body.Statements has not 1 statements. got=',
+    'function.Body.Statements has not 1 statements. got=%s',
     func.Body.Statements.length
   );
 
   let bodyStmt = func.Body.Statements[0];
   if (!(bodyStmt instanceof ExpressionStatement)) {
-    t.Errorf('function body statement is not type ExpressionStatement. got=', typeof bodyStmt);
+    t.Errorf('function body statement is not type ExpressionStatement. got=%s', typeof bodyStmt);
     return;
   }
 
@@ -733,7 +740,7 @@ function TestCallExpressionParsing(t: Test) {
 
   let exp = stmt.Expression;
   if (!(exp instanceof CallExpression)) {
-    t.Errorf('stmt.Expression is not type CallExpression. got=', typeof exp);
+    t.Errorf('stmt.Expression is not type CallExpression. got=%s', typeof exp);
     return;
   }
 
@@ -742,7 +749,7 @@ function TestCallExpressionParsing(t: Test) {
   }
 
   if (!exp.Arguments || exp.Arguments.length !== 3) {
-    t.Errorf('wrong length of arguments. want 3. got=', exp.Arguments);
+    t.Errorf('wrong length of arguments. want 3. got=%s', exp.Arguments);
     return;
   }
 
@@ -772,12 +779,12 @@ function TestParsingArrayLiterals(t: Test) {
 
   let array = stmt.Expression;
   if (!(array instanceof ArrayLiteral)) {
-    t.Errorf('stmt.Expression is not type ArrayLiteral. got=', typeof array);
+    t.Errorf('stmt.Expression is not type ArrayLiteral. got=%s', typeof array);
     return;
   }
 
   if (!array.Elements || array.Elements.length !== 3) {
-    t.Errorf('wrong length of arguments. want 3. got=', array.Elements);
+    t.Errorf('wrong length of arguments. want 3. got=%s', array.Elements);
     return;
   }
 
@@ -807,10 +814,145 @@ function TestParsingIndexExpressions(t: Test) {
 
   let indexExp = stmt.Expression;
   if (!(indexExp instanceof IndexExpression)) {
-    t.Errorf('stmt.Expression is not type IndexExpression. got=', typeof indexExp);
+    t.Errorf('stmt.Expression is not type IndexExpression. got=%s', typeof indexExp);
     return;
   }
 
   testIdentifier(t, indexExp.Left, 'myArray');
   testInfixExpression(t, indexExp.Index, 1, '+', 1);
+}
+
+function TestParsingHashLiteralsStringKeys(t: Test) {
+  let input = '{"one": 1, "two": 2, "three": 3}';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  if (!(stmt instanceof ExpressionStatement)) {
+    t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
+    return;
+  }
+
+  let hash = stmt.Expression;
+  if (!(hash instanceof HashLiteral)) {
+    t.Errorf('stmt.Expression is not type HashLiteral. got=%s', typeof hash);
+    return;
+  }
+
+  if (hash.Pairs.size !== 3) {
+    t.Errorf('hash.Pairs has wrong length. got=%s', hash.Pairs.size);
+  }
+
+  let expected: { [index: string]: number } = {
+    one: 1,
+    two: 2,
+    three: 3,
+  };
+
+  hash.Pairs.forEach((value, key) => {
+    let literal = key;
+    if (!(literal instanceof StringLiteral)) {
+      t.Errorf('key is not StringLiteral. got=%s', key.constructor.name);
+    }
+
+    let expectedValue = expected[literal.String()];
+
+    testIntegerLiteral(t, value, expectedValue);
+  });
+}
+
+function TestParsingEmptyHashLiterals(t: Test) {
+  let input = '{}';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  if (!(stmt instanceof ExpressionStatement)) {
+    t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
+    return;
+  }
+
+  let hash = stmt.Expression;
+  if (!(hash instanceof HashLiteral)) {
+    t.Errorf('stmt.Expression is not type HashLiteral. got=%s', typeof hash);
+    return;
+  }
+
+  if (hash.Pairs.size !== 0) {
+    t.Errorf('hash.Pairs has wrong length. got=%s', hash.Pairs.size);
+  }
+}
+
+function TestParsingHashLiteralsWithExpressions(t: Test) {
+  let input = '{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}';
+
+  let l = new Lexer(input);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+  checkParserErrors(t, p);
+
+  t.Assert(
+    program.Statements.length === 1,
+    'program.Statements does not contain 1 statements. got=%d',
+    program.Statements.length
+  );
+  let stmt = program.Statements[0];
+  if (!(stmt instanceof ExpressionStatement)) {
+    t.Errorf('program.Statements[0] not type ExpressionStatement. got=%s', typeof stmt);
+    return;
+  }
+
+  let hash = stmt.Expression;
+  if (!(hash instanceof HashLiteral)) {
+    t.Errorf('stmt.Expression is not type HashLiteral. got=%s', typeof hash);
+    return;
+  }
+
+  if (hash.Pairs.size !== 3) {
+    t.Errorf('hash.Pairs has wrong length. got=%s', hash.Pairs.size);
+  }
+
+  let tests: { [index: string]: Function } = {
+    one: (e: Expression) => {
+      testInfixExpression(t, e, 0, '+', 1);
+    },
+    two: (e: Expression) => {
+      testInfixExpression(t, e, 10, '-', 8);
+    },
+    three: (e: Expression) => {
+      testInfixExpression(t, e, 15, '/', 5);
+    },
+  };
+
+  hash.Pairs.forEach((value, key) => {
+    let literal = key;
+    if (!(literal instanceof StringLiteral)) {
+      t.Errorf('key is not StringLiteral. got=%s', key.constructor.name);
+      return;
+    }
+
+    let testFunc = tests[literal.String()];
+    if (!testFunc) {
+      t.Errorf('No test function for key %s found', literal.String());
+      return;
+    }
+
+    testFunc(value);
+  });
 }

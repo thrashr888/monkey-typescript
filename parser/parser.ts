@@ -19,6 +19,7 @@ import {
   StringLiteral,
   ArrayLiteral,
   IndexExpression,
+  HashLiteral,
 } from '../ast/ast';
 
 export const LOWEST = 1,
@@ -70,6 +71,7 @@ export default class Parser {
     this.registerPrefix(TokenType.IF, this.parseIfExpression.bind(this));
     this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral.bind(this));
     this.registerPrefix(TokenType.LBRACKET, this.parseArrayLiteral.bind(this));
+    this.registerPrefix(TokenType.LBRACE, this.parseHashLiteral.bind(this));
 
     [
       TokenType.PLUS,
@@ -446,5 +448,33 @@ export default class Parser {
     }
 
     return exp;
+  }
+
+  parseHashLiteral(): Expression | null {
+    let hash = new HashLiteral(this.curToken, new Map());
+
+    while (!this.peekTokenIs(TokenType.RBRACE)) {
+      this.nextToken();
+      let key = this.parseExpression(LOWEST);
+
+      if (!this.expectPeek(TokenType.COLON)) {
+        return null;
+      }
+
+      this.nextToken();
+      let value = this.parseExpression(LOWEST);
+
+      hash.Pairs.set(key, value);
+
+      if (!this.peekTokenIs(TokenType.RBRACE) && !this.expectPeek(TokenType.COMMA)) {
+        return null;
+      }
+    }
+
+    if (!this.expectPeek(TokenType.RBRACE)) {
+      return null;
+    }
+
+    return hash;
   }
 }

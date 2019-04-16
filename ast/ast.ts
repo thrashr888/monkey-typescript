@@ -337,3 +337,24 @@ export class IndexExpression implements Expression {
     return `(${this.Left.String()}[${this.Index.String()}])`;
   }
 }
+
+export class HashLiteral implements Expression {
+  Token: Token;
+  Pairs: Map<Expression, Expression> = new Map<Expression, Expression>();
+
+  constructor(token: Token, pairs: Map<Expression, Expression>) {
+    this.Token = token;
+    this.Pairs = pairs;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+  String() {
+    let pairs: string[] = [];
+
+    this.Pairs.forEach((v, k) => pairs.push(`${k.String()}:${v.String()}`));
+
+    return `{${pairs.join(', ')}}`;
+  }
+}
