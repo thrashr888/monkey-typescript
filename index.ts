@@ -2,6 +2,13 @@ import Start from './repl/repl';
 import process from 'process';
 import os from 'os';
 
+import { NewEnvironment } from './object/environment';
+import Lexer from './lexer/lexer';
+import Parser from './parser/parser';
+import Eval from './evaluator/evaluator';
+
+export { NewEnvironment, Lexer, Parser, Eval };
+
 export function main(): void {
   let username = os.userInfo().username;
   console.log(`Hello ${username}! This is the Monkey programming language!`);

@@ -1,7 +1,7 @@
 {
-  "name": "golang-interpreter",
-  "version": "1.0.0",
-  "description": "working through a golang interpreter book",
+  "name": "monkey-typescript",
+  "version": "0.0.1",
+  "description": "A Monkey language interpreter in Typescript",
   "main": "build/index",
   "types": "build/index",
   "scripts": {
@@ -14,15 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thrashr888/golang-interpreter.git"
+    "url": "git+https://github.com/thrashr888/monkey-typescript.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/thrashr888/golang-interpreter/issues"
+    "url": "https://github.com/thrashr888/monkey-typescript/issues"
   },
-  "homepage": "https://github.com/thrashr888/golang-interpreter#readme",
+  "homepage": "https://github.com/thrashr888/monkey-typescript#readme",
   "devDependencies": {
     "@types/node": "^11.13.4",
     "nodemon": "^1.18.11",

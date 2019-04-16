@@ -1,31 +1,52 @@
-# golang-interpreter
+# Monkey
 
-A Monkey language interpreter in Typescript.
+A [Monkey](https://interpreterbook.com/) language interpreter in Typescript.
 
-## Build
+## Usage
+
+    $ npm install monkey-typescript
+
+```typescript
+import { NewEnvironment, Lexer, Parser, Eval } from 'monkey-typescript';
+
+let env = NewEnvironment();
+let l = new Lexer(line);
+let p = new Parser(l);
+let program = p.ParseProgram();
+
+if (p.Errors().length !== 0) {
+  console.log(p.Errors().forEach((msg: string) => console.log(`\t${msg}`)));
+  return;
+}
+
+let evaluated = Eval(program, env);
+console.log(evaluated.Inspect());
+```
+
+### Build
 
     $ nvm use
     $ npm install
 
-## Run
+### Run
 
     $ npm start
 
-# Test
+### Test
 
     $ npm run test
 
-or watch for file changes
+or watch for file changes:
 
     $ npm run test:live
 
-# Credits
+## Credits
 
 Original Monkey language and source code from the book ["Writing an Interpreter
 in Go" by Thorsten Ball](https://interpreterbook.com/). Translated to Typescript
 by Paul Thrasher. It's a great book. Buy it!
 
-# Typescript Interpreter LICENSE
+## Typescript Interpreter MIT LICENSE
 
 Copyright (c) 2019 Paul Thrasher
 
@@ -47,7 +68,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-# Monkey Language LICENSE
+## Monkey Language MIT LICENSE
 
 Copyright (c) 2016-2017 Thorsten Ball
 
