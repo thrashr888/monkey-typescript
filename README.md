@@ -23,12 +23,19 @@ let c = {"a": "bee", "c": "three"};
 log(c["c"]);
 ```
 
-    $ npx ts-node index.ts example.monkey
+    $ npx monkey-typescript example.monkey
     Log: 0
     Log: 1
     Log: 2
     Log: three
     null
+
+## REPL
+
+    $ npx monkey-typescript
+    Hello thrashr888! This is the Monkey programming language!
+    Feel free to type in commands
+    >>
 
 ## Usage
 
