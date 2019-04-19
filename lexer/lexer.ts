@@ -50,6 +50,9 @@ export default class Lexer {
       case '*':
         tok = new Token(TokenType.ASTERISK, this.ch);
         break;
+      case '%':
+        tok = new Token(TokenType.REM, this.ch);
+        break;
       case '<':
         if (this.peekChar() === '=') {
           let ch = this.ch;

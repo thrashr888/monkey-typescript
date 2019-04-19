@@ -43,6 +43,7 @@ export const precedences: { [index: string]: number } = {
   [TokenType.MINUS]: SUM,
   [TokenType.SLASH]: PRODUCT,
   [TokenType.ASTERISK]: PRODUCT,
+  [TokenType.REM]: PRODUCT,
   [TokenType.LPAREN]: CALL,
   [TokenType.LBRACKET]: INDEX,
 };
@@ -88,6 +89,7 @@ export default class Parser {
       TokenType.LTE,
       TokenType.GT,
       TokenType.GTE,
+      TokenType.REM,
     ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
 
     this.registerInfix(TokenType.LPAREN, this.parseCallExpression.bind(this));

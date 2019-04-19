@@ -66,6 +66,9 @@ export function TestEvalIntegerExpression(t: Test) {
     { input: '-50 + 100 + -50', expected: 0 },
     { input: '5 * 2 + 10', expected: 20 },
     { input: '5 + 2 * 10', expected: 25 },
+    { input: '10 % 5', expected: 0 },
+    { input: '3 % 2', expected: 1 },
+    { input: '5 % 3', expected: 2 },
     { input: '20 + 2 * -10', expected: 0 },
     { input: '50 / 2 * 2 + 10', expected: 60 },
     { input: '2 * (5 + 10)', expected: 30 },
@@ -92,6 +95,13 @@ export function TestEvalFloatExpression(t: Test) {
     { input: '-5.1', expected: -5.1 },
     { input: '-10.1', expected: -10.1 },
     { input: '123.45', expected: 123.45 },
+    { input: '66.6 / 3', expected: 22.2 },
+    { input: '10.5 % 0.5', expected: 0 },
+    { input: '.010', expected: 0.01 },
+    { input: '5.00000000', expected: 5 },
+    { input: '0.000001 + 1', expected: 1.000001 },
+    { input: '0.000001 - 1', expected: -0.999999 },
+    { input: '(5 + 10 * 2 + 15 / 3) * 2 + -10.0', expected: 50 },
   ];
 
   for (let tt of tests) {

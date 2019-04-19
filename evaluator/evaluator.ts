@@ -237,6 +237,8 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
       return new OInteger(leftVal * rightVal);
     case '/':
       return new OInteger(leftVal / rightVal);
+    case '%':
+      return new OInteger(leftVal % rightVal);
     case '<':
       return nativeBoolToBooleanObject(leftVal < rightVal);
     case '>':
@@ -271,6 +273,8 @@ function evalFloatInfixExpression(
       return new OFloat(leftVal * rightVal);
     case '/':
       return new OFloat(leftVal / rightVal);
+    case '%':
+      return new OFloat(leftVal % rightVal);
     case '<':
       return nativeBoolToBooleanObject(leftVal < rightVal);
     case '>':
