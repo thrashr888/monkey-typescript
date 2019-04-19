@@ -9,6 +9,7 @@ import {
   ExpressionStatement,
   FunctionLiteral,
   Identifier,
+  Comment,
   IfExpression,
   InfixExpression,
   IntegerLiteral,
@@ -61,6 +62,7 @@ export default class Parser {
   constructor(lexer: Lexer) {
     this.l = lexer;
 
+    this.registerPrefix(TokenType.COMMENT, this.parseComment.bind(this));
     this.registerPrefix(TokenType.IDENT, this.parseIdentifier.bind(this));
     this.registerPrefix(TokenType.INT, this.parseIntegerLiteral.bind(this));
     this.registerPrefix(TokenType.FLOAT, this.parseFloatLiteral.bind(this));
@@ -211,6 +213,10 @@ export default class Parser {
 
   parseIdentifier() {
     return new Identifier(this.curToken, this.curToken.Literal);
+  }
+
+  parseComment() {
+    return new Comment(this.curToken, this.curToken.Literal);
   }
 
   parseIntegerLiteral() {

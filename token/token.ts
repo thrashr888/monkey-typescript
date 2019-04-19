@@ -13,6 +13,7 @@ export type TokenTypeName = string;
 export const TokenType: { [index: string]: TokenTypeName } = {
   ILLEGAL: 'ILLEGAL',
   EOF: 'EOF',
+  COMMENT: 'COMMENT',
 
   // Identifiers + literals
   IDENT: 'IDENT', // add, foobar, x, y, ...

@@ -110,6 +110,24 @@ export class Identifier implements Expression {
   }
 }
 
+export class Comment implements Expression {
+  Token: Token;
+  Value: string;
+
+  constructor(token: Token, value: string) {
+    this.Token = token;
+    this.Value = value;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return this.Value;
+  }
+}
+
 export class IntegerLiteral implements Expression {
   Token: Token;
   Value: number;

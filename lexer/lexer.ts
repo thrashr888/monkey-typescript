@@ -45,7 +45,12 @@ export default class Lexer {
         }
         break;
       case '/':
-        tok = new Token(TokenType.SLASH, this.ch);
+        if (this.peekChar() === '/') {
+          tok = new Token(TokenType.COMMENT, this.readComment());
+          break;
+        } else {
+          tok = new Token(TokenType.SLASH, this.ch);
+        }
         break;
       case '*':
         tok = new Token(TokenType.ASTERISK, this.ch);
@@ -100,6 +105,9 @@ export default class Lexer {
       case '"':
         tok = new Token(TokenType.STRING, this.readString());
         break;
+      case "'":
+        tok = new Token(TokenType.STRING, this.readString("'"));
+        break;
       case ':':
         tok = new Token(TokenType.COLON, this.ch);
         break;
@@ -144,11 +152,22 @@ export default class Lexer {
     this.readPosition += 1;
   }
 
-  readString() {
+  readString(type: string = '"') {
     let position = this.position + 1;
     while (true) {
       this.readChar();
-      if (this.ch === '"' || this.ch === 0) {
+      if (this.ch === type || this.ch === 0) {
+        break;
+      }
+    }
+    return this.input.slice(position, this.position);
+  }
+
+  readComment() {
+    let position = this.position + 1;
+    while (true) {
+      this.readChar();
+      if (this.ch === '\n' || this.ch === '\r') {
         break;
       }
     }
@@ -178,6 +197,10 @@ export default class Lexer {
     }
     return this.input.slice(position, this.position);
   }
+}
+
+function isNewline(ch: string | number | null): boolean {
+  return ch === '\n' || ch === '\r';
 }
 
 function isLetter(ch: string | number | null): boolean {
