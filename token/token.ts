@@ -17,6 +17,7 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   // Identifiers + literals
   IDENT: 'IDENT', // add, foobar, x, y, ...
   INT: 'INT', // 1343456
+  FLOAT: 'FLOAT', // 123.456
   STRING: 'STRING', // "foo", "Hello, World!"
 
   LBRACKET: '[', // for arrays
@@ -29,13 +30,17 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   BANG: '!',
   ASTERISK: '*',
   SLASH: '/',
+  REM: '%',
   LT: '<',
   GT: '>',
+  LTE: '<=',
+  GTE: '>=',
   EQ: '==',
   NOT_EQ: '!=',
 
   // Delimiters
   COMMA: ',',
+  PERIOD: '.',
   COLON: ':',
   SEMICOLON: ';',
   LPAREN: '(',

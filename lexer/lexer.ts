@@ -51,10 +51,24 @@ export default class Lexer {
         tok = new Token(TokenType.ASTERISK, this.ch);
         break;
       case '<':
-        tok = new Token(TokenType.LT, this.ch);
+        if (this.peekChar() === '=') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.LTE, literal);
+        } else {
+          tok = new Token(TokenType.LT, this.ch);
+        }
         break;
       case '>':
-        tok = new Token(TokenType.GT, this.ch);
+        if (this.peekChar() === '=') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.GTE, literal);
+        } else {
+          tok = new Token(TokenType.GT, this.ch);
+        }
         break;
       case ';':
         tok = new Token(TokenType.SEMICOLON, this.ch);
@@ -93,10 +107,13 @@ export default class Lexer {
       default:
         if (isLetter(this.ch)) {
           let literal = this.readIdentifier();
-          let type = LookupIdent(literal);
-          return new Token(type, literal);
+          return new Token(LookupIdent(literal), literal);
         } else if (isDigit(this.ch)) {
-          return new Token(TokenType.INT, this.readNumber());
+          let literal = this.readNumber();
+          if (isFloat(literal)) {
+            return new Token(TokenType.FLOAT, literal);
+          }
+          return new Token(TokenType.INT, literal);
         } else {
           tok = new Token(TokenType.ILLEGAL, '' + this.ch);
         }
@@ -160,13 +177,18 @@ export default class Lexer {
   }
 }
 
-function isLetter(ch: string | number | null) {
+function isLetter(ch: string | number | null): boolean {
   if (!ch) return false;
   return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch === '_' || ch === '-';
 }
 
-function isDigit(ch: string | number | null) {
+function isDigit(ch: string | number | null): boolean {
   if (!ch) return false;
   if (typeof ch === 'number') return true;
-  return '0123456789'.indexOf(ch) !== -1;
+  return '0123456789.'.indexOf(ch) !== -1;
+}
+
+function isFloat(n: string): boolean {
+  let val = parseFloat(n);
+  return !isNaN(val) && n.indexOf('.') !== -1;
 }

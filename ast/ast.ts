@@ -128,6 +128,24 @@ export class IntegerLiteral implements Expression {
   }
 }
 
+export class FloatLiteral implements Expression {
+  Token: Token;
+  Value: number;
+
+  constructor(token: Token, value: number) {
+    this.Token = token;
+    this.Value = value;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return this.Token.Literal;
+  }
+}
+
 export class PrefixExpression implements Expression {
   Token: Token;
   Operator: string;

@@ -31,6 +31,9 @@ if (5 < 10) {
 "foo bar"
 [1, 2];
 {"foo": "bar"}
+1 >= 2
+2 <= 1
+123.45
 `;
 
   let tests = [
@@ -120,6 +123,13 @@ if (5 < 10) {
     [TokenType.COLON, ':'],
     [TokenType.STRING, 'bar'],
     [TokenType.RBRACE, '}'],
+    [TokenType.INT, '1'],
+    [TokenType.GTE, '>='],
+    [TokenType.INT, '2'],
+    [TokenType.INT, '2'],
+    [TokenType.LTE, '<='],
+    [TokenType.INT, '1'],
+    [TokenType.FLOAT, '123.45'],
     [TokenType.EOF, ''],
   ];
 

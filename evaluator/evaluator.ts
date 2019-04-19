@@ -12,6 +12,7 @@ import {
   IfExpression,
   InfixExpression,
   IntegerLiteral,
+  FloatLiteral,
   LetStatement,
   PrefixExpression,
   ReturnStatement,
@@ -25,18 +26,19 @@ import OObject, {
   Builtin,
   ERROR_OBJ,
   INTEGER_OBJ,
+  FLOAT_OBJ,
   NullableOObject,
   OBoolean,
   OError,
   OFunction,
   OInteger,
+  OFloat,
   ONull,
   OString,
   RETURN_VALUE_OBJ,
   ReturnValue,
   OArray,
   ARRAY_OBJ,
-  HashKey,
   HashPair,
   OHash,
   Hashable,
@@ -53,6 +55,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return evalProgram(node, env);
   } else if (node instanceof ExpressionStatement) {
     return Eval(node.Expression, env);
+  } else if (node instanceof FloatLiteral) {
+    return new OFloat(node.Value);
   } else if (node instanceof IntegerLiteral) {
     return new OInteger(node.Value);
   } else if (node instanceof StringLiteral) {
@@ -182,19 +186,26 @@ function evalBangOperatorExpression(right: AnyObject | null): OObject {
 function evalMinusPrefixOperatorExpression(right: AnyObject | null): OObject {
   if (!right) return FALSE;
 
-  if (right.Type() !== INTEGER_OBJ) {
+  if (right.Type() !== INTEGER_OBJ && right.Type() !== FLOAT_OBJ) {
     return newError('unknown operator: -%s', right.Type());
-  } else if (!(right instanceof OInteger)) {
+  } else if (!(right instanceof OInteger) && !(right instanceof OFloat)) {
     return NULL;
   }
 
   let value = right.Value;
+  if (right instanceof OFloat) return new OFloat(-value);
   return new OInteger(-value);
 }
 
 function evalInfixExpression(operator: string, left: NullableOObject, right: NullableOObject): OObject {
   if (left instanceof OInteger && right instanceof OInteger) {
     return evalIntegerInfixExpression(operator, left, right);
+  } else if (left instanceof OFloat && right instanceof OFloat) {
+    return evalFloatInfixExpression(operator, left, right);
+  } else if (left instanceof OInteger && right instanceof OFloat) {
+    return evalFloatInfixExpression(operator, left, right);
+  } else if (left instanceof OFloat && right instanceof OInteger) {
+    return evalFloatInfixExpression(operator, left, right);
   } else if (left instanceof OString && right instanceof OString) {
     return evalStringInfixExpression(operator, left, right);
   } else if (operator === '==') {
@@ -230,6 +241,44 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
       return nativeBoolToBooleanObject(leftVal < rightVal);
     case '>':
       return nativeBoolToBooleanObject(leftVal > rightVal);
+    case '<=':
+      return nativeBoolToBooleanObject(leftVal <= rightVal);
+    case '>=':
+      return nativeBoolToBooleanObject(leftVal >= rightVal);
+    case '==':
+      return nativeBoolToBooleanObject(leftVal === rightVal);
+    case '!=':
+      return nativeBoolToBooleanObject(leftVal !== rightVal);
+    default:
+      return newError('unknown operator: %s %s %s', left.Type(), operator, right.Type());
+  }
+}
+
+function evalFloatInfixExpression(
+  operator: string,
+  left: OFloat | OInteger,
+  right: OFloat | OInteger
+): OObject {
+  let leftVal = left.Value;
+  let rightVal = right.Value;
+
+  switch (operator) {
+    case '+':
+      return new OFloat(leftVal + rightVal);
+    case '-':
+      return new OFloat(leftVal - rightVal);
+    case '*':
+      return new OFloat(leftVal * rightVal);
+    case '/':
+      return new OFloat(leftVal / rightVal);
+    case '<':
+      return nativeBoolToBooleanObject(leftVal < rightVal);
+    case '>':
+      return nativeBoolToBooleanObject(leftVal > rightVal);
+    case '<=':
+      return nativeBoolToBooleanObject(leftVal <= rightVal);
+    case '>=':
+      return nativeBoolToBooleanObject(leftVal >= rightVal);
     case '==':
       return nativeBoolToBooleanObject(leftVal === rightVal);
     case '!=':

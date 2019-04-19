@@ -12,6 +12,7 @@ import {
   IfExpression,
   InfixExpression,
   IntegerLiteral,
+  FloatLiteral,
   LetStatement,
   PrefixExpression,
   ReturnStatement,
@@ -35,7 +36,9 @@ export const precedences: { [index: string]: number } = {
   [TokenType.EQ]: EQUALS,
   [TokenType.NOT_EQ]: EQUALS,
   [TokenType.LT]: LESSGREATER,
+  [TokenType.LTE]: LESSGREATER,
   [TokenType.GT]: LESSGREATER,
+  [TokenType.GTE]: LESSGREATER,
   [TokenType.PLUS]: SUM,
   [TokenType.MINUS]: SUM,
   [TokenType.SLASH]: PRODUCT,
@@ -59,6 +62,7 @@ export default class Parser {
 
     this.registerPrefix(TokenType.IDENT, this.parseIdentifier.bind(this));
     this.registerPrefix(TokenType.INT, this.parseIntegerLiteral.bind(this));
+    this.registerPrefix(TokenType.FLOAT, this.parseFloatLiteral.bind(this));
     this.registerPrefix(TokenType.STRING, this.parseStringLiteral.bind(this));
     this.registerPrefix(TokenType.BANG, this.parsePrefixExpression.bind(this));
     this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression.bind(this));
@@ -81,7 +85,9 @@ export default class Parser {
       TokenType.EQ,
       TokenType.NOT_EQ,
       TokenType.LT,
+      TokenType.LTE,
       TokenType.GT,
+      TokenType.GTE,
     ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
 
     this.registerInfix(TokenType.LPAREN, this.parseCallExpression.bind(this));
@@ -212,6 +218,18 @@ export default class Parser {
       return lit;
     } catch {
       let msg = `could not parse ${this.curToken.Literal} as integer`;
+      this.errors.push(msg);
+      return null;
+    }
+  }
+
+  parseFloatLiteral() {
+    try {
+      let value = parseFloat(this.curToken.Literal);
+      let lit = new FloatLiteral(this.curToken, value);
+      return lit;
+    } catch {
+      let msg = `could not parse ${this.curToken.Literal} as float`;
       this.errors.push(msg);
       return null;
     }

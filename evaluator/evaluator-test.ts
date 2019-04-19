@@ -1,6 +1,7 @@
 import Test from '../test';
 import OObject, {
   OInteger,
+  OFloat,
   OBoolean,
   OError,
   NullableOObject,
@@ -18,6 +19,8 @@ import { NewEnvironment } from '../object/environment';
 export function TestEval(t: Test) {
   console.log('║  ├ TestEvalIntegerExpression');
   TestEvalIntegerExpression(t);
+  console.log('║  ├ TestEvalFloatExpression');
+  TestEvalFloatExpression(t);
   console.log('║  ├ TestEvalBooleanExpression');
   TestEvalBooleanExpression(t);
   console.log('║  ├ TestBangOperator');
@@ -82,6 +85,26 @@ export function TestEvalIntegerExpression(t: Test) {
   }
 }
 
+export function TestEvalFloatExpression(t: Test) {
+  let tests = [
+    { input: '5.1', expected: 5.1 },
+    { input: '10.1', expected: 10.1 },
+    { input: '-5.1', expected: -5.1 },
+    { input: '-10.1', expected: -10.1 },
+    { input: '123.45', expected: 123.45 },
+  ];
+
+  for (let tt of tests) {
+    let evaluated = testEval(tt.input);
+    if (!evaluated) {
+      t.Errorf('input not evaluated. got=%s', evaluated);
+      continue;
+    }
+
+    testFloatObject(t, evaluated, tt.expected);
+  }
+}
+
 export function TestEvalBooleanExpression(t: Test) {
   let tests = [
     { input: 'true', expected: true },
@@ -90,6 +113,10 @@ export function TestEvalBooleanExpression(t: Test) {
     { input: '1 > 2', expected: false },
     { input: '1 < 1', expected: false },
     { input: '1 > 1', expected: false },
+    { input: '1 <= 1', expected: true },
+    { input: '1 >= 1', expected: true },
+    { input: '2 <= 1', expected: false },
+    { input: '1 >= 2', expected: false },
     { input: '1 == 1', expected: true },
     { input: '1 != 1', expected: false },
     { input: '1 == 2', expected: false },
@@ -103,6 +130,8 @@ export function TestEvalBooleanExpression(t: Test) {
     { input: '(1 < 2) == false', expected: false },
     { input: '(1 > 2) == true', expected: false },
     { input: '(1 > 2) == false', expected: true },
+    { input: '1 > 0.5', expected: true },
+    { input: '55 <= 55.5', expected: true },
   ];
 
   for (let tt of tests) {
@@ -539,6 +568,22 @@ function testIntegerObject(t: Test, obj: OObject, expected: number): boolean {
 
   if (!(result instanceof OInteger)) {
     t.Errorf('object is not OInteger. got=%s(%s)', result.constructor.name, Object.values(result));
+    return false;
+  }
+
+  if (result.Value !== expected) {
+    t.Errorf('object has wrong value. got=%s, want=%d', result.Value, expected);
+    return false;
+  }
+
+  return true;
+}
+
+function testFloatObject(t: Test, obj: OObject, expected: number): boolean {
+  let result = obj;
+
+  if (!(result instanceof OFloat)) {
+    t.Errorf('object is not OFloat. got=%s(%s)', result.constructor.name, Object.values(result));
     return false;
   }
 

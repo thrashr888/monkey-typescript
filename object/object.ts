@@ -6,6 +6,7 @@ export const BOOLEAN_OBJ = 'BOOLEAN',
   ERROR_OBJ = 'ERROR',
   FUNCTION_OBJ = 'FUNCTION',
   INTEGER_OBJ = 'INTEGER',
+  FLOAT_OBJ = 'FLOAT',
   NULL_OBJ = 'NULL',
   RETURN_VALUE_OBJ = 'RETURN_VALUE',
   STRING_OBJ = 'STRING',
@@ -72,6 +73,23 @@ export class OInteger implements OObject {
 
   Type() {
     return INTEGER_OBJ;
+  }
+  Inspect() {
+    return String(this.Value);
+  }
+  HashKey(): HashKey {
+    return new HashKey(this.Type(), this.Value);
+  }
+}
+export class OFloat implements OObject {
+  Value: number;
+
+  constructor(value: number) {
+    this.Value = value;
+  }
+
+  Type() {
+    return FLOAT_OBJ;
   }
   Inspect() {
     return String(this.Value);
