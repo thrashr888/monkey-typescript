@@ -1,5 +1,6 @@
 import { Identifier, BlockStatement } from '../ast/ast';
 import Environment from './environment';
+import Configuration from '../evaluator/configuration';
 
 export const BOOLEAN_OBJ = 'BOOLEAN',
   BUILTIN_OBJ = 'BUILTIN',
@@ -20,6 +21,7 @@ export type Hashable = OBoolean | OInteger | OFloat | OString;
 export default interface OObject {
   Type(): string;
   Inspect(): string;
+  toString(): string; // for JSON conversion
 }
 
 export class HashKey {
@@ -51,6 +53,9 @@ export class OBoolean implements OObject {
   Inspect() {
     return this.Value ? 'true' : 'false';
   }
+  toString() {
+    return this.Value ? 'true' : 'false';
+  }
   HashKey(): HashKey {
     let value: number;
 
@@ -77,6 +82,9 @@ export class OInteger implements OObject {
   Inspect() {
     return String(this.Value);
   }
+  toString() {
+    return String(this.Value);
+  }
   HashKey(): HashKey {
     return new HashKey(this.Type(), this.Value);
   }
@@ -94,6 +102,9 @@ export class OFloat implements OObject {
   Inspect() {
     return String(this.Value);
   }
+  toString() {
+    return String(this.Value);
+  }
   HashKey(): HashKey {
     return new HashKey(this.Type(), this.Value);
   }
@@ -104,6 +115,10 @@ export class ONull implements OObject {
     return NULL_OBJ;
   }
   Inspect() {
+    if (Configuration.outputNULL) return 'null';
+    return '';
+  }
+  toString() {
     return 'null';
   }
 }
@@ -121,6 +136,9 @@ export class ReturnValue implements OObject {
   Inspect() {
     return this.Value.Inspect();
   }
+  toString() {
+    return this.Value.Inspect();
+  }
 }
 
 export class OError implements OObject {
@@ -135,6 +153,9 @@ export class OError implements OObject {
   }
   Inspect() {
     return `Error: ${this.Message}`;
+  }
+  toString() {
+    return `"Error: ${this.Message}"`;
   }
 }
 
@@ -157,6 +178,9 @@ export class OFunction implements OObject {
 
     return `fn(${params.join(', ')}) {\n ${this.Body.String()}\n}`;
   }
+  toString() {
+    return `fn`;
+  }
 }
 
 function hashCode(str: string): number {
@@ -175,6 +199,9 @@ export class OString implements OObject {
   }
   Inspect() {
     return this.Value;
+  }
+  toString() {
+    return `"${this.Value}"`;
   }
   HashKey(): HashKey {
     let value = hashCode(this.Value);
@@ -195,6 +222,9 @@ export class Builtin implements OObject {
   Inspect() {
     return 'builtin function';
   }
+  toString() {
+    return '"builtin function"';
+  }
 }
 
 export class OArray implements OObject {
@@ -209,6 +239,11 @@ export class OArray implements OObject {
   }
   Inspect() {
     let elements: string[] = this.Elements.map(e => e.Inspect());
+
+    return `[${elements.join(', ')}]`;
+  }
+  toString() {
+    let elements: string[] = this.Elements.map(e => e.toString());
 
     return `[${elements.join(', ')}]`;
   }
@@ -240,6 +275,13 @@ export class OHash implements OObject {
     let pairs: string[] = [];
 
     this.Pairs.forEach(v => pairs.push(`${v.Key.Inspect()}:${v.Value.Inspect()}`));
+
+    return `{${pairs.join(', ')}}`;
+  }
+  toString() {
+    let pairs: string[] = [];
+
+    this.Pairs.forEach(v => pairs.push(`${v.Key.toString()}: ${v.Value.toString()}`));
 
     return `{${pairs.join(', ')}}`;
   }
