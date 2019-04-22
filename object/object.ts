@@ -13,9 +13,9 @@ export const BOOLEAN_OBJ = 'BOOLEAN',
   ARRAY_OBJ = 'ARRAY',
   HASH_OBJ = 'HASH';
 
-export type AnyObject = OInteger | OBoolean | OString | ONull;
+export type AnyObject = OObject | OInteger | OFloat | OBoolean | OString | ONull;
 export type NullableOObject = OObject | null;
-export type Hashable = OBoolean | OInteger | OString;
+export type Hashable = OBoolean | OInteger | OFloat | OString;
 
 export default interface OObject {
   Type(): string;
