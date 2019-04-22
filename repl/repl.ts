@@ -3,6 +3,7 @@ import Parser from '../parser/parser';
 import Eval from '../evaluator/evaluator';
 import process from 'process';
 import { NewEnvironment } from '../object/environment';
+import OObject, { OInteger } from '../object/object';
 
 const PROMPT = '>> ';
 
@@ -10,6 +11,7 @@ export default function Start(input: any, output: NodeJS.WriteStream, quiet = fa
   if (!quiet) output.write(PROMPT);
 
   let env = NewEnvironment();
+  let lastOutput: OObject;
 
   input.on('data', (data: any) => {
     if (data === 'exit\n') process.exit(0);
@@ -27,11 +29,18 @@ export default function Start(input: any, output: NodeJS.WriteStream, quiet = fa
 
     let evaluated = Eval(program, env);
     if (evaluated !== null) {
-      output.write(evaluated.Inspect());
-      output.write('\n');
+      lastOutput = evaluated;
+      if (!quiet) output.write(evaluated.Inspect());
+      if (!quiet) output.write('\n');
     }
 
     if (!quiet) output.write(PROMPT);
+  });
+
+  input.on('end', () => {
+    // return error code if script returns a number
+    if (lastOutput instanceof OInteger) process.exit(lastOutput.Value);
+    process.exit(0);
   });
 
   input.on('close', () => {
