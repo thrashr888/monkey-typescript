@@ -1,8 +1,8 @@
 # Monkey
 
-A [Monkey](https://interpreterbook.com/) language interpreter in Typescript.
+An extended [Monkey](https://interpreterbook.com/) language interpreter in Typescript.
 
-## Example
+## The Extended Monkey Language
 
 In `example.monkey`:
 
@@ -48,16 +48,35 @@ or(1, false); // true
 import { NewEnvironment, Lexer, Parser, Eval } from 'monkey-typescript';
 
 let env = NewEnvironment();
-let l = new Lexer(line);
+let l = new Lexer('puts("hello!"); let a = 5; 5 * 55;');
 let p = new Parser(l);
 let program = p.ParseProgram();
 
 if (p.Errors().length !== 0) {
-  console.log(p.Errors().forEach((msg: string) => console.log(`\t${msg}`)));
+  console.log(p.Errors().forEach(msg => console.log(`\t${msg}`)));
   return;
 }
 
 let evaluated = Eval(program, env);
+console.log(evaluated.Inspect());
+```
+
+Using `require`:
+
+```javascript
+var monkeyTypescript = require('monkey-typescript');
+
+let env = monkeyTypescript.NewEnvironment();
+let l = new monkeyTypescript.Lexer('puts("hello!"); let a = 5; 5 * 55;');
+let p = new monkeyTypescript.Parser(l);
+let program = p.ParseProgram();
+
+if (p.Errors().length !== 0) {
+  console.log(p.Errors().forEach(msg => console.log(`\t${msg}`)));
+  return;
+}
+
+let evaluated = monkeyTypescript.Eval(program, env);
 console.log(evaluated.Inspect());
 ```
 
@@ -98,7 +117,7 @@ Original Monkey language and source code from the book ["Writing an Interpreter
 in Go" by Thorsten Ball](https://interpreterbook.com/). Translated to Typescript
 by Paul Thrasher. It's a great book. Buy it!
 
-## Typescript Interpreter MIT LICENSE
+## Typescript Interpreter and Extensions MIT LICENSE
 
 Copyright (c) 2019 Paul Thrasher
 
