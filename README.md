@@ -86,6 +86,12 @@ or watch for file changes:
 
     $ npm run test:live
 
+## Publish / Deploy
+
+    $ npm run build
+    # bump version number in `package.json`
+    $ npm publish
+
 ## Credits
 
 Original Monkey language and source code from the book ["Writing an Interpreter
