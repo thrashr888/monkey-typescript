@@ -7,9 +7,9 @@ A [Monkey](https://interpreterbook.com/) language interpreter in Typescript.
 In `example.monkey`:
 
 ```javascript
-let log = fn(msg) {
-  return puts("Log:", msg);
-};
+let log = fn(msg) { puts(msg); true; };
+let and = fn(a, b) { if (a) { if (b) { return true; } return false; }; return false; };
+let or = fn(a, b) { if (a) { return true; }; if (b) { return true; }; return false; };
 
 log(0);
 
@@ -19,8 +19,11 @@ log(a);
 let b = [1, 2, "three"];
 log(b[1]);
 
-let c = {"a": "bee", "c": "three"};
-log(c["c"]);
+let c = { "a": "bee", "c": "three" };
+log(c['c']); // three
+
+and(1, false); // false
+or(1, false); // true
 ```
 
     $ npx monkey-typescript example.monkey
