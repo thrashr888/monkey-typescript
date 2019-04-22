@@ -219,13 +219,17 @@ export default class Parser {
     return new Comment(this.curToken, this.curToken.Literal);
   }
 
+  formatError(t: Token, msg: string): string {
+    return `${msg} at ${t.Position.String()}`;
+  }
+
   parseIntegerLiteral() {
     try {
       let value = parseInt(this.curToken.Literal, 10);
       let lit = new IntegerLiteral(this.curToken, value);
       return lit;
     } catch {
-      let msg = `could not parse ${this.curToken.Literal} as integer`;
+      let msg = this.formatError(this.curToken, `could not parse ${this.curToken.Literal} as integer`);
       this.errors.push(msg);
       return null;
     }
@@ -237,7 +241,7 @@ export default class Parser {
       let lit = new FloatLiteral(this.curToken, value);
       return lit;
     } catch {
-      let msg = `could not parse ${this.curToken.Literal} as float`;
+      let msg = this.formatError(this.curToken, `could not parse ${this.curToken.Literal} as float`);
       this.errors.push(msg);
       return null;
     }
@@ -268,7 +272,10 @@ export default class Parser {
   peekError(t: TokenTypeName): void {
     if (this.peekToken === null) return;
 
-    let msg = `expected next token to be ${t}, got ${this.peekToken.Type} instead`;
+    let msg = this.formatError(
+      this.peekToken,
+      `expected next token to be ${t}, got ${this.peekToken.Type} instead`
+    );
     this.errors.push(msg);
   }
 
@@ -281,7 +288,7 @@ export default class Parser {
   }
 
   noPrefixParseFnError(t: Token) {
-    let msg = `no prefix parse function for ${t.Type} found: ${t.Literal}`;
+    let msg = this.formatError(t, `no prefix parse function for ${t.Type} found: ${t.Literal}`);
     this.errors.push(msg);
   }
 

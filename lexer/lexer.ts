@@ -1,7 +1,10 @@
 import Token, { TokenType, LookupIdent } from '../token/token';
+import Position from '../token/position';
 
 export default class Lexer {
   input: string;
+  line: number = 1;
+  column: number = 0;
   position: number = 0; // current position in input (points to current char)
   readPosition: number = 0; // current reading position in input (after current char)
   ch: string | number | null = null; // current char under examination
@@ -17,55 +20,60 @@ export default class Lexer {
 
     this.skipWhitespace();
 
+    let pos = new Position(this.position, this.line, this.column);
+
     switch (this.ch) {
       case '=':
         if (this.peekChar() === '=') {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(TokenType.EQ, literal);
+          tok = new Token(TokenType.EQ, literal, pos);
         } else {
-          tok = new Token(TokenType.ASSIGN, this.ch);
+          tok = new Token(TokenType.ASSIGN, this.ch, pos);
         }
         break;
       case '+':
-        tok = new Token(TokenType.PLUS, this.ch);
+        tok = new Token(TokenType.PLUS, this.ch, pos);
         break;
       case '-':
-        tok = new Token(TokenType.MINUS, this.ch);
+        tok = new Token(TokenType.MINUS, this.ch, pos);
         break;
       case '!':
         if (this.peekChar() === '=') {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(TokenType.NOT_EQ, literal);
+          tok = new Token(TokenType.NOT_EQ, literal, pos);
         } else {
-          tok = new Token(TokenType.BANG, this.ch);
+          tok = new Token(TokenType.BANG, this.ch, pos);
         }
         break;
       case '/':
         if (this.peekChar() === '/') {
-          tok = new Token(TokenType.COMMENT, this.readComment());
+          tok = new Token(TokenType.COMMENT, this.readComment(), pos);
           break;
         } else {
-          tok = new Token(TokenType.SLASH, this.ch);
+          tok = new Token(TokenType.SLASH, this.ch, pos);
         }
         break;
+      case '#':
+        tok = new Token(TokenType.COMMENT, this.readComment(), pos);
+        break;
       case '*':
-        tok = new Token(TokenType.ASTERISK, this.ch);
+        tok = new Token(TokenType.ASTERISK, this.ch, pos);
         break;
       case '%':
-        tok = new Token(TokenType.REM, this.ch);
+        tok = new Token(TokenType.REM, this.ch, pos);
         break;
       case '<':
         if (this.peekChar() === '=') {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(TokenType.LTE, literal);
+          tok = new Token(TokenType.LTE, literal, pos);
         } else {
-          tok = new Token(TokenType.LT, this.ch);
+          tok = new Token(TokenType.LT, this.ch, pos);
         }
         break;
       case '>':
@@ -73,60 +81,60 @@ export default class Lexer {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
-          tok = new Token(TokenType.GTE, literal);
+          tok = new Token(TokenType.GTE, literal, pos);
         } else {
-          tok = new Token(TokenType.GT, this.ch);
+          tok = new Token(TokenType.GT, this.ch, pos);
         }
         break;
       case ';':
-        tok = new Token(TokenType.SEMICOLON, this.ch);
+        tok = new Token(TokenType.SEMICOLON, this.ch, pos);
         break;
       case ',':
-        tok = new Token(TokenType.COMMA, this.ch);
+        tok = new Token(TokenType.COMMA, this.ch, pos);
         break;
       case '{':
-        tok = new Token(TokenType.LBRACE, this.ch);
+        tok = new Token(TokenType.LBRACE, this.ch, pos);
         break;
       case '}':
-        tok = new Token(TokenType.RBRACE, this.ch);
+        tok = new Token(TokenType.RBRACE, this.ch, pos);
         break;
       case '(':
-        tok = new Token(TokenType.LPAREN, this.ch);
+        tok = new Token(TokenType.LPAREN, this.ch, pos);
         break;
       case ')':
-        tok = new Token(TokenType.RPAREN, this.ch);
+        tok = new Token(TokenType.RPAREN, this.ch, pos);
         break;
       case '[':
-        tok = new Token(TokenType.LBRACKET, this.ch);
+        tok = new Token(TokenType.LBRACKET, this.ch, pos);
         break;
       case ']':
-        tok = new Token(TokenType.RBRACKET, this.ch);
+        tok = new Token(TokenType.RBRACKET, this.ch, pos);
         break;
       case '"':
-        tok = new Token(TokenType.STRING, this.readString());
+        tok = new Token(TokenType.STRING, this.readString(), pos);
         break;
       case "'":
-        tok = new Token(TokenType.STRING, this.readString("'"));
+        tok = new Token(TokenType.STRING, this.readString("'"), pos);
         break;
       case ':':
-        tok = new Token(TokenType.COLON, this.ch);
+        tok = new Token(TokenType.COLON, this.ch, pos);
         break;
       case 0:
-        tok = new Token(TokenType.EOF, '');
+        tok = new Token(TokenType.EOF, '', pos);
         break;
 
       default:
         if (isLetter(this.ch)) {
           let literal = this.readIdentifier();
-          return new Token(LookupIdent(literal), literal);
+          return new Token(LookupIdent(literal), literal, pos);
         } else if (isDigit(this.ch)) {
           let literal = this.readNumber();
           if (isFloat(literal)) {
-            return new Token(TokenType.FLOAT, literal);
+            return new Token(TokenType.FLOAT, literal, pos);
           }
-          return new Token(TokenType.INT, literal);
+          return new Token(TokenType.INT, literal, pos);
         } else {
-          tok = new Token(TokenType.ILLEGAL, '' + this.ch);
+          tok = new Token(TokenType.ILLEGAL, '' + this.ch, pos);
         }
     }
 
@@ -148,8 +156,14 @@ export default class Lexer {
       this.ch = this.input[this.readPosition];
     }
 
+    if (this.ch === '\n') {
+      this.column = 0;
+      this.line++;
+    }
+
     this.position = this.readPosition;
-    this.readPosition += 1;
+    this.column++;
+    this.readPosition++;
   }
 
   readString(type: string = '"') {

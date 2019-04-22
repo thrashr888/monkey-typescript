@@ -1,10 +1,14 @@
+import Position from './position';
+
 export default class Token {
   Type: string;
   Literal: string;
+  Position: Position;
 
-  constructor(type: string, literal: string) {
+  constructor(type: string, literal: string, position?: Position) {
     this.Type = type;
     this.Literal = literal;
+    this.Position = position || new Position(0, 0, 0);
   }
 }
 
