@@ -212,6 +212,16 @@ function evalInfixExpression(operator: string, left: NullableOObject, right: Nul
     return nativeBoolToBooleanObject(left === right);
   } else if (operator === '!=') {
     return nativeBoolToBooleanObject(left !== right);
+  } else if (operator === 'and') {
+    // if left AND right are TRUE
+    if (!left || !(left instanceof OBoolean)) return nativeBoolToBooleanObject(false);
+    if (!right || !(right instanceof OBoolean)) return nativeBoolToBooleanObject(false);
+    return nativeBoolToBooleanObject(left.Value && right.Value);
+  } else if (operator === 'or') {
+    // if left OR right are TRUE
+    if (left && left instanceof OBoolean && left.Value) return nativeBoolToBooleanObject(true);
+    if (right && right instanceof OBoolean && right.Value) return nativeBoolToBooleanObject(true);
+    return nativeBoolToBooleanObject(false);
   } else if (left !== null && right !== null && left.Type() !== right.Type()) {
     return newError('type mismatch: %s %s %s', left.Type(), operator, right.Type());
   } else {

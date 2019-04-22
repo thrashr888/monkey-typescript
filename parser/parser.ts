@@ -25,15 +25,19 @@ import {
 } from '../ast/ast';
 
 export const LOWEST = 1,
-  EQUALS = 2, // ==
-  LESSGREATER = 3, // > or <
-  SUM = 4, // +
-  PRODUCT = 5, // *
-  PREFIX = 6, // X or !X
-  CALL = 7, // myFunction(X)
-  INDEX = 8; // array[index]
+  LOR = 2, // or
+  LAND = 3, // and
+  EQUALS = 4, // ==
+  LESSGREATER = 5, // > or <
+  SUM = 6, // +
+  PRODUCT = 7, // *
+  PREFIX = 8, // X or !X
+  CALL = 9, // myFunction(X)
+  INDEX = 10; // array[index]
 
 export const precedences: { [index: string]: number } = {
+  [TokenType.LOR]: EQUALS,
+  [TokenType.LAND]: EQUALS,
   [TokenType.EQ]: EQUALS,
   [TokenType.NOT_EQ]: EQUALS,
   [TokenType.LT]: LESSGREATER,
@@ -92,6 +96,8 @@ export default class Parser {
       TokenType.GT,
       TokenType.GTE,
       TokenType.REM,
+      TokenType.LAND,
+      TokenType.LOR,
     ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
 
     this.registerInfix(TokenType.LPAREN, this.parseCallExpression.bind(this));

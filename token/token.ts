@@ -54,6 +54,8 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   RBRACE: '}',
 
   // Keywords
+  LAND: 'AND',
+  LOR: 'OR',
   FUNCTION: 'FUNCTION',
   LET: 'LET',
   TRUE: 'TRUE',
@@ -63,6 +65,8 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   RETURN: 'RETURN',
 };
 
+// keyword strings are defined here as the index
+// for example, this is where a function is defined as "fn"
 export const Keywords: { [index: string]: string } = {
   fn: TokenType.FUNCTION,
   let: TokenType.LET,
@@ -71,6 +75,8 @@ export const Keywords: { [index: string]: string } = {
   if: TokenType.IF,
   else: TokenType.ELSE,
   return: TokenType.RETURN,
+  and: TokenType.LAND,
+  or: TokenType.LOR,
 };
 
 export function LookupIdent(ident: string): string {

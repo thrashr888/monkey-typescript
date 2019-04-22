@@ -180,6 +180,8 @@ export function TestIfElseExpressions(t: Test) {
   let tests = [
     { input: 'if (true) { 10 }', expected: 10 },
     { input: 'if (false) { 10 }', expected: null },
+    { input: 'if (false or true) { 10 }', expected: 10 },
+    { input: 'if (false and true) { 10 } else { 20 }', expected: 20 },
     { input: 'if (1) { 10 }', expected: 10 },
     { input: 'if (1 < 2) { 10 }', expected: 10 },
     { input: 'if (1 > 2) { 10 }', expected: null },
@@ -254,7 +256,7 @@ if (10 > 1) {
 `,
       expected: 'unknown operator: BOOLEAN + BOOLEAN',
     },
-    { input: 'foobar', expected: 'identifier not found: foobar' },
+    { input: 'foobar', expected: 'identifier not found: foobar at line 1, column 1' },
     { input: '"Hello" - "World"', expected: 'unknown operator: STRING - STRING' },
     {
       input: `{"name": "Monkey"}[fn(x) { x }];`,
