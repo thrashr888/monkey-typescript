@@ -335,7 +335,7 @@ function evalIdentifier(node: Identifier, env: Environment): NullableOObject {
     return builtins[node.Value];
   }
 
-  return newError('identifier not found: %s', node.Value);
+  return newError('identifier not found: %s at %s', node.Value, node.Token.Position.String());
 }
 
 function evalExpressions(exps: Expression[], env: Environment): OObject[] {
