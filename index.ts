@@ -33,4 +33,4 @@ export function main(argv: string[]): void {
 }
 
 // NodeJS runs a REPL or file loader
-if (process) main(process.argv);
+if (typeof process !== 'undefined' && typeof process.versions.node !== 'undefined') main(process.argv);
