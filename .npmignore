@@ -1,12 +1,9 @@
+node_modules/
+npm-debug.log
+
 .github
 .vscode
+.DS_Store
 
-./ast
-./evaluator
-./lexer
-./object
-./parser
-./repl
-./token
-
-test
+**/*.ts
+!**/*.d.ts
