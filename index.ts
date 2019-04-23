@@ -32,4 +32,5 @@ export function main(argv: string[]): void {
   Start(input, output, false);
 }
 
-main(process.argv);
+// NodeJS runs a REPL or file loader
+if (process) main(process.argv);
