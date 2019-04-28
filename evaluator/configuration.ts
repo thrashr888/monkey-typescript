@@ -3,7 +3,7 @@ export class Configuration {
   outputNULL: boolean;
   outputFullFunction: boolean;
 
-  constructor({ quiet = false, outputNULL = false, outputFullFunction = true }) {
+  constructor({ quiet = false, outputNULL = true, outputFullFunction = true }) {
     this.quiet = quiet;
     this.outputNULL = outputNULL;
     this.outputFullFunction = outputFullFunction;

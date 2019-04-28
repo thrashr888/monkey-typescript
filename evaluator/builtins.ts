@@ -11,8 +11,10 @@ import OObject, {
   STRING_OBJ,
   HASH_OBJ,
   OFloat,
+  INTEGER_OBJ,
+  OFunction,
 } from '../object/object';
-import { newError, NULL } from './evaluator';
+import Eval, { newError, NULL } from './evaluator';
 
 var builtins: { [s: string]: Builtin } = {
   len: new Builtin(function(...args: OObject[]): OObject {
@@ -167,10 +169,12 @@ function isFloat(n: string): boolean {
 }
 
 // jsonParse('[1,2,"three"]')
-// jsonParse('{"a": "b", "c": 4}')
+// jsonParse('{"a": "b", "c": 4, "d": null}')
 function jsonParse(input: any): OObject {
   if (Array.isArray(input)) {
     return new OArray(input.map(v => jsonParse(v)));
+  } else if (input === null) {
+    return NULL;
   } else if (typeof input === 'object') {
     let pairs = new Map();
     Object.keys(input).forEach((key: string) => {
