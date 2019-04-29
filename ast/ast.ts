@@ -188,9 +188,9 @@ export class InfixExpression implements Expression {
   Token: Token;
   Left: Expression;
   Operator: string;
-  Right: Expression;
+  Right: Expression | null = null;
 
-  constructor(token: Token, left: Expression, operator: string, right: Expression) {
+  constructor(token: Token, left: Expression, operator: string, right: Expression | null) {
     this.Token = token;
     this.Left = left;
     this.Operator = operator;
@@ -202,7 +202,7 @@ export class InfixExpression implements Expression {
   }
 
   String() {
-    return `(${this.Left.String()} ${this.Operator} ${this.Right.String()})`;
+    return `(${this.Left.String()} ${this.Operator} ${this.Right ? this.Right.String() : ''})`;
   }
 }
 
