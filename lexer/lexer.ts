@@ -182,11 +182,11 @@ export default class Lexer {
     let position = this.position + 1;
     while (true) {
       this.readChar();
-      if (this.ch === '\n' || this.ch === '\r') {
+      if (this.ch === '\n' || this.ch === '\r' || this.ch === 0) {
         break;
       }
     }
-    return this.input.slice(position, this.position);
+    return this.input.slice(position, this.position).trim();
   }
 
   peekChar() {

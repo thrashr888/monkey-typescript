@@ -1,8 +1,10 @@
 import { NullableOObject } from './object';
+import Logger from './logger';
 
 export default class Environment {
   store: Map<string, NullableOObject> = new Map<string, NullableOObject>();
   outer: Environment | null = null;
+  Logger: Logger = new Logger();
 
   Get(name: string): NullableOObject {
     let obj = this.store.get(name);

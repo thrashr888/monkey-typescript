@@ -101,7 +101,7 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
       if (args.length === 1 && isError(args[0])) {
         return args[0];
       }
-      return applyFunction(func, args);
+      return applyFunction(env, func, args);
     }
     return func;
   } else if (node instanceof ArrayLiteral) {
@@ -444,14 +444,14 @@ function evalHashIndexExpression(hash: OObject, index: OObject): OObject {
   return pair.Value;
 }
 
-function applyFunction(fn: OObject, args: OObject[]): NullableOObject {
+function applyFunction(env: Environment, fn: OObject, args: OObject[]): NullableOObject {
   let func = fn;
   if (func instanceof OFunction) {
     let extendedEnv = extendedFunctionEnv(func, args);
     let evaluated = Eval(func.Body, extendedEnv);
     return unwrapReturnValue(evaluated);
   } else if (func instanceof Builtin) {
-    return func.Fn(...args);
+    return func.Fn(env, ...args);
   }
 
   return newError('not a function: %s', fn.Type());

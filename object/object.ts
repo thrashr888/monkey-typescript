@@ -18,11 +18,13 @@ export const BOOLEAN_OBJ = 'BOOLEAN',
 export type AnyObject = OObject | OInteger | OFloat | OBoolean | OString | ONull;
 export type NullableOObject = OObject | null;
 export type Hashable = OBoolean | OInteger | OFloat | OString;
+export type HasValue = OBoolean | OInteger | OFloat | ReturnValue | OString | OArray | OHash;
 
 export default interface OObject {
   Type(): string;
   Inspect(): string;
   toString(): string; // for JSON conversion
+  toValue(): any; // for inspection
 }
 
 export class HashKey {
@@ -38,7 +40,7 @@ export class HashKey {
 }
 
 export interface BuiltinFunction {
-  (...args: OObject[]): OObject;
+  (env: Environment, ...args: OObject[]): OObject;
 }
 
 export class OBoolean implements OObject {
@@ -56,6 +58,9 @@ export class OBoolean implements OObject {
   }
   toString() {
     return this.Value ? 'true' : 'false';
+  }
+  toValue() {
+    return this.Value ? true : false;
   }
   HashKey(): HashKey {
     let value: number;
@@ -86,6 +91,9 @@ export class OInteger implements OObject {
   toString() {
     return String(this.Value);
   }
+  toValue() {
+    return this.Value;
+  }
   HashKey(): HashKey {
     return new HashKey(this.Type(), this.Value);
   }
@@ -106,6 +114,9 @@ export class OFloat implements OObject {
   toString() {
     return String(this.Value);
   }
+  toValue() {
+    return this.Value;
+  }
   HashKey(): HashKey {
     return new HashKey(this.Type(), this.Value);
   }
@@ -121,6 +132,9 @@ export class ONull implements OObject {
   }
   toString() {
     return 'null';
+  }
+  toValue() {
+    return null;
   }
 }
 
@@ -140,6 +154,9 @@ export class ReturnValue implements OObject {
   toString() {
     return this.Value.Inspect();
   }
+  toValue() {
+    return this.Value.toValue();
+  }
 }
 
 export class OError implements OObject {
@@ -157,6 +174,9 @@ export class OError implements OObject {
   }
   toString() {
     return `"Error: ${this.Message}"`;
+  }
+  toValue() {
+    return new Error(this.Message);
   }
 }
 
@@ -184,6 +204,9 @@ export class OFunction implements OObject {
   toString() {
     return `fn`;
   }
+  toValue() {
+    return new Error('not implemented');
+  }
 }
 
 function hashCode(str: string): number {
@@ -206,6 +229,9 @@ export class OString implements OObject {
   toString() {
     return `"${this.Value}"`;
   }
+  toValue() {
+    return this.Value;
+  }
   HashKey(): HashKey {
     let value = hashCode(this.Value);
     return new HashKey(this.Type(), value);
@@ -213,24 +239,27 @@ export class OString implements OObject {
 }
 
 export class OComment implements OObject {
-  Value: string;
+  Message: string;
 
-  constructor(value: string) {
-    this.Value = value;
+  constructor(message: string) {
+    this.Message = message;
   }
 
   Type() {
     return STRING_OBJ;
   }
   Inspect() {
-    return `# ${this.Value}`;
+    return `# ${this.Message}`;
   }
   toString() {
     return '';
   }
+  toValue() {
+    return this.Message;
+  }
   HashKey(): HashKey {
-    let value = hashCode(this.Value);
-    return new HashKey(this.Type(), value);
+    let message = hashCode(this.Message);
+    return new HashKey(this.Type(), message);
   }
 }
 
@@ -249,6 +278,9 @@ export class Builtin implements OObject {
   }
   toString() {
     return '"builtin function"';
+  }
+  toValue() {
+    return new Error('not implemented');
   }
 }
 
@@ -271,6 +303,11 @@ export class OArray implements OObject {
     let elements: string[] = this.Elements.map(e => e.toString());
 
     return `[${elements.join(', ')}]`;
+  }
+  toValue() {
+    let elements: any[] = this.Elements.map(e => e.toValue());
+
+    return elements;
   }
 }
 
@@ -309,5 +346,12 @@ export class OHash implements OObject {
     this.Pairs.forEach(v => pairs.push(`${v.Key.toString()}: ${v.Value.toString()}`));
 
     return `{${pairs.join(', ')}}`;
+  }
+  toValue() {
+    let obj: { [index: string]: any } = {};
+
+    this.Pairs.forEach(v => (obj[v.Key.toString()] = v.Value.toString()));
+
+    return obj;
   }
 }

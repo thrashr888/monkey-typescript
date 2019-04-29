@@ -1,7 +1,8 @@
+import process from 'process';
+
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval from '../evaluator/evaluator';
-import process from 'process';
 import { NewEnvironment } from '../object/environment';
 import OObject, { OInteger } from '../object/object';
 
@@ -11,6 +12,9 @@ export default function Start(input: any, output: NodeJS.WriteStream, quiet = fa
   if (!quiet) output.write(PROMPT);
 
   let env = NewEnvironment();
+  env.Logger.Follow((msg: string) => {
+    console.log(new Date(), ...msg);
+  });
   let lastOutput: OObject;
 
   input.on('data', (data: any) => {

@@ -1,5 +1,3 @@
-import https from 'https';
-
 import OObject, {
   Builtin,
   OString,
@@ -11,13 +9,14 @@ import OObject, {
   STRING_OBJ,
   HASH_OBJ,
   OFloat,
-  INTEGER_OBJ,
-  OFunction,
+  OError,
 } from '../object/object';
-import Eval, { newError, NULL } from './evaluator';
+import { newError, NULL } from './evaluator';
+import Environment from '../object/environment';
 
 var builtins: { [s: string]: Builtin } = {
-  len: new Builtin(function(...args: OObject[]): OObject {
+  // let a = [1, 2, 3]; len(a) => 3
+  len: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
@@ -32,7 +31,8 @@ var builtins: { [s: string]: Builtin } = {
     return newError('argument to `len` not supported, got %s', arg.Type());
   }),
 
-  first: new Builtin(function(...args: OObject[]): OObject {
+  // let a = [1, 2, 3]; first(a) => 1
+  first: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
@@ -49,7 +49,8 @@ var builtins: { [s: string]: Builtin } = {
     return NULL;
   }),
 
-  last: new Builtin(function(...args: OObject[]): OObject {
+  // let a = [1, 2, 3]; last(a) => 3
+  last: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
@@ -66,7 +67,8 @@ var builtins: { [s: string]: Builtin } = {
     return NULL;
   }),
 
-  rest: new Builtin(function(...args: OObject[]): OObject {
+  // let a = [1, 2, 3]; rest(a); a => [2, 3]
+  rest: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
@@ -84,7 +86,8 @@ var builtins: { [s: string]: Builtin } = {
     return NULL;
   }),
 
-  push: new Builtin(function(...args: OObject[]): OObject {
+  // let a = []; push(a, 1); a => [1]
+  push: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 2) {
       return newError('wrong number of arguments. got=%s, want=2', args.length);
     }
@@ -97,14 +100,90 @@ var builtins: { [s: string]: Builtin } = {
     return new OArray([...arr.Elements, args[1]]);
   }),
 
-  puts: new Builtin(function(...args: OObject[]): OObject {
-    console.log(args.map(a => a.Inspect()).join(' '));
+  // puts(1, 'ok', 'hello', 3.1459) => '1', 'ok', 'hello', '3.1459'
+  puts: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    env.Logger.Log(args.map(a => a.Inspect()).join(' '));
 
     return NULL;
   }),
 
+  // puts(1, 'ok', 'hello', 3.1459) => 1, 'ok', 'hello', 3.1459
+  put: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    env.Logger.Log(...args.map(a => a.toValue()));
+
+    return NULL;
+  }),
+
+  // iso_date('2010/30/12')
+  iso_date: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    if (args.length > 1) {
+      return newError('wrong number of arguments. got=%s, want=1 or 0', args.length);
+    }
+
+    let date = new Date();
+    if (args[0]) {
+      date = new Date(args[0].Inspect());
+    }
+
+    return new OString(date.toISOString());
+  }),
+
+  // utc_date('2010/30/12')
+  utc_date: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    if (args.length > 1) {
+      return newError('wrong number of arguments. got=%s, want=1 or 0', args.length);
+    }
+
+    let date = new Date();
+    if (args[0]) {
+      date = new Date(args[0].Inspect());
+    }
+
+    return new OString(date.toUTCString());
+  }),
+
+  // locale_date('2010/30/12', 'en-US')
+  locale_date: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    if (args.length !== 2) {
+      return newError('wrong number of arguments. got=%s, want=2', args.length);
+    }
+
+    let date = new Date();
+
+    if (args[0]) {
+      date = new Date(args[0].Inspect());
+    }
+
+    return new OString(date.toLocaleString(args[1].Inspect()));
+  }),
+
+  // now()
+  now: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    if (args.length > 1) {
+      return newError('wrong number of arguments. got=%s, want=1 or 0', args.length);
+    }
+
+    return new OInteger(Date.now());
+  }),
+
+  // locale_date('en-US')
+  locale_now: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    if (args.length !== 1) {
+      return newError('wrong number of arguments. got=%s, want=1', args.length);
+    }
+
+    let date = new Date();
+    try {
+      let str = date.toLocaleString(args[0].Inspect());
+      return new OString(str);
+    } catch (err) {
+      return newError('error parsing date', err.message);
+    }
+  }),
+
   // turns an object into a string
-  string: new Builtin(function(...args: OObject[]): OObject {
+  // string(3.1459)
+  string: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
@@ -113,7 +192,8 @@ var builtins: { [s: string]: Builtin } = {
   }),
 
   // turns a string into a float or integer
-  number: new Builtin(function(...args: OObject[]): OObject {
+  // number('3.1459')
+  number: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
@@ -135,7 +215,7 @@ var builtins: { [s: string]: Builtin } = {
   // jsonParse('[1,2,"three"]')
   // jsonParse('{"a": "b", "c": 4}')
   // jsonParse('{ "data": [ {"id": 1, "name": "a"}, {"id": 2, "name": "b"} ] }')
-  jsonParse: new Builtin(function(...args: OObject[]): OObject {
+  jsonParse: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
@@ -151,7 +231,7 @@ var builtins: { [s: string]: Builtin } = {
   // jsonStringify({"a": "b", "c": 4})
   // jsonStringify({"a": "b", "c": [4, 5, 6]})
   // jsonStringify({"data": [ {"id": 1, "name": "a"}, {"id": 2, "name": "b"} ]})
-  jsonStringify: new Builtin(function(...args: OObject[]): OObject {
+  jsonStringify: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length !== 1) {
       return newError('wrong number of arguments. got=%s, want=1', args.length);
     }
