@@ -44,6 +44,7 @@ import OObject, {
   OHash,
   Hashable,
   HASH_OBJ,
+  STRING_OBJ,
   OComment,
 } from '../object/object';
 import Environment, { NewEnclosedEnvironment } from '../object/environment';
@@ -364,11 +365,26 @@ function evalIndexExpression(left: OObject | null, index: OObject | null): OObje
 
   if (left.Type() === ARRAY_OBJ && index.Type() === INTEGER_OBJ) {
     return evalArrayIndexExpression(left, index);
+  } else if (left.Type() === STRING_OBJ && index.Type() === INTEGER_OBJ) {
+    return evalStringIndexExpression(left, index);
   } else if (left.Type() === HASH_OBJ) {
     return evalHashIndexExpression(left, index);
   } else {
     return newError('index operator not supported: %s', left.Type());
   }
+}
+
+function evalStringIndexExpression(str: OObject, index: OObject): OObject {
+  let strObject = str as OString;
+  let idx = (index as OInteger).Value;
+  let max = strObject.Inspect().length - 1;
+
+  if (idx < 0 || idx > max) {
+    return NULL;
+  }
+
+  let newStr = strObject.Inspect();
+  return new OString(newStr[idx]);
 }
 
 function evalArrayIndexExpression(array: OObject, index: OObject): OObject {
