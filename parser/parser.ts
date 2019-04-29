@@ -412,7 +412,7 @@ export default class Parser {
 
     let Body = this.parseBlockStatement();
 
-    return new FunctionLiteral(this.curToken, Parameters, Body);
+    return new FunctionLiteral(curToken, Parameters, Body);
   }
 
   parseFunctionParameters(): Identifier[] {

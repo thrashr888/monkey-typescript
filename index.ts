@@ -7,8 +7,9 @@ import { NewEnvironment } from './object/environment';
 import Lexer from './lexer/lexer';
 import Parser from './parser/parser';
 import Eval from './evaluator/evaluator';
+import Object from './object/object';
 
-export { NewEnvironment, Lexer, Parser, Eval };
+export { NewEnvironment, Lexer, Parser, Eval, Object };
 
 export function main(argv: string[]): void {
   let output = process.stdout;

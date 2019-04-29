@@ -1,12 +1,12 @@
 export class Configuration {
   quiet: boolean;
   outputNULL: boolean;
-  outputFullFunction: boolean;
+  outputFunctionBody: boolean;
 
-  constructor({ quiet = false, outputNULL = true, outputFullFunction = true }) {
+  constructor({ quiet = false, outputNULL = true, outputFunctionBody = true }) {
     this.quiet = quiet;
     this.outputNULL = outputNULL;
-    this.outputFullFunction = outputFullFunction;
+    this.outputFunctionBody = outputFunctionBody;
   }
 }
 

@@ -175,11 +175,11 @@ export class OFunction implements OObject {
     return FUNCTION_OBJ;
   }
   Inspect() {
-    if (!Configuration.outputFullFunction) return 'fn';
+    if (!Configuration.outputFunctionBody) return 'fn';
 
     let params: string[] = this.Parameters.map(p => p.String());
 
-    return `fn(${params.join(', ')}) {\n ${this.Body.String()}\n}`;
+    return `fn(${params.join(', ')}) {\n  ${this.Body.String()}\n}`;
   }
   toString() {
     return `fn`;
