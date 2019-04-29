@@ -12,8 +12,8 @@ export default function Start(input: any, output: NodeJS.WriteStream, quiet = fa
   if (!quiet) output.write(PROMPT);
 
   let env = NewEnvironment();
-  env.Logger.Follow((msg: string) => {
-    console.log(new Date(), ...msg);
+  env.Logger.Follow((date: Date, messages: string) => {
+    console.log(date, ...messages);
   });
   let lastOutput: OObject;
 

@@ -5,9 +5,10 @@ export default class Logger {
     this._listeners.push(fn);
   }
 
-  Log(...msg: any[]) {
+  Log(...messages: any[]) {
+    let date = new Date();
     this._listeners.forEach(fn => {
-      fn([...msg]);
+      fn(date, [...messages]);
     });
   }
 }
