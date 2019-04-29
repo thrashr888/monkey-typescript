@@ -51,6 +51,7 @@ export default class Lexer {
         break;
       case '/':
         if (this.peekChar() === '/') {
+          this.readChar();
           tok = new Token(TokenType.COMMENT, this.readComment(), pos);
           break;
         } else {

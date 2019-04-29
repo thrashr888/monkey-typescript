@@ -5,6 +5,7 @@ import Configuration from '../evaluator/configuration';
 export const BOOLEAN_OBJ = 'BOOLEAN',
   BUILTIN_OBJ = 'BUILTIN',
   ERROR_OBJ = 'ERROR',
+  COMMENT_OBJ = 'COMMENT',
   FUNCTION_OBJ = 'FUNCTION',
   INTEGER_OBJ = 'INTEGER',
   FLOAT_OBJ = 'FLOAT',
@@ -204,6 +205,28 @@ export class OString implements OObject {
   }
   toString() {
     return `"${this.Value}"`;
+  }
+  HashKey(): HashKey {
+    let value = hashCode(this.Value);
+    return new HashKey(this.Type(), value);
+  }
+}
+
+export class OComment implements OObject {
+  Value: string;
+
+  constructor(value: string) {
+    this.Value = value;
+  }
+
+  Type() {
+    return STRING_OBJ;
+  }
+  Inspect() {
+    return `# ${this.Value}`;
+  }
+  toString() {
+    return '';
   }
   HashKey(): HashKey {
     let value = hashCode(this.Value);

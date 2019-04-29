@@ -20,6 +20,7 @@ import {
   ArrayLiteral,
   IndexExpression,
   HashLiteral,
+  Comment,
 } from '../ast/ast';
 import OObject, {
   AnyObject,
@@ -43,6 +44,7 @@ import OObject, {
   OHash,
   Hashable,
   HASH_OBJ,
+  OComment,
 } from '../object/object';
 import Environment, { NewEnclosedEnvironment } from '../object/environment';
 
@@ -61,6 +63,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return new OInteger(node.Value);
   } else if (node instanceof StringLiteral) {
     return new OString(node.Value);
+  } else if (node instanceof Comment) {
+    return new OComment(node.Value);
   } else if (node instanceof AstBoolean) {
     return nativeBoolToBooleanObject(node.Value);
   } else if (node instanceof PrefixExpression) {
