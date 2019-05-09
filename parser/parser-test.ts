@@ -475,6 +475,11 @@ function testInfixExpression(t: Test, exp: Expression, left: any, operator: stri
     return false;
   }
 
+  if (!opExp.Right) {
+    t.Errorf('opExp.Right is missing, not %s', right);
+    return false;
+  }
+
   if (!testLiteralExpression(t, opExp.Right, right)) {
     return false;
   }

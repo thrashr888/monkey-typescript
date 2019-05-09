@@ -6,6 +6,10 @@ export default class Environment {
   outer: Environment | null = null;
   Logger: Logger = new Logger();
 
+  constructor(logger: Logger) {
+    this.Logger = logger;
+  }
+
   Get(name: string): NullableOObject {
     let obj = this.store.get(name);
     if (!obj && this.outer !== null) {
@@ -21,12 +25,13 @@ export default class Environment {
 }
 
 export function NewEnvironment(): Environment {
-  let env = new Environment();
+  let logger = new Logger();
+  let env = new Environment(logger);
   return env;
 }
 
 export function NewEnclosedEnvironment(outer: Environment): Environment {
-  let env = new Environment();
+  let env = new Environment(outer.Logger);
   env.outer = outer;
   return env;
 }
