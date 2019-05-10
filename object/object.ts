@@ -205,7 +205,7 @@ export class OFunction implements OObject {
     return `fn`;
   }
   toValue() {
-    return new Error('not implemented');
+    return new Error('OFunction values not implemented');
   }
 }
 
@@ -280,7 +280,7 @@ export class Builtin implements OObject {
     return '"builtin function"';
   }
   toValue() {
-    return new Error('not implemented');
+    return new Error('Builtin values not implemented');
   }
 }
 

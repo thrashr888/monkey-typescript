@@ -109,7 +109,16 @@ var builtins: { [s: string]: Builtin } = {
 
   // put(1, 'ok', 'hello', 3.1459) => 1, 'ok', 'hello', 3.1459
   put: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
-    env.Logger.Log(...args.map(a => a.toValue()));
+    env.Logger.Log(
+      ...args.map(a => {
+        try {
+          // may contain an unimplemented value
+          return a.toValue();
+        } catch (err) {
+          return NULL;
+        }
+      })
+    );
 
     return NULL;
   }),

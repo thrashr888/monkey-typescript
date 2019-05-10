@@ -1,6 +1,6 @@
 {
   "name": "monkey-typescript",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "A Monkey language interpreter in Typescript",
   "main": "build/index",
   "types": "build/index",
