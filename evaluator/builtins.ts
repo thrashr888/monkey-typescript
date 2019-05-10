@@ -115,7 +115,7 @@ var builtins: { [s: string]: Builtin } = {
           // may contain an unimplemented value
           return a.toValue();
         } catch (err) {
-          return NULL;
+          return null;
         }
       })
     );
