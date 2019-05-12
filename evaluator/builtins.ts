@@ -10,6 +10,8 @@ import OObject, {
   HASH_OBJ,
   OFloat,
   OError,
+  INTEGER_OBJ,
+  FLOAT_OBJ,
 } from '../object/object';
 import { newError, NULL } from './evaluator';
 import Environment from '../object/environment';
@@ -166,7 +168,7 @@ var builtins: { [s: string]: Builtin } = {
     return new OString(date.toLocaleString(args[1].Inspect()));
   }),
 
-  // now()
+  // now() => 1557649110366
   now: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
     if (args.length > 1) {
       return newError('wrong number of arguments. got=%s, want=1 or 0', args.length);
@@ -219,6 +221,30 @@ var builtins: { [s: string]: Builtin } = {
 
     let number = parseInt(arg);
     return new OInteger(number);
+  }),
+
+  // returns a random int or float up to the given number
+  // math_random(15)
+  // math_random(0.001)
+  math_random: new Builtin(function(env: Environment, ...args: OObject[]): OObject {
+    if (args.length !== 1) {
+      return newError('wrong number of arguments. got=%s, want=1', args.length);
+    }
+
+    if (args[0].Type() !== INTEGER_OBJ && args[0].Type() !== FLOAT_OBJ) {
+      return newError('argument to `number` must be INTEGER or FLOAT, got %s', args[0].Type());
+    }
+
+    let arg = args[0].Inspect();
+    let max = 1;
+
+    if (isFloat(arg)) {
+      max = parseFloat(arg);
+      return new OFloat(Math.random() * max);
+    }
+
+    max = parseInt(arg);
+    return new OInteger(Math.floor(Math.random() * Math.floor(max)));
   }),
 
   // jsonParse('[1,2,"three"]')
