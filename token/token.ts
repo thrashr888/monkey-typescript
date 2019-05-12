@@ -34,6 +34,7 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   MINUS: '-',
   BANG: '!',
   ASTERISK: '*',
+  EXPONENT: '**',
   SLASH: '/',
   REM: '%',
   LT: '<',

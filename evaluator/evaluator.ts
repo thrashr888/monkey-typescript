@@ -285,6 +285,8 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
       return new OInteger(leftVal / rightVal);
     case '%':
       return new OInteger(leftVal % rightVal);
+    case '**':
+      return new OInteger(leftVal ** rightVal);
     case '<':
       return nativeBoolToBooleanObject(leftVal < rightVal);
     case '>':
@@ -321,6 +323,8 @@ function evalFloatInfixExpression(
       return new OFloat(leftVal / rightVal);
     case '%':
       return new OFloat(leftVal % rightVal);
+    case '**':
+      return new OFloat(leftVal ** rightVal);
     case '<':
       return nativeBoolToBooleanObject(leftVal < rightVal);
     case '>':
@@ -339,13 +343,25 @@ function evalFloatInfixExpression(
 }
 
 function evalStringInfixExpression(operator: string, left: OString, right: OString): OObject {
-  if (operator !== '+') {
-    return newError('unknown operator: %s %s %s', left.Type(), operator, right.Type());
+  if (operator === '+') {
+    let leftVal = left.Value;
+    let rightVal = right.Value;
+    return new OString(leftVal + rightVal);
+  } else if (operator === '==') {
+    let leftVal = left.Value;
+    let rightVal = right.Value;
+    return new OBoolean(leftVal === rightVal);
+  } else if (operator === '<') {
+    let leftVal = left.Value;
+    let rightVal = right.Value;
+    return new OBoolean(leftVal < rightVal);
+  } else if (operator === '>') {
+    let leftVal = left.Value;
+    let rightVal = right.Value;
+    return new OBoolean(leftVal > rightVal);
   }
 
-  let leftVal = left.Value;
-  let rightVal = right.Value;
-  return new OString(leftVal + rightVal);
+  return newError('unknown operator: %s %s %s', left.Type(), operator, right.Type());
 }
 
 function evalIfExpression(ie: IfExpression, env: Environment): NullableOObject {

@@ -62,7 +62,14 @@ export default class Lexer {
         tok = new Token(TokenType.COMMENT, this.readComment(), pos);
         break;
       case '*':
-        tok = new Token(TokenType.ASTERISK, this.ch, pos);
+        if (this.peekChar() === '*') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.EXPONENT, literal, pos);
+        } else {
+          tok = new Token(TokenType.ASTERISK, this.ch, pos);
+        }
         break;
       case '%':
         tok = new Token(TokenType.REM, this.ch, pos);
