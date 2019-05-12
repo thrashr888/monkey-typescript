@@ -1,4 +1,4 @@
-import { Identifier, BlockStatement } from '../ast/ast';
+import { Identifier, BlockStatement, Expression } from '../ast/ast';
 import Environment from './environment';
 import Configuration from '../evaluator/configuration';
 

@@ -7,6 +7,7 @@ import {
   CallExpression,
   Expression,
   ExpressionStatement,
+  WhileLiteral,
   FunctionLiteral,
   Identifier,
   IfExpression,
@@ -92,6 +93,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return val;
   } else if (node instanceof Identifier) {
     return evalIdentifier(node, env);
+  } else if (node instanceof WhileLiteral) {
+    return evalWhile(node.Expression, node.Body, env);
   } else if (node instanceof FunctionLiteral) {
     return new OFunction(node.Parameters, node.Body, env);
   } else if (node instanceof CallExpression) {
@@ -151,6 +154,34 @@ function evalBlockStatement(program: BlockStatement, env: Environment): Nullable
         return result;
       }
     }
+  }
+
+  return result;
+}
+
+// let a = 0; while(a<=500000){ let a = a + 1; } a;
+// while(true){}
+function evalWhile(expression: Expression, body: BlockStatement, env: Environment): NullableOObject {
+  let result: NullableOObject = null;
+
+  let loopCount = 0;
+  while (true) {
+    let result = Eval(expression, env);
+
+    if (++loopCount > 1000000) {
+      // prevent infinite loop
+      return newError('loop count of 1,000,000 exeeded');
+    } else if (result instanceof ONull) {
+      break;
+    } else if (result instanceof OBoolean && result.Value === true) {
+      Eval(body, env);
+    } else if (result instanceof OBoolean && result.Value === false) {
+      break;
+    } else {
+      break;
+    }
+
+    // console.log(result, env.Get('a'));
   }
 
   return result;

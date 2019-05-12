@@ -273,6 +273,26 @@ export class BlockStatement implements Statement {
   }
 }
 
+export class WhileLiteral implements Statement {
+  Token: Token;
+  Expression: Expression;
+  Body: BlockStatement;
+
+  constructor(token: Token, expression: Expression, body: BlockStatement) {
+    this.Token = token;
+    this.Expression = expression;
+    this.Body = body;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return `${this.TokenLiteral()}(${this.Expression.String()}) ${this.Body.String()}`;
+  }
+}
+
 export class FunctionLiteral implements Statement {
   Token: Token;
   Parameters: Identifier[] = [];

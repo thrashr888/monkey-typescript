@@ -7,6 +7,7 @@ import {
   CallExpression,
   Expression,
   ExpressionStatement,
+  WhileLiteral,
   FunctionLiteral,
   Identifier,
   Comment,
@@ -81,6 +82,7 @@ export default class Parser {
 
     this.registerPrefix(TokenType.IF, this.parseIfExpression.bind(this));
     this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral.bind(this));
+    this.registerPrefix(TokenType.WHILE, this.parseWhileLiteral.bind(this));
     this.registerPrefix(TokenType.LBRACKET, this.parseArrayLiteral.bind(this));
     this.registerPrefix(TokenType.LBRACE, this.parseHashLiteral.bind(this));
 
@@ -413,6 +415,24 @@ export default class Parser {
     let Body = this.parseBlockStatement();
 
     return new FunctionLiteral(curToken, Parameters, Body);
+  }
+
+  parseWhileLiteral() {
+    let curToken = this.curToken;
+
+    if (!this.expectPeek(TokenType.LPAREN)) {
+      return null;
+    }
+
+    let Expression = this.parseExpression(LOWEST);
+
+    if (!this.expectPeek(TokenType.LBRACE)) {
+      return null;
+    }
+
+    let Body = this.parseBlockStatement();
+
+    return new WhileLiteral(this.curToken, Expression, Body);
   }
 
   parseFunctionParameters(): Identifier[] {
