@@ -17,6 +17,7 @@ export const BOOLEAN_OBJ = 'BOOLEAN',
 
 export type AnyObject = OObject | OInteger | OFloat | OBoolean | OString | ONull;
 export type NullableOObject = OObject | null;
+export type NullableString = string | null;
 export type Hashable = OBoolean | OInteger | OFloat | OString;
 export type HasValue = OBoolean | OInteger | OFloat | ReturnValue | OString | OArray | OHash;
 
@@ -295,17 +296,17 @@ export class OArray implements OObject {
     return ARRAY_OBJ;
   }
   Inspect() {
-    let elements: string[] = this.Elements.map(e => e.Inspect());
+    let elements: NullableString[] = this.Elements.map(e => (e ? e.Inspect() : null));
 
     return `[${elements.join(', ')}]`;
   }
   toString() {
-    let elements: string[] = this.Elements.map(e => e.toString());
+    let elements: NullableString[] = this.Elements.map(e => (e ? e.toString() : null));
 
     return `[${elements.join(', ')}]`;
   }
   toValue() {
-    let elements: any[] = this.Elements.map(e => e.toValue());
+    let elements: NullableString[] = this.Elements.map(e => e.toValue());
 
     return elements;
   }
