@@ -105,11 +105,21 @@ or watch for file changes:
 
     $ npm run test:live
 
-## Publish / Deploy
+## npm Publish
 
     $ npm run build
     # bump version number in `package.json`
     $ npm publish
+
+## Docker Publish
+
+    # publish to npm
+    # bump version number in `Dockerfile`
+    $ docker build . -t=thrashr888/monkey-typescript:v0.0.23
+    $ docker push thrashr888/monkey-typescript:v0.0.23
+    $ docker build . -t=thrashr888/monkey-typescript:latest
+    $ docker push thrashr888/monkey-typescript:latest
+    $ docker run -it monkey-typescript
 
 ## Credits
 
