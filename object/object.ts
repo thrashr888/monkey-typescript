@@ -306,7 +306,7 @@ export class OArray implements OObject {
     return `[${elements.join(', ')}]`;
   }
   toValue() {
-    let elements: NullableString[] = this.Elements.map(e => e.toValue());
+    let elements: NullableString[] = this.Elements.map(e => (e ? e.toValue() : null));
 
     return elements;
   }

@@ -59,7 +59,6 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   LOR: 'OR',
   FUNCTION: 'FUNCTION',
   WHILE: 'WHILE',
-  FOR: 'FOR',
   LET: 'LET',
   TRUE: 'TRUE',
   FALSE: 'FALSE',
@@ -73,7 +72,6 @@ export const TokenType: { [index: string]: TokenTypeName } = {
 export const Keywords: { [index: string]: string } = {
   fn: TokenType.FUNCTION,
   while: TokenType.WHILE,
-  for: TokenType.FOR,
   let: TokenType.LET,
   true: TokenType.TRUE,
   false: TokenType.FALSE,

@@ -121,6 +121,48 @@ or watch for file changes:
     $ docker push thrashr888/monkey-typescript:latest
     $ docker run -it monkey-typescript
 
+## TODO
+
+- [ ] Add file running to Dockerfile (`docker run -it monkey-typescript example.monkey`)
+- [ ] Add Environment variables to global scope
+- [ ] Support empty input/files
+- [ ] Add `import "filename.monkey"`
+- [ ] Add `import "monkey.thrasher.dev/b7f8sd9at/file.monkey"`
+- [ ] Add `sprintf`
+- [ ] Add `[0:1]` array/string indexing
+- [ ] Add `i++`
+- [ ] Add `for(let i = 0; i < 10; i++){}` loop
+- [ ] Add browser vs. nodejs `__env` global variable
+- [ ] Add number builtins
+  - [ ] abs
+  - [ ] ceil
+  - [ ] floor
+  - [ ] log
+  - [ ] round
+  - [ ] sqrt
+  - [ ] pow
+- [ ] Add string builtins
+  - [ ] contains
+  - [ ] replace
+  - [ ] split
+  - [ ] trim
+  - [ ] starts_with
+  - [ ] ends_with
+  - [ ] index_of
+- [ ] Add array builtins
+  - [ ] map
+  - [ ] reduce
+  - [ ] filter
+  - [ ] contains
+- [ ] Add object builtins
+  - [ ] keys
+  - [ ] values
+  - [ ] filter
+  - [ ] contains_key
+  - [ ] remove
+- [ ] Add http I/O
+- [ ] Add local file I/O
+
 ## Credits
 
 Original Monkey language and source code from the book ["Writing an Interpreter
