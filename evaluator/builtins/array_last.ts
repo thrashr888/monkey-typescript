@@ -2,13 +2,13 @@ import Environment from '../../object/environment';
 import OObject, { Builtin, OArray, ARRAY_OBJ } from '../../object/object';
 import { newError, NULL } from '../evaluator';
 
-// let a = [1, 2, 3]; last(a) => 3
+// let a = [1, 2, 3]; array_last(a) => 3
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
   if (args.length !== 1) {
     return newError('wrong number of arguments. got=%s, want=1', args.length);
   }
   if (args[0].Type() !== ARRAY_OBJ) {
-    return newError('argument to `last` must be ARRAY, got %s', args[0].Type());
+    return newError('argument to `array_last` must be ARRAY, got %s', args[0].Type());
   }
 
   let arr = args[0] as OArray;

@@ -135,18 +135,23 @@ or watch for file changes:
 - [ ] Add `for(let i = 0; i < 10; i++){}` loop
 - [ ] Add browser vs. nodejs `__env` global variable
 - [ ] RegExp
-- [ ] Add math builtins
-  - [ ] abs
-  - [ ] ceil
-  - [ ] floor
-  - [ ] log
-  - [ ] round
-  - [ ] sqrt
-  - [ ] pow
-  - [ ] sin
-  - [ ] cos
-  - [ ] tan
-  - [ ] trunc
+  - [ ] test
+  - [ ] match
+  - [ ] search
+  - [ ] replace
+  - [ ] split
+- [x] Add math builtins
+  - [x] abs
+  - [x] ceil
+  - [x] floor
+  - [x] log
+  - [x] round
+  - [x] sqrt
+  - [x] pow
+  - [x] sin
+  - [x] cos
+  - [x] tan
+  - [x] trunc
 - [ ] Add string builtins
   - [ ] contains
   - [ ] concat

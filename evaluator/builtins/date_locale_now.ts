@@ -2,7 +2,7 @@ import OObject, { Builtin, OString } from '../../object/object';
 import { newError } from '../evaluator';
 import Environment from '../../object/environment';
 
-// locale_date('en-US')
+// date_locale_now('en-US')
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
   if (args.length !== 1) {
     return newError('wrong number of arguments. got=%s, want=1', args.length);
