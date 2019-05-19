@@ -123,6 +123,7 @@ or watch for file changes:
 
 ## TODO
 
+- [ ] Gracefully handle non-text Lexer input (like Promises)
 - [ ] Add file running to Dockerfile (`docker run -it monkey-typescript example.monkey`)
 - [ ] Add Environment variables to global scope
 - [ ] Support empty input/files
@@ -133,7 +134,8 @@ or watch for file changes:
 - [ ] Add `i++`
 - [ ] Add `for(let i = 0; i < 10; i++){}` loop
 - [ ] Add browser vs. nodejs `__env` global variable
-- [ ] Add number builtins
+- [ ] RegExp
+- [ ] Add math builtins
   - [ ] abs
   - [ ] ceil
   - [ ] floor
@@ -141,19 +143,43 @@ or watch for file changes:
   - [ ] round
   - [ ] sqrt
   - [ ] pow
+  - [ ] sin
+  - [ ] cos
+  - [ ] tan
+  - [ ] trunc
 - [ ] Add string builtins
   - [ ] contains
+  - [ ] concat
+  - [ ] includes
+  - [ ] repeat
+  - [ ] slice
   - [ ] replace
   - [ ] split
   - [ ] trim
   - [ ] starts_with
   - [ ] ends_with
   - [ ] index_of
+  - [ ] reverse
+  - [ ] lowercase
+  - [ ] uppercase
+  - [ ] substring
+  - [ ] template("%s, %d", var1, var2)
 - [ ] Add array builtins
   - [ ] map
   - [ ] reduce
   - [ ] filter
+  - [ ] sort
+  - [ ] concat
+  - [ ] find
+  - [ ] flat
+  - [ ] slice
   - [ ] contains
+  - [ ] join
+  - [ ] reverse
+  - [ ] shift
+  - [ ] unshift
+  - [ ] min
+  - [ ] max
 - [ ] Add object builtins
   - [ ] keys
   - [ ] values
