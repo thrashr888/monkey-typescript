@@ -2,6 +2,7 @@ import { Builtin } from '../object/object';
 
 import array_first from './builtins/array_first';
 import array_last from './builtins/array_last';
+import array_len from './builtins/array_len';
 import array_push from './builtins/array_push';
 import array_rest from './builtins/array_rest';
 import date_iso from './builtins/date_iso';
@@ -28,10 +29,26 @@ import number from './builtins/number';
 import put from './builtins/put';
 import puts from './builtins/puts';
 import string from './builtins/string';
+import string_contains from './builtins/string_contains';
+import string_concat from './builtins/string_concat';
+import string_repeat from './builtins/string_repeat';
+import string_slice from './builtins/string_slice';
+import string_replace from './builtins/string_replace';
+import string_split from './builtins/string_split';
+import string_trim from './builtins/string_trim';
+import string_starts_with from './builtins/string_starts_with';
+import string_ends_with from './builtins/string_ends_with';
+import string_index_of from './builtins/string_index_of';
+import string_reverse from './builtins/string_reverse';
+import string_lowercase from './builtins/string_lowercase';
+import string_uppercase from './builtins/string_uppercase';
+import string_substr from './builtins/string_substr';
+import string_substring from './builtins/string_substring';
 
 var builtins: { [s: string]: Builtin } = {
   array_first,
   array_last,
+  array_len,
   array_push,
   array_rest,
   date_iso,
@@ -58,6 +75,22 @@ var builtins: { [s: string]: Builtin } = {
   put,
   puts,
   string,
+  string_contains,
+  string_concat,
+  string_includes: string_contains, // alias
+  string_repeat,
+  string_slice,
+  string_replace,
+  string_split,
+  string_trim,
+  string_starts_with,
+  string_ends_with,
+  string_index_of,
+  string_reverse,
+  string_lowercase,
+  string_uppercase,
+  string_substr,
+  string_substring,
 };
 
 export default builtins;

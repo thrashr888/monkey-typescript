@@ -134,6 +134,7 @@ or watch for file changes:
 - [ ] Add `i++`
 - [ ] Add `for(let i = 0; i < 10; i++){}` loop
 - [ ] Add browser vs. nodejs `__env` global variable
+- [ ] string_template("%s, %d", var1, var2)
 - [ ] RegExp
   - [ ] test
   - [ ] match
@@ -152,23 +153,23 @@ or watch for file changes:
   - [x] cos
   - [x] tan
   - [x] trunc
-- [ ] Add string builtins
-  - [ ] contains
-  - [ ] concat
-  - [ ] includes
-  - [ ] repeat
-  - [ ] slice
-  - [ ] replace
-  - [ ] split
-  - [ ] trim
-  - [ ] starts_with
-  - [ ] ends_with
-  - [ ] index_of
-  - [ ] reverse
-  - [ ] lowercase
-  - [ ] uppercase
-  - [ ] substring
-  - [ ] template("%s, %d", var1, var2)
+- [x] Add string builtins
+  - [x] contains
+  - [x] concat
+  - [x] includes
+  - [x] repeat
+  - [x] slice
+  - [x] replace
+  - [x] split
+  - [x] trim
+  - [x] starts_with
+  - [x] ends_with
+  - [x] index_of
+  - [x] reverse
+  - [x] lowercase
+  - [x] uppercase
+  - [x] substr
+  - [x] substring
 - [ ] Add array builtins
   - [ ] map
   - [ ] reduce
