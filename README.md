@@ -115,10 +115,10 @@ or watch for file changes:
 
     # publish to npm
     # bump version number in `Dockerfile`
-    $ docker build . -t=thrashr888/monkey-typescript:v0.0.23
-    $ docker push thrashr888/monkey-typescript:v0.0.23
     $ docker build . -t=thrashr888/monkey-typescript:latest
     $ docker push thrashr888/monkey-typescript:latest
+    $ docker build . -t=thrashr888/monkey-typescript:v0.0.24
+    $ docker push thrashr888/monkey-typescript:v0.0.24
     $ docker run -it monkey-typescript
 
 ## TODO
@@ -171,6 +171,11 @@ or watch for file changes:
   - [x] substr
   - [x] substring
 - [ ] Add array builtins
+  - [x] first
+  - [x] last
+  - [x] len
+  - [x] push
+  - [x] rest
   - [ ] map
   - [ ] reduce
   - [ ] filter
