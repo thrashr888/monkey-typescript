@@ -10,6 +10,10 @@ export default class Lexer {
   ch: string | number | null = null; // current char under examination
 
   constructor(input: string) {
+    if (typeof input !== 'string') {
+      throw new Error('Lexer: only `string` input allowed');
+    }
+
     this.input = input;
 
     this.readChar();
@@ -219,10 +223,6 @@ export default class Lexer {
     }
     return this.input.slice(position, this.position);
   }
-}
-
-function isNewline(ch: string | number | null): boolean {
-  return ch === '\n' || ch === '\r';
 }
 
 function isLetter(ch: string | number | null): boolean {
