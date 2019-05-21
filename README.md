@@ -40,6 +40,11 @@ or(1, false); // true
     Feel free to type in commands
     >>
 
+    $ docker run -it thrashr888/monkey-typescript
+    Hello root! This is the Monkey programming language!
+    Feel free to type in commands
+    >>
+
 ## Usage
 
     $ npm install monkey-typescript
