@@ -119,7 +119,7 @@ or watch for file changes:
     $ docker push thrashr888/monkey-typescript:latest
     $ docker build . -t=thrashr888/monkey-typescript:v0.0.24
     $ docker push thrashr888/monkey-typescript:v0.0.24
-    $ docker run -it monkey-typescript
+    $ docker run -it thrashr888/monkey-typescript
 
 ## TODO
 
@@ -175,22 +175,23 @@ or watch for file changes:
   - [x] last
   - [x] len
   - [x] push
+  - [x] pop
   - [x] rest
   - [ ] map
   - [ ] reduce
   - [ ] filter
   - [ ] sort
-  - [ ] concat
   - [ ] find
-  - [ ] flat
-  - [ ] slice
-  - [ ] contains
-  - [ ] join
-  - [ ] reverse
-  - [ ] shift
-  - [ ] unshift
-  - [ ] min
-  - [ ] max
+  - [c] concat
+  - [x] flat
+  - [x] slice
+  - [x] includes
+  - [x] join
+  - [x] reverse
+  - [x] shift
+  - [x] unshift
+  - [x] min
+  - [x] max
 - [ ] Add object builtins
   - [ ] keys
   - [ ] values
