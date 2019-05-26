@@ -3,7 +3,7 @@ import process from 'process';
 import Lexer from '../lexer/lexer';
 import Parser from '../parser/parser';
 import Eval from '../evaluator/evaluator';
-import { NewEnvironment } from '../object/environment';
+import { NewNodeEnvironment } from '../object/environment';
 import OObject, { OInteger } from '../object/object';
 
 const PROMPT = '>> ';
@@ -11,7 +11,7 @@ const PROMPT = '>> ';
 export default function Start(input: any, output: NodeJS.WriteStream, quiet = false) {
   if (!quiet) output.write(PROMPT);
 
-  let env = NewEnvironment();
+  let env = NewNodeEnvironment();
   env.Logger.Follow((date: Date, messages: string) => {
     console.log(date, ...messages);
   });

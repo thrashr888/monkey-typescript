@@ -37,8 +37,8 @@ import math_sqrt from './builtins/math_sqrt';
 import math_tan from './builtins/math_tan';
 import math_trunc from './builtins/math_trunc';
 import number from './builtins/number';
-import put from './builtins/put';
-import puts from './builtins/puts';
+import print from './builtins/print';
+import sprint from './builtins/sprint';
 import string from './builtins/string';
 import string_concat from './builtins/string_concat';
 import string_contains from './builtins/string_contains';
@@ -94,8 +94,8 @@ var builtins: { [s: string]: Builtin } = {
   math_tan,
   math_trunc,
   number,
-  put,
-  puts,
+  print,
+  sprint,
   string_concat,
   string_contains,
   string_ends_with,

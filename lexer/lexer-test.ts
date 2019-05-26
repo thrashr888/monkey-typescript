@@ -11,7 +11,7 @@ export function TestNextToken(t: Test) {
   let input = `let five = 5;
 let ten = 10;
 
-let add = fn(x, y) {
+let add = function(x, y) {
   x + y;
 };
 
@@ -50,7 +50,7 @@ if (5 < 10) {
     [TokenType.LET, 'let'],
     [TokenType.IDENT, 'add'],
     [TokenType.ASSIGN, '='],
-    [TokenType.FUNCTION, 'fn'],
+    [TokenType.FUNCTION, 'function'],
     [TokenType.LPAREN, '('],
     [TokenType.IDENT, 'x'],
     [TokenType.COMMA, ','],

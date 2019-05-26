@@ -1,9 +1,9 @@
-puts('Begin Example')
-puts('=============')
+sprint('Begin Example')
+sprint('=============')
 
 // just prints what you send it
-let print = fn(msg) {
-  return puts("=>", msg);
+let print = function(msg) {
+  return sprint("=>", msg);
 };
 
 print(0);
@@ -36,8 +36,8 @@ print(json)
 print("logic equals " + string( b[0] >= number(a) or b[1] < 50) )
 
 // a string using single quotes
-puts('===========')
-puts('End Example')
+sprint('===========')
+sprint('End Example')
 
 // return an error
 return 1

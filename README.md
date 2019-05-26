@@ -7,19 +7,38 @@ An extended [Monkey](https://interpreterbook.com/) language interpreter in Types
 In `example.monkey`:
 
 ```javascript
-let log = fn(msg) { puts(msg); true; };
-let and = fn(a, b) { if (a) { if (b) { return true; } return false; }; return false; };
-let or = fn(a, b) { if (a) { return true; }; if (b) { return true; }; return false; };
+let log = function(msg) {
+  sprint(msg);
+  true;
+};
+let and = function(a, b) {
+  if (a) {
+    if (b) {
+      return true;
+    }
+    return false;
+  }
+  return false;
+};
+let or = function(a, b) {
+  if (a) {
+    return true;
+  }
+  if (b) {
+    return true;
+  }
+  return false;
+};
 
 log(0);
 
-let a = "1";
+let a = '1';
 log(a);
 
-let b = [1, 2, "three"];
+let b = [1, 2, 'three'];
 log(b[1]);
 
-let c = { "a": "bee", "c": "three" };
+let c = { a: 'bee', c: 'three' };
 log(c['c']); // three
 
 and(1, false); // false
@@ -53,7 +72,7 @@ or(1, false); // true
 import { NewEnvironment, Lexer, Parser, Eval } from 'monkey-typescript';
 
 let env = NewEnvironment();
-let l = new Lexer('puts("hello!"); let a = 5; 5 * 55;');
+let l = new Lexer('sprint("hello!"); let a = 5; 5 * 55;');
 let p = new Parser(l);
 let program = p.ParseProgram();
 
@@ -72,7 +91,7 @@ Using `require`:
 var monkeyTypescript = require('monkey-typescript');
 
 let env = monkeyTypescript.NewEnvironment();
-let l = new monkeyTypescript.Lexer('puts("hello!"); let a = 5; 5 * 55;');
+let l = new monkeyTypescript.Lexer('sprint("hello!"); let a = 5; 5 * 55;');
 let p = new monkeyTypescript.Parser(l);
 let program = p.ParseProgram();
 
@@ -122,18 +141,26 @@ or watch for file changes:
 
 ## TODO
 
-- [ ] Gracefully handle non-text Lexer input (like Promises)
 - [ ] Add file running to Dockerfile (`docker run -it monkey-typescript example.monkey`)
-- [ ] Add Environment variables to global scope
-- [ ] Support empty input/files
+- [ ] Gracefully handle non-text Lexer input (like Promises)
+- [x] Support empty input/files
+- [x] Add browser vs. nodejs `__env` global variable
+- [x] Add Environment variables to global scope
+- [x] `fn` -> `function`
+- [x] `put` -> `print`
+- [x] `puts` -> `sprint`
+- [ ] Add `sprintf`
+- [ ] Add `string_template("%s, %d", var1, var2)`
+- [ ] Add `[0:1]` array/string indexing
+- [ ] Add `i++` and `i--`
+- [ ] Add `for(let i = 0; i < 10; i++){}` loop
 - [ ] Add `import "filename.monkey"`
 - [ ] Add `import "monkey.thrasher.dev/b7f8sd9at/file.monkey"`
-- [ ] Add `sprintf`
-- [ ] Add `[0:1]` array/string indexing
-- [ ] Add `i++`
-- [ ] Add `for(let i = 0; i < 10; i++){}` loop
-- [ ] Add browser vs. nodejs `__env` global variable
-- [ ] string_template("%s, %d", var1, var2)
+- [ ] Save versions using git? Diff them or scrub versions?
+- [ ] Add http I/O
+- [ ] Add local file I/O
+- [ ] Add local socket I/O
+- [ ] Bitwise operators `&, |, ^, ~, <<, >>, >>>`
 - [ ] RegExp
   - [ ] test
   - [ ] match
@@ -197,8 +224,6 @@ or watch for file changes:
   - [ ] filter
   - [ ] contains_key
   - [ ] remove
-- [ ] Add http I/O
-- [ ] Add local file I/O
 
 ## Credits
 

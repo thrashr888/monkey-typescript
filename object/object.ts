@@ -196,14 +196,14 @@ export class OFunction implements OObject {
     return FUNCTION_OBJ;
   }
   Inspect() {
-    if (!Configuration.outputFunctionBody) return 'fn';
+    if (!Configuration.outputFunctionBody) return 'function';
 
     let params: string[] = this.Parameters.map(p => p.String());
 
-    return `fn(${params.join(', ')}) {\n  ${this.Body.String()}\n}`;
+    return `function(${params.join(', ')}) {\n  ${this.Body.String()}\n}`;
   }
   toString() {
-    return `fn`;
+    return `function`;
   }
   toValue() {
     return new Error('OFunction values not implemented');

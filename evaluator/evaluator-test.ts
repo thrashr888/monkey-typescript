@@ -259,7 +259,7 @@ if (10 > 1) {
     { input: 'foobar', expected: 'identifier not found: foobar at line 1, column 1' },
     { input: '"Hello" - "World"', expected: 'unknown operator: STRING - STRING' },
     {
-      input: `{"name": "Monkey"}[fn(x) { x }];`,
+      input: `{"name": "Monkey"}[function(x) { x }];`,
       expected: 'unusable as hash key: FUNCTION',
     },
   ];
@@ -303,7 +303,7 @@ export function TestLetStatements(t: Test) {
 }
 
 function TestFunctionObject(t: Test) {
-  let input = 'fn(x) { x + 2; };';
+  let input = 'function(x) { x + 2; };';
 
   let evaluated = testEval(input);
   if (!evaluated) {
@@ -330,12 +330,12 @@ function TestFunctionObject(t: Test) {
 
 function TestFunctionApplication(t: Test) {
   let tests = [
-    { input: 'let identity = fn(x) { x; }; identity(5);', expected: 5 },
-    { input: 'let identity = fn(x) { return x; }; identity(5);', expected: 5 },
-    { input: 'let double = fn(x) { x * 2; }; double(5);', expected: 10 },
-    { input: 'let add = fn(x, y) { x + y; }; add(5, 5);', expected: 10 },
-    { input: 'let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));', expected: 20 },
-    { input: 'fn(x) { x; }(5)', expected: 5 },
+    { input: 'let identity = function(x) { x; }; identity(5);', expected: 5 },
+    { input: 'let identity = function(x) { return x; }; identity(5);', expected: 5 },
+    { input: 'let double = function(x) { x * 2; }; double(5);', expected: 10 },
+    { input: 'let add = function(x, y) { x + y; }; add(5, 5);', expected: 10 },
+    { input: 'let add = function(x, y) { x + y; }; add(5 + 5, add(5, 5));', expected: 20 },
+    { input: 'function(x) { x; }(5)', expected: 5 },
   ];
 
   for (let tt of tests) {
@@ -351,8 +351,8 @@ function TestFunctionApplication(t: Test) {
 
 function TestClosures(t: Test) {
   let input = `
-let newAdder = fn(x){
-  fn(y) { x + y };
+let newAdder = function(x){
+  function(y) { x + y };
 };
 
 let addTwo = newAdder(2);

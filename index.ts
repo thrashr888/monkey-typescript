@@ -3,11 +3,11 @@ import process from 'process';
 import os from 'os';
 import fs from 'fs';
 
-import { NewEnvironment } from './object/environment';
+import { NewEnvironment, NewBrowserEnvironment, NewNodeEnvironment } from './object/environment';
 import Lexer from './lexer/lexer';
 import Parser from './parser/parser';
 import Eval from './evaluator/evaluator';
-export { NewEnvironment, Lexer, Parser, Eval };
+export { NewEnvironment, NewBrowserEnvironment, NewNodeEnvironment, Lexer, Parser, Eval };
 
 import {
   BOOLEAN_OBJ,

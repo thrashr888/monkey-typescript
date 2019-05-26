@@ -635,7 +635,7 @@ function TestIfElseExpression(t: Test) {
 }
 
 function TestFunctionLiteralParsing(t: Test) {
-  let input = 'fn(x, y) { x + y; }';
+  let input = 'function(x, y) { x + y; }';
 
   let l = new Lexer(input);
   let p = new Parser(l);
@@ -685,9 +685,9 @@ function TestFunctionLiteralParsing(t: Test) {
 
 function TestFunctionParameterParsing(t: Test) {
   let tests = [
-    { input: 'fn() {};', expectedParams: [] },
-    { input: 'fn(x) {};', expectedParams: ['x'] },
-    { input: 'fn(x, y, z) {};', expectedParams: ['x', 'y', 'z'] },
+    { input: 'function() {};', expectedParams: [] },
+    { input: 'function(x) {};', expectedParams: ['x'] },
+    { input: 'function(x, y, z) {};', expectedParams: ['x', 'y', 'z'] },
   ];
 
   for (let i in tests) {

@@ -68,9 +68,9 @@ export const TokenType: { [index: string]: TokenTypeName } = {
 };
 
 // keyword strings are defined here as the index
-// for example, this is where a function is defined as "fn"
+// for example, this is where a function is defined as "function"
 export const Keywords: { [index: string]: string } = {
-  fn: TokenType.FUNCTION,
+  function: TokenType.FUNCTION,
   while: TokenType.WHILE,
   let: TokenType.LET,
   true: TokenType.TRUE,
