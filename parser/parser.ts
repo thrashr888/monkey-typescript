@@ -519,6 +519,11 @@ export default class Parser {
 
     let exp = new IndexExpression(curToken, left, this.parseExpression(LOWEST));
 
+    if (this.expectPeek(TokenType.COLON)) {
+      this.nextToken();
+      exp.RightIndex = this.parseExpression(LOWEST);
+    }
+
     if (!this.expectPeek(TokenType.RBRACKET)) {
       return null;
     }

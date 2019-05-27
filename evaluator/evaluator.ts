@@ -118,7 +118,9 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     if (isError(left)) return left;
     let index = Eval(node.Index, env);
     if (isError(index)) return index;
-    return evalIndexExpression(left, index);
+    let rightIndex = Eval(node.RightIndex, env);
+    if (isError(rightIndex)) return rightIndex;
+    return evalIndexExpression(left, index, rightIndex);
   } else if (node instanceof HashLiteral) {
     return evalHashLiteral(node, env);
   }
@@ -432,13 +434,17 @@ function evalExpressions(exps: Expression[], env: Environment): OObject[] {
   return result;
 }
 
-function evalIndexExpression(left: OObject | null, index: OObject | null): OObject {
+function evalIndexExpression(
+  left: OObject | null,
+  index: OObject | null,
+  rightIndex: OObject | null = null
+): OObject {
   if (left === null || index === null) return NULL;
 
   if (left.Type() === ARRAY_OBJ && index.Type() === INTEGER_OBJ) {
-    return evalArrayIndexExpression(left, index);
+    return evalArrayIndexExpression(left, index, rightIndex);
   } else if (left.Type() === STRING_OBJ && index.Type() === INTEGER_OBJ) {
-    return evalStringIndexExpression(left, index);
+    return evalStringIndexExpression(left, index, rightIndex);
   } else if (left.Type() === HASH_OBJ) {
     return evalHashIndexExpression(left, index);
   } else {
@@ -446,9 +452,10 @@ function evalIndexExpression(left: OObject | null, index: OObject | null): OObje
   }
 }
 
-function evalStringIndexExpression(str: OObject, index: OObject): OObject {
+function evalStringIndexExpression(str: OObject, index: OObject, rightIndex: OObject | null): OObject {
   let strObject = str as OString;
   let idx = (index as OInteger).Value;
+  let rIdx = (rightIndex as OInteger).Value;
   let max = strObject.Inspect().length - 1;
 
   if (idx < 0 || idx > max) {
@@ -456,16 +463,26 @@ function evalStringIndexExpression(str: OObject, index: OObject): OObject {
   }
 
   let newStr = strObject.Inspect();
+
+  if (rIdx) {
+    return new OString(newStr.substring(idx, rIdx));
+  }
+
   return new OString(newStr[idx]);
 }
 
-function evalArrayIndexExpression(array: OObject, index: OObject): OObject {
+function evalArrayIndexExpression(array: OObject, index: OObject, rightIndex: OObject | null): OObject {
   let arrayObject = array as OArray;
   let idx = (index as OInteger).Value;
+  let rIdx = (rightIndex as OInteger).Value;
   let max = arrayObject.Elements.length - 1;
 
   if (idx < 0 || idx > max) {
     return NULL;
+  }
+
+  if (rIdx) {
+    return new OArray(arrayObject.Elements.slice(idx, rIdx));
   }
 
   return arrayObject.Elements[idx];

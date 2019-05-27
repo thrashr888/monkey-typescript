@@ -379,18 +379,21 @@ export class IndexExpression implements Expression {
   Token: Token;
   Left: Expression;
   Index: Expression;
+  RightIndex: Expression | null = null;
 
-  constructor(token: Token, left: Expression, index: Expression) {
+  constructor(token: Token, left: Expression, index: Expression, RightIndex: Expression | null = null) {
     this.Token = token;
     this.Left = left;
     this.Index = index;
+    this.RightIndex = RightIndex;
   }
 
   TokenLiteral() {
     return this.Token.Literal;
   }
   String() {
-    return `(${this.Left.String()}[${this.Index.String()}])`;
+    let rightIndex = this.RightIndex ? `:${this.RightIndex.String()}` : null;
+    return `(${this.Left.String()}[${this.Index.String()}${rightIndex}])`;
   }
 }
 
