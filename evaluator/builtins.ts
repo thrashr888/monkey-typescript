@@ -39,10 +39,12 @@ import math_trunc from './builtins/math_trunc';
 import number from './builtins/number';
 import print from './builtins/print';
 import sprint from './builtins/sprint';
+import sprintf from './builtins/sprintf';
 import string from './builtins/string';
 import string_concat from './builtins/string_concat';
 import string_contains from './builtins/string_contains';
 import string_ends_with from './builtins/string_ends_with';
+import string_format from './builtins/string_format';
 import string_index_of from './builtins/string_index_of';
 import string_lowercase from './builtins/string_lowercase';
 import string_repeat from './builtins/string_repeat';
@@ -96,9 +98,11 @@ var builtins: { [s: string]: Builtin } = {
   number,
   print,
   sprint,
+  sprintf,
   string_concat,
   string_contains,
   string_ends_with,
+  string_format,
   string_includes: string_contains, // alias
   string_index_of,
   string_lowercase,
