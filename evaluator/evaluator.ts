@@ -180,8 +180,6 @@ function evalWhile(expression: Expression, body: BlockStatement, env: Environmen
     } else {
       break;
     }
-
-    // console.log(result, env.Get('a'));
   }
 
   return result;
@@ -200,6 +198,8 @@ function evalPrefixExpression(operator: string, right: NullableOObject): OObject
       return evalBangOperatorExpression(right);
     case '-':
       return evalMinusPrefixOperatorExpression(right);
+    case '~':
+      return evalNotPrefixOperatorExpression(right);
     default:
       return newError('unknown operator: %s%s', operator, right ? right.Type() : null);
   }
@@ -233,6 +233,19 @@ function evalMinusPrefixOperatorExpression(right: AnyObject | null): OObject {
   return new OInteger(-value);
 }
 
+function evalNotPrefixOperatorExpression(right: AnyObject | null): OObject {
+  if (!right) return FALSE;
+
+  if (right.Type() !== INTEGER_OBJ) {
+    return newError('unknown operator: -%s', right.Type());
+  } else if (!(right instanceof OInteger)) {
+    return NULL;
+  }
+
+  let value = right.Value;
+  return new OInteger(~value);
+}
+
 function evalInfixExpression(operator: string, left: NullableOObject, right: NullableOObject): OObject {
   if (left instanceof OInteger && right instanceof OInteger) {
     return evalIntegerInfixExpression(operator, left, right);
@@ -248,12 +261,12 @@ function evalInfixExpression(operator: string, left: NullableOObject, right: Nul
     return nativeBoolToBooleanObject(left === right);
   } else if (operator === '!=') {
     return nativeBoolToBooleanObject(left !== right);
-  } else if (operator === 'and') {
+  } else if (operator === 'and' || operator === '&&') {
     // if left AND right are TRUE
     if (!left || !(left instanceof OBoolean)) return nativeBoolToBooleanObject(false);
     if (!right || !(right instanceof OBoolean)) return nativeBoolToBooleanObject(false);
     return nativeBoolToBooleanObject(left.Value && right.Value);
-  } else if (operator === 'or') {
+  } else if (operator === 'or' || operator === '||') {
     // if left OR right are TRUE
     if (left && left instanceof OBoolean && left.Value) return nativeBoolToBooleanObject(true);
     if (right && right instanceof OBoolean && right.Value) return nativeBoolToBooleanObject(true);
@@ -285,6 +298,18 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
       return new OInteger(leftVal / rightVal);
     case '%':
       return new OInteger(leftVal % rightVal);
+    case '&':
+      return new OInteger(leftVal & rightVal);
+    case '|':
+      return new OInteger(leftVal | rightVal);
+    case '^':
+      return new OInteger(leftVal ^ rightVal);
+    case '<<':
+      return new OInteger(leftVal << rightVal);
+    case '>>':
+      return new OInteger(leftVal >> rightVal);
+    case '>>>':
+      return new OInteger(leftVal >>> rightVal);
     case '**':
       return new OInteger(leftVal ** rightVal);
     case '<':

@@ -33,8 +33,9 @@ export const LOWEST = 1,
   SUM = 6, // +
   PRODUCT = 7, // *
   PREFIX = 8, // X or !X
-  CALL = 9, // myFunction(X)
-  INDEX = 10; // array[index]
+  BITWISE = 9, // & | ^
+  CALL = 10, // myFunction(X)
+  INDEX = 11; // array[index]
 
 export const precedences: { [index: string]: number } = {
   [TokenType.LOR]: EQUALS,
@@ -51,6 +52,13 @@ export const precedences: { [index: string]: number } = {
   [TokenType.ASTERISK]: PRODUCT,
   [TokenType.EXPONENT]: PRODUCT,
   [TokenType.REM]: PRODUCT,
+  [TokenType.BIT_AND]: BITWISE,
+  [TokenType.BIT_OR]: BITWISE,
+  [TokenType.BIT_XOR]: BITWISE,
+  [TokenType.BIT_NOT]: BITWISE,
+  [TokenType.BIT_LSHIFT]: BITWISE,
+  [TokenType.BIT_RSHIFT]: BITWISE,
+  [TokenType.BIT_ZRSHIFT]: BITWISE,
   [TokenType.LPAREN]: CALL,
   [TokenType.LBRACKET]: INDEX,
 };
@@ -75,6 +83,7 @@ export default class Parser {
     this.registerPrefix(TokenType.STRING, this.parseStringLiteral.bind(this));
     this.registerPrefix(TokenType.BANG, this.parsePrefixExpression.bind(this));
     this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression.bind(this));
+    this.registerPrefix(TokenType.BIT_NOT, this.parsePrefixExpression.bind(this));
 
     this.registerPrefix(TokenType.TRUE, this.parseBoolean.bind(this));
     this.registerPrefix(TokenType.FALSE, this.parseBoolean.bind(this));
@@ -102,6 +111,12 @@ export default class Parser {
       TokenType.REM,
       TokenType.LAND,
       TokenType.LOR,
+      TokenType.BIT_AND,
+      TokenType.BIT_OR,
+      TokenType.BIT_XOR,
+      TokenType.BIT_LSHIFT,
+      TokenType.BIT_RSHIFT,
+      TokenType.BIT_ZRSHIFT,
     ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
 
     this.registerInfix(TokenType.LPAREN, this.parseCallExpression.bind(this));

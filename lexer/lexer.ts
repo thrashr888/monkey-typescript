@@ -78,12 +78,43 @@ export default class Lexer {
       case '%':
         tok = new Token(TokenType.REM, this.ch, pos);
         break;
+      case '&':
+        if (this.peekChar() === '&') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.LAND, literal, pos);
+        } else {
+          tok = new Token(TokenType.BIT_AND, this.ch, pos);
+        }
+        break;
+      case '|':
+        if (this.peekChar() === '|') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.LOR, literal, pos);
+        } else {
+          tok = new Token(TokenType.BIT_OR, this.ch, pos);
+        }
+        break;
+      case '^':
+        tok = new Token(TokenType.BIT_XOR, this.ch, pos);
+        break;
+      case '~':
+        tok = new Token(TokenType.BIT_NOT, this.ch, pos);
+        break;
       case '<':
         if (this.peekChar() === '=') {
           let ch = this.ch;
           this.readChar();
           let literal = ch + this.ch;
           tok = new Token(TokenType.LTE, literal, pos);
+        } else if (this.peekChar() === '<') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.BIT_LSHIFT, literal, pos);
         } else {
           tok = new Token(TokenType.LT, this.ch, pos);
         }
@@ -92,8 +123,19 @@ export default class Lexer {
         if (this.peekChar() === '=') {
           let ch = this.ch;
           this.readChar();
-          let literal = ch + this.ch;
+          let literal = ch + this.ch; // >>
           tok = new Token(TokenType.GTE, literal, pos);
+        } else if (this.peekChar() === '>') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          if (this.peekChar() === '>') {
+            this.readChar();
+            literal = literal + this.ch; // >>>
+            tok = new Token(TokenType.BIT_ZRSHIFT, literal, pos);
+          } else {
+            tok = new Token(TokenType.BIT_RSHIFT, literal, pos);
+          }
         } else {
           tok = new Token(TokenType.GT, this.ch, pos);
         }

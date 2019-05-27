@@ -44,6 +44,15 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   EQ: '==',
   NOT_EQ: '!=',
 
+  // Bitwise
+  BIT_AND: '&',
+  BIT_OR: '|',
+  BIT_XOR: '^',
+  BIT_NOT: '~',
+  BIT_LSHIFT: '<<',
+  BIT_RSHIFT: '>>',
+  BIT_ZRSHIFT: '>>>',
+
   // Delimiters
   COMMA: ',',
   PERIOD: '.',
