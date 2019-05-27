@@ -8,6 +8,7 @@ import {
   Expression,
   ExpressionStatement,
   WhileLiteral,
+  ForLiteral,
   FunctionLiteral,
   Identifier,
   IfExpression,
@@ -95,6 +96,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return evalIdentifier(node, env);
   } else if (node instanceof WhileLiteral) {
     return evalWhile(node.Expression, node.Body, env);
+  } else if (node instanceof ForLiteral) {
+    return evalFor(node.Initiate, node.Check, node.Iterate, node.Body, env);
   } else if (node instanceof FunctionLiteral) {
     return new OFunction(node.Parameters, node.Body, env);
   } else if (node instanceof CallExpression) {
@@ -168,7 +171,7 @@ function evalWhile(expression: Expression, body: BlockStatement, env: Environmen
 
   let loopCount = 0;
   while (true) {
-    let result = Eval(expression, env);
+    result = Eval(expression, env);
 
     if (++loopCount > 1000000) {
       // prevent infinite loop
@@ -185,6 +188,38 @@ function evalWhile(expression: Expression, body: BlockStatement, env: Environmen
   }
 
   return result;
+}
+
+// for(let i = 1; i <= 10; let i = i + 1){ print(i * 2) }
+function evalFor(
+  initiate: Expression,
+  check: Expression,
+  iterate: Expression,
+  body: BlockStatement,
+  env: Environment
+): NullableOObject {
+  let loopCount = 0;
+  Eval(initiate, env);
+
+  while (true) {
+    let result = Eval(check, env);
+    if (++loopCount > 1000000) {
+      // prevent infinite loop
+      return newError('loop count of 1,000,000 exeeded');
+    } else if (result instanceof ONull) {
+      break;
+    } else if (result instanceof OBoolean && result.Value === true) {
+      Eval(body, env);
+    } else if (result instanceof OBoolean && result.Value === false) {
+      break;
+    } else {
+      break;
+    }
+
+    Eval(iterate, env);
+  }
+
+  return null;
 }
 
 function nativeBoolToBooleanObject(input: boolean): OBoolean {

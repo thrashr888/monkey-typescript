@@ -293,6 +293,36 @@ export class WhileLiteral implements Statement {
   }
 }
 
+export class ForLiteral implements Statement {
+  Token: Token;
+  Initiate: Statement;
+  Check: ExpressionStatement;
+  Iterate: Statement;
+  Body: BlockStatement;
+
+  constructor(
+    token: Token,
+    initiate: Statement,
+    check: ExpressionStatement,
+    iterate: Statement,
+    body: BlockStatement
+  ) {
+    this.Token = token;
+    this.Initiate = initiate;
+    this.Check = check;
+    this.Iterate = iterate;
+    this.Body = body;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return `${this.TokenLiteral()}(${this.Initiate.String()};${this.Check.String()};${this.Iterate.String()}) ${this.Body.String()}`;
+  }
+}
+
 export class FunctionLiteral implements Statement {
   Token: Token;
   Parameters: Identifier[] = [];

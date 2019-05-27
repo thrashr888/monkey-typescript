@@ -8,6 +8,7 @@ import {
   Expression,
   ExpressionStatement,
   WhileLiteral,
+  ForLiteral,
   FunctionLiteral,
   Identifier,
   Comment,
@@ -93,6 +94,7 @@ export default class Parser {
     this.registerPrefix(TokenType.IF, this.parseIfExpression.bind(this));
     this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral.bind(this));
     this.registerPrefix(TokenType.WHILE, this.parseWhileLiteral.bind(this));
+    this.registerPrefix(TokenType.FOR, this.parseForLiteral.bind(this));
     this.registerPrefix(TokenType.LBRACKET, this.parseArrayLiteral.bind(this));
     this.registerPrefix(TokenType.LBRACE, this.parseHashLiteral.bind(this));
 
@@ -449,7 +451,36 @@ export default class Parser {
 
     let Body = this.parseBlockStatement();
 
-    return new WhileLiteral(this.curToken, Expression, Body);
+    return new WhileLiteral(curToken, Expression, Body);
+  }
+
+  parseForLiteral() {
+    let curToken = this.curToken;
+
+    if (!this.expectPeek(TokenType.LPAREN)) {
+      return null;
+    }
+
+    this.nextToken();
+    let Initiate = this.parseLetStatement();
+
+    if (Initiate === null) {
+      return null;
+    }
+
+    this.nextToken();
+    let Check = this.parseExpressionStatement();
+
+    this.nextToken();
+    let Iterate = this.parseLetStatement();
+
+    if (Iterate === null || !this.expectPeek(TokenType.RPAREN) || !this.expectPeek(TokenType.LBRACE)) {
+      return null;
+    }
+
+    let Body = this.parseBlockStatement();
+
+    return new ForLiteral(curToken, Initiate, Check, Iterate, Body);
   }
 
   parseFunctionParameters(): Identifier[] {
