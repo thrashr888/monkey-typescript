@@ -11,6 +11,7 @@
     "start": "npm run build:live",
     "build": "tsc -p .",
     "build:live": "nodemon --watch '**/*.ts' --exec 'ts-node' index.ts",
+    "repl": "ts-node index.ts",
     "test": "ts-node -p test.ts",
     "test:live": "nodemon --watch '**/*.ts' --exec 'ts-node' test.ts",
     "clean": "rm -rf build"

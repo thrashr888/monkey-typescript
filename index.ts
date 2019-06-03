@@ -40,6 +40,7 @@ export const OObject = {
 
 export function main(argv: string[]): void {
   let output = process.stdout;
+  let errors = process.stderr;
 
   if (argv[2]) {
     // load a file
@@ -48,7 +49,7 @@ export function main(argv: string[]): void {
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' });
 
-    Start(stream, output, true);
+    Start(stream, output, errors, true);
   } else {
     // run the REPL
 
@@ -59,7 +60,7 @@ export function main(argv: string[]): void {
     let input = process.stdin;
     input.setEncoding('utf-8');
 
-    Start(input, output, false);
+    Start(input, output, errors, false);
   }
 }
 
