@@ -46,6 +46,7 @@ import string_contains from './builtins/string_contains';
 import string_ends_with from './builtins/string_ends_with';
 import string_format from './builtins/string_format';
 import string_index_of from './builtins/string_index_of';
+import string_len from './builtins/string_len';
 import string_lowercase from './builtins/string_lowercase';
 import string_repeat from './builtins/string_repeat';
 import string_replace from './builtins/string_replace';
@@ -105,6 +106,7 @@ var builtins: { [s: string]: Builtin } = {
   string_format,
   string_includes: string_contains, // alias
   string_index_of,
+  string_len,
   string_lowercase,
   string_repeat,
   string_replace,

@@ -4,7 +4,7 @@ import { NULL, newError } from '../evaluator';
 
 import { sprintf } from 'sprintf-js';
 
-// sprintf("ok: %s, 1: %d, pi: %f", 'ok', 1, 3.1459)
+// sprintf("ok: %s, 1: %d, pi: %f", 'ok', 1, 3.1459) => ok: ok, 1: 1, pi: 3.1459
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
   if (args.length === 0) {
     return newError('wrong number of arguments. got=%s, want=>0', args.length);

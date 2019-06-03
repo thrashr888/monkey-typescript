@@ -8,8 +8,8 @@ import Environment from '../../object/environment';
 // math_pow(2, 2.1)
 // math_pow(1.1, 1.1)
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
-  if (args.length !== 1) {
-    return newError('wrong number of arguments. got=%s, want=1', args.length);
+  if (args.length !== 2) {
+    return newError('wrong number of arguments. got=%s, want=2', args.length);
   }
 
   if (args[0].Type() !== INTEGER_OBJ && args[0].Type() !== FLOAT_OBJ) {

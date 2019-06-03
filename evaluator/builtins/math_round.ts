@@ -3,8 +3,8 @@ import { newError } from '../evaluator';
 import Environment from '../../object/environment';
 
 // returns a round value for an int or float
-// math_round(15)
-// math_round(-15)
+// math_round(1.5)
+// math_round(-1.5)
 // math_round(0.001)
 // math_round(-0.001)
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {

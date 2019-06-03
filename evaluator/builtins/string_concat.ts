@@ -3,11 +3,11 @@ import { newError } from '../evaluator';
 import Environment from '../../object/environment';
 
 // concat a string with another string
-// string_concat('ab', '') => ['a', 'b']
-// string_concat('ab,cd', ',') => ['ab', 'cd']
+// string_concat('a', 'b') => ab
+// string_concat('ab,cd', ',') => ab,cd,
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
   if (args.length !== 2) {
-    return newError('wrong number of arguments. got=%s, want=1', args.length);
+    return newError('wrong number of arguments. got=%s, want=2', args.length);
   }
 
   if (args[0].Type() !== STRING_OBJ || args[1].Type() !== STRING_OBJ) {

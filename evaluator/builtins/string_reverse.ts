@@ -6,7 +6,7 @@ import Environment from '../../object/environment';
 // string_reverse('abc') => 'cba'
 // string_reverse('ABC') => 'CBA'
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
-  if (args.length !== 2) {
+  if (args.length !== 1) {
     return newError('wrong number of arguments. got=%s, want=1', args.length);
   }
 

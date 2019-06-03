@@ -4,9 +4,7 @@ import Environment from '../../object/environment';
 
 // returns a sqrt value for an int or float
 // math_sqrt(15)
-// math_sqrt(-15)
 // math_sqrt(0.001)
-// math_sqrt(-0.001)
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
   if (args.length !== 1) {
     return newError('wrong number of arguments. got=%s, want=1', args.length);

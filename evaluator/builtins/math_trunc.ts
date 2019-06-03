@@ -7,6 +7,7 @@ import Environment from '../../object/environment';
 // math_trunc(-15)
 // math_trunc(0.001)
 // math_trunc(-0.001)
+// math_trunc(-5.123)
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
   if (args.length !== 1) {
     return newError('wrong number of arguments. got=%s, want=1', args.length);

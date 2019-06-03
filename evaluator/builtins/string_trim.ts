@@ -4,9 +4,9 @@ import Environment from '../../object/environment';
 
 // make a string trim
 // string_trim(' abc ') => 'abc'
-// string_trim(' ABC  \n') => 'ABC'
+// string_trim(' ABC        ') => 'ABC'
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
-  if (args.length !== 2) {
+  if (args.length !== 1) {
     return newError('wrong number of arguments. got=%s, want=1', args.length);
   }
 
