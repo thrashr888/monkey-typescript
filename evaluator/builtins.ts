@@ -1,20 +1,25 @@
 import { Builtin } from '../object/object';
 
 import array_concat from './builtins/array_concat';
+import array_filter from './builtins/array_filter';
+import array_find from './builtins/array_find';
 import array_first from './builtins/array_first';
 import array_flat from './builtins/array_flat';
 import array_includes from './builtins/array_includes';
 import array_join from './builtins/array_join';
 import array_last from './builtins/array_last';
 import array_len from './builtins/array_len';
+import array_map from './builtins/array_map';
 import array_max from './builtins/array_max';
 import array_min from './builtins/array_min';
 import array_pop from './builtins/array_pop';
 import array_push from './builtins/array_push';
+import array_reduce from './builtins/array_reduce';
 import array_rest from './builtins/array_rest';
 import array_reverse from './builtins/array_reverse';
 import array_shift from './builtins/array_shift';
 import array_slice from './builtins/array_slice';
+import array_sort from './builtins/array_sort';
 import array_unshift from './builtins/array_unshift';
 import date_iso from './builtins/date_iso';
 import date_locale from './builtins/date_locale';
@@ -61,20 +66,25 @@ import string_uppercase from './builtins/string_uppercase';
 
 var builtins: { [s: string]: Builtin } = {
   array_concat,
+  array_filter,
+  array_find,
   array_first,
   array_flat,
   array_includes,
   array_join,
   array_last,
   array_len,
+  array_map,
   array_max,
   array_min,
   array_pop,
   array_push,
+  array_reduce,
   array_rest,
   array_reverse,
   array_shift,
   array_slice,
+  array_sort,
   array_unshift,
   date_iso,
   date_locale_now,

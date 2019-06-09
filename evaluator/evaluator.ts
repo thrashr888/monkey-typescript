@@ -568,7 +568,7 @@ function evalHashIndexExpression(hash: OObject, index: OObject): OObject {
   return pair.Value;
 }
 
-function applyFunction(env: Environment, fn: OObject, args: OObject[]): NullableOObject {
+export function applyFunction(env: Environment, fn: OObject, args: OObject[]): NullableOObject {
   let func = fn;
   if (func instanceof OFunction) {
     let extendedEnv = extendedFunctionEnv(func, args);

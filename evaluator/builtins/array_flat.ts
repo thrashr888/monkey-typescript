@@ -5,12 +5,12 @@ import Environment from '../../object/environment';
 // flatten an array
 // array_flat([1, [2, [3, 4, [5, 6]], 7], 8], 2) => [1, 2, 3, 4, [5, 6], 7, 8]
 export default new Builtin(function(env: Environment, ...args: OObject[]): OObject {
-  if (args.length > 3) {
+  if (args.length > 2) {
     return newError('wrong number of arguments. got=%s, want=2', args.length);
   }
 
   if (args[0].Type() !== ARRAY_OBJ) {
-    return newError('arguments to `array_flat` must be ARRAY,[INTEGER], got %s,%s', args[0].Type());
+    return newError('arguments to `array_flat` must be ARRAY,[INTEGER], got %s', args[0].Type());
   }
 
   if (args[1] && args[1].Type() !== INTEGER_OBJ) {
