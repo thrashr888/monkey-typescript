@@ -824,7 +824,7 @@ function TestParsingIndexExpressions(t: Test) {
   }
 
   testIdentifier(t, indexExp.Left, 'myArray');
-  testInfixExpression(t, indexExp.Index, 1, '+', 1);
+  if (indexExp.Index) testInfixExpression(t, indexExp.Index, 1, '+', 1);
 }
 
 function TestParsingHashLiteralsStringKeys(t: Test) {
