@@ -120,10 +120,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     let left = Eval(node.Left, env);
     if (isError(left)) return left;
     let index = Eval(node.Index, env);
-    if (isError(index)) return index;
     let rightIndex = Eval(node.RightIndex, env);
-    if (isError(rightIndex)) return rightIndex;
-    return evalIndexExpression(left, index, rightIndex);
+    return evalIndexExpression(left, index, node.HasColon, rightIndex);
   } else if (node instanceof HashLiteral) {
     return evalHashLiteral(node, env);
   }
@@ -472,55 +470,85 @@ function evalExpressions(exps: Expression[], env: Environment): OObject[] {
 function evalIndexExpression(
   left: OObject | null,
   index: OObject | null,
+  hasColon: boolean,
   rightIndex: OObject | null = null
 ): OObject {
-  if (left === null || index === null) return NULL;
+  if (left === null) return NULL;
 
-  if (left.Type() === ARRAY_OBJ && index.Type() === INTEGER_OBJ) {
-    return evalArrayIndexExpression(left, index, rightIndex);
-  } else if (left.Type() === STRING_OBJ && index.Type() === INTEGER_OBJ) {
-    return evalStringIndexExpression(left, index, rightIndex);
-  } else if (left.Type() === HASH_OBJ) {
+  if (left.Type() === ARRAY_OBJ) {
+    return evalArrayIndexExpression(left, index, hasColon, rightIndex);
+  } else if (left.Type() === STRING_OBJ) {
+    return evalStringIndexExpression(left, index, hasColon, rightIndex);
+  } else if (index !== null && left.Type() === HASH_OBJ) {
     return evalHashIndexExpression(left, index);
   } else {
-    return newError('index operator not supported: %s', left.Type());
+    return newError(
+      'index operator not supported: %s[%s:%s]',
+      left.Type(),
+      index ? index.Type() : null,
+      rightIndex ? rightIndex.Type() : null
+    );
   }
 }
 
-function evalStringIndexExpression(str: OObject, index: OObject, rightIndex: OObject | null): OObject {
+// 'abc'[:2]
+// 'abcd'[2:]
+function evalStringIndexExpression(
+  str: OObject,
+  index: OObject | null,
+  hasColon: boolean = false,
+  rightIndex: OObject | null
+): OObject {
   let strObject = str as OString;
-  let idx = (index as OInteger).Value;
-  let rIdx = (rightIndex as OInteger).Value;
-  let max = strObject.Inspect().length - 1;
-
-  if (idx < 0 || idx > max) {
-    return NULL;
-  }
+  let idx = index ? (index as OInteger).Value : null;
+  let rIdx = rightIndex ? (rightIndex as OInteger).Value : null;
 
   let newStr = strObject.Inspect();
 
-  if (rIdx) {
+  // order matters here
+  if (idx && hasColon && !rIdx) {
+    // [1:]
+    return new OString(newStr.substring(idx));
+  } else if (idx && !rIdx) {
+    // [1]
+    return new OString(newStr[idx]);
+  } else if (idx && rIdx) {
+    // [1:2]
     return new OString(newStr.substring(idx, rIdx));
+  } else if (rIdx && hasColon && !idx) {
+    // [:1]
+    return new OString(newStr.substring(0, rIdx));
   }
-
-  return new OString(newStr[idx]);
+  return NULL;
 }
 
-function evalArrayIndexExpression(array: OObject, index: OObject, rightIndex: OObject | null): OObject {
+// [1,2,3,4][:2]
+// [1,2,3,4][2:]
+function evalArrayIndexExpression(
+  array: OObject,
+  index: OObject | null,
+  hasColon: boolean = false,
+  rightIndex: OObject | null
+): OObject {
   let arrayObject = array as OArray;
-  let idx = (index as OInteger).Value;
-  let rIdx = (rightIndex as OInteger).Value;
-  let max = arrayObject.Elements.length - 1;
+  let idx = index ? (index as OInteger).Value : null;
+  let rIdx = rightIndex ? (rightIndex as OInteger).Value : null;
 
-  if (idx < 0 || idx > max) {
-    return NULL;
-  }
-
-  if (rIdx) {
+  // order maters here
+  if (idx && hasColon && !rIdx) {
+    // [1:]
+    return new OArray(arrayObject.Elements.slice(idx));
+  } else if (idx && !rIdx) {
+    // [1]
+    return arrayObject.Elements[idx];
+  } else if (idx && rIdx) {
+    // [1:2]
     return new OArray(arrayObject.Elements.slice(idx, rIdx));
+  } else if (rIdx && hasColon && !idx) {
+    // [:1]
+    return new OArray(arrayObject.Elements.slice(0, rIdx));
   }
-
-  return arrayObject.Elements[idx];
+  return NULL;
 }
 
 function evalHashLiteral(node: HashLiteral, env: Environment): OObject {

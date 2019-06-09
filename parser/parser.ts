@@ -543,19 +543,35 @@ export default class Parser {
     return list;
   }
 
+  // [1], [1:], [:1]
+  // 'abcd'[1] => 'b'
+  // 'abcd'[:2] => 'ab'
+  // 'abcd'[1:3] => 'bc'
+  // 'abcd'[2:] => 'cd'
+  // ['a', 'b', 'c', 'd'][:2]
   parseIndexExpression(left: Expression): Expression | null {
     let curToken = this.curToken;
 
     this.nextToken();
 
-    let exp = new IndexExpression(curToken, left, this.parseExpression(LOWEST));
+    let exp = new IndexExpression(curToken, left);
 
-    if (this.expectPeek(TokenType.COLON)) {
+    if (!this.curTokenIs(TokenType.COLON)) {
+      exp.Index = this.parseExpression(LOWEST);
       this.nextToken();
-      exp.RightIndex = this.parseExpression(LOWEST);
     }
 
-    if (!this.expectPeek(TokenType.RBRACKET)) {
+    if (this.curTokenIs(TokenType.COLON)) {
+      this.nextToken();
+      exp.HasColon = true;
+    }
+
+    if (!this.curTokenIs(TokenType.RBRACKET)) {
+      exp.RightIndex = this.parseExpression(LOWEST);
+      this.nextToken();
+    }
+
+    if (!this.curTokenIs(TokenType.RBRACKET)) {
       return null;
     }
 

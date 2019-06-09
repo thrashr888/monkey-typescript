@@ -408,22 +408,31 @@ export class ArrayLiteral implements Expression {
 export class IndexExpression implements Expression {
   Token: Token;
   Left: Expression;
-  Index: Expression;
+  Index: Expression | null = null;
+  HasColon: boolean;
   RightIndex: Expression | null = null;
 
-  constructor(token: Token, left: Expression, index: Expression, RightIndex: Expression | null = null) {
+  constructor(
+    token: Token,
+    left: Expression,
+    index: Expression | null = null,
+    hasColon: boolean = false,
+    rightIndex: Expression | null = null
+  ) {
     this.Token = token;
     this.Left = left;
     this.Index = index;
-    this.RightIndex = RightIndex;
+    this.HasColon = hasColon;
+    this.RightIndex = rightIndex;
   }
 
   TokenLiteral() {
     return this.Token.Literal;
   }
   String() {
+    let index = this.Index ? `:${this.Index.String()}` : null;
     let rightIndex = this.RightIndex ? `:${this.RightIndex.String()}` : null;
-    return `(${this.Left.String()}[${this.Index.String()}${rightIndex}])`;
+    return `(${this.Left.String()}[${index}${rightIndex}])`;
   }
 }
 
