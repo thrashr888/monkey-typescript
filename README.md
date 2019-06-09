@@ -137,7 +137,7 @@ or watch for file changes:
     $ git commit -m'bump version to v0.1.3'
     $ npm run build
     $ npm publish
-    $ git tag v0.1.0
+    $ git tag v0.1.3
     $ git push origin v0.1.3
 
 ## Credits
