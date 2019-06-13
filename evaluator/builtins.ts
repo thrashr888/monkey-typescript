@@ -47,6 +47,11 @@ import math_tan from './builtins/math_tan';
 import math_trunc from './builtins/math_trunc';
 import number from './builtins/number';
 import print from './builtins/print';
+import regex_match from './builtins/regex_match';
+import regex_replace from './builtins/regex_replace';
+import regex_search from './builtins/regex_search';
+import regex_split from './builtins/regex_split';
+import regex_test from './builtins/regex_test';
 import sprint from './builtins/sprint';
 import sprintf from './builtins/sprintf';
 import string from './builtins/string';
@@ -116,6 +121,11 @@ var builtins: { [s: string]: Builtin } = {
   math_trunc,
   number,
   print,
+  regex_match,
+  regex_replace,
+  regex_search,
+  regex_split,
+  regex_test,
   sprint,
   sprintf,
   string_concat,
