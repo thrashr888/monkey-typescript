@@ -26,6 +26,10 @@ import date_locale from './builtins/date_locale';
 import date_locale_now from './builtins/date_locale_now';
 import date_now from './builtins/date_now';
 import date_utc from './builtins/date_utc';
+import hash_contains_key from './builtins/hash_contains_key';
+import hash_keys from './builtins/hash_keys';
+import hash_remove from './builtins/hash_remove';
+import hash_values from './builtins/hash_values';
 import json_parse from './builtins/json_parse';
 import json_stringify from './builtins/json_stringify';
 import len from './builtins/len';
@@ -91,6 +95,10 @@ var builtins: { [s: string]: Builtin } = {
   date_locale,
   date_now,
   date_utc,
+  hash_contains_key,
+  hash_keys,
+  hash_remove,
+  hash_values,
   json_parse,
   json_stringify,
   len,
