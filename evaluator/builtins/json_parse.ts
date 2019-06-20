@@ -27,7 +27,8 @@ export default new Builtin(function(env: Environment, ...args: OObject[]): OObje
 
 // json_parse('[1,2,"three"]')
 // json_parse('{"a": "b", "c": 4, "d": null}')
-function json_parse(input: any): OObject {
+type BasicTypes = { [key: string]: any } | [] | null | number | string;
+export function json_parse(input: BasicTypes): OObject {
   if (Array.isArray(input)) {
     return new OArray(input.map(v => json_parse(v)));
   } else if (input === null) {
