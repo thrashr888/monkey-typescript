@@ -26,8 +26,17 @@ import date_locale from './builtins/date_locale';
 import date_locale_now from './builtins/date_locale_now';
 import date_now from './builtins/date_now';
 import date_utc from './builtins/date_utc';
+import file_append from './builtins/file_append';
+import file_copy from './builtins/file_copy';
+import file_delete from './builtins/file_delete';
+import file_exists from './builtins/file_exists';
+import file_mkdir from './builtins/file_mkdir';
+import file_move from './builtins/file_move';
 import file_read from './builtins/file_read';
 import file_read_json from './builtins/file_read_json';
+import file_realpath from './builtins/file_realpath';
+import file_rmdir from './builtins/file_rmdir';
+import file_truncate from './builtins/file_exists';
 import file_write from './builtins/file_write';
 import hash_contains_key from './builtins/hash_contains_key';
 import hash_keys from './builtins/hash_keys';
@@ -103,8 +112,17 @@ var builtins: { [s: string]: Builtin } = {
   date_locale,
   date_now,
   date_utc,
+  file_append,
+  file_copy,
+  file_delete,
+  file_exists,
+  file_mkdir,
+  file_move,
   file_read,
   file_read_json,
+  file_realpath,
+  file_rmdir,
+  file_truncate,
   file_write,
   hash_contains_key,
   hash_keys,
