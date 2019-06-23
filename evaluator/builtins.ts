@@ -26,6 +26,7 @@ import date_locale from './builtins/date_locale';
 import date_locale_now from './builtins/date_locale_now';
 import date_now from './builtins/date_now';
 import date_utc from './builtins/date_utc';
+import eval from './builtins/eval';
 import file_append from './builtins/file_append';
 import file_copy from './builtins/file_copy';
 import file_delete from './builtins/file_delete';
@@ -112,6 +113,7 @@ var builtins: { [s: string]: Builtin } = {
   date_locale,
   date_now,
   date_utc,
+  eval,
   file_append,
   file_copy,
   file_delete,
