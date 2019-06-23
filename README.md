@@ -135,6 +135,7 @@ or watch for file changes:
     # bump version number in `Dockerfile`
     # commit and push changes
     $ git commit -m'bump version to v0.1.3'
+    $ git push
     $ npm run build
     $ npm publish
     $ git tag v0.1.3

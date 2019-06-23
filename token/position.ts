@@ -10,6 +10,10 @@ export default class Position {
     this.Column = column || 0;
   }
 
+  valueOf(): number {
+    return this.Offset;
+  }
+
   IsValid(): boolean {
     return this.Line > 0;
   }
@@ -36,6 +40,8 @@ export default class Position {
     return s;
   }
 }
+
+export const NoPos: Position = new Position(0);
 
 function printf(...args: any[]): string {
   return [...args].reduce((p, c) => p.replace(/%s/, c));

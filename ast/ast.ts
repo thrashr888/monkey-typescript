@@ -65,7 +65,7 @@ export class ReturnStatement implements Statement {
   }
 
   String() {
-    let out = `${this.TokenLiteral()}  = `;
+    let out = `${this.TokenLiteral()} = `;
 
     if (this.ReturnValue !== null) out += this.ReturnValue.String();
     out += ';';

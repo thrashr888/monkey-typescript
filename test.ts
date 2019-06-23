@@ -108,7 +108,7 @@ export function main() {
     TestEval(t);
     console.log('║\n╠══╕ \x1b[1mStart TestObject\x1b[0m');
     TestObject(t);
-  } catch {}
+  } catch (e) {}
   console.log('║');
   console.timeEnd('║ took');
 
