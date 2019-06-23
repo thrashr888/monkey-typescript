@@ -38,10 +38,24 @@ export default class Lexer {
         }
         break;
       case '+':
-        tok = new Token(TokenType.PLUS, this.ch, pos);
+        if (this.peekChar() === '+') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.INCREMENT, literal, pos);
+        } else {
+          tok = new Token(TokenType.PLUS, this.ch, pos);
+        }
         break;
       case '-':
-        tok = new Token(TokenType.MINUS, this.ch, pos);
+        if (this.peekChar() === '-') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          tok = new Token(TokenType.DECREMENT, literal, pos);
+        } else {
+          tok = new Token(TokenType.MINUS, this.ch, pos);
+        }
         break;
       case '!':
         if (this.peekChar() === '=') {

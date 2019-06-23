@@ -24,6 +24,8 @@ import {
   ArrayLiteral,
   IndexExpression,
   HashLiteral,
+  IncrementExpression,
+  DecrementExpression,
 } from '../ast/ast';
 
 export const LOWEST = 1,
@@ -79,6 +81,8 @@ export default class Parser {
 
     this.registerPrefix(TokenType.COMMENT, this.parseComment.bind(this));
     this.registerPrefix(TokenType.IDENT, this.parseIdentifier.bind(this));
+    this.registerPrefix(TokenType.INCREMENT, this.parsePreIncrement.bind(this));
+    this.registerPrefix(TokenType.DECREMENT, this.parsePreDecrement.bind(this));
     this.registerPrefix(TokenType.INT, this.parseIntegerLiteral.bind(this));
     this.registerPrefix(TokenType.FLOAT, this.parseFloatLiteral.bind(this));
     this.registerPrefix(TokenType.STRING, this.parseStringLiteral.bind(this));
@@ -239,10 +243,33 @@ export default class Parser {
   }
 
   parseIdentifier() {
-    return new Identifier(this.curToken, this.curToken.Literal);
+    let ident = new Identifier(this.curToken, this.curToken.Literal);
+
+    if (this.peekTokenIs(TokenType.INCREMENT)) {
+      this.nextToken();
+      return new IncrementExpression(this.curToken, ident, false);
+    } else if (this.peekTokenIs(TokenType.DECREMENT)) {
+      this.nextToken();
+      return new DecrementExpression(this.curToken, ident, false);
+    }
+
+    return ident;
+  }
+
+  parsePreIncrement() {
+    this.nextToken();
+    let ident = new Identifier(this.curToken, this.curToken.Literal);
+    return new IncrementExpression(this.curToken, ident, true);
+  }
+
+  parsePreDecrement() {
+    this.nextToken();
+    let ident = new Identifier(this.curToken, this.curToken.Literal);
+    return new DecrementExpression(this.curToken, ident, true);
   }
 
   parseComment() {
+    this.comments.push(this.curToken.Literal);
     return new Comment(this.curToken, this.curToken.Literal);
   }
 
@@ -255,7 +282,7 @@ export default class Parser {
       let value = parseInt(this.curToken.Literal, 10);
       let lit = new IntegerLiteral(this.curToken, value);
       return lit;
-    } catch {
+    } catch (e) {
       let msg = this.formatError(this.curToken, `could not parse ${this.curToken.Literal} as integer`);
       this.errors.push(msg);
       return null;
@@ -267,7 +294,7 @@ export default class Parser {
       let value = parseFloat(this.curToken.Literal);
       let lit = new FloatLiteral(this.curToken, value);
       return lit;
-    } catch {
+    } catch (e) {
       let msg = this.formatError(this.curToken, `could not parse ${this.curToken.Literal} as float`);
       this.errors.push(msg);
       return null;

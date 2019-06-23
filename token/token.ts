@@ -28,6 +28,9 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   LBRACKET: '[', // for arrays
   RBRACKET: ']',
 
+  INCREMENT: '++',
+  DECREMENT: '--',
+
   // Operators
   ASSIGN: '=',
   PLUS: '+',

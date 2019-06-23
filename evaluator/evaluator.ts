@@ -23,6 +23,8 @@ import {
   IndexExpression,
   HashLiteral,
   Comment,
+  IncrementExpression,
+  DecrementExpression,
 } from '../ast/ast';
 import OObject, {
   AnyObject,
@@ -94,6 +96,10 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return val;
   } else if (node instanceof Identifier) {
     return evalIdentifier(node, env);
+  } else if (node instanceof IncrementExpression) {
+    return evalIncrementIdentifier(node, env);
+  } else if (node instanceof DecrementExpression) {
+    return evalDecrementIdentifier(node, env);
   } else if (node instanceof WhileLiteral) {
     return evalWhile(node.Expression, node.Body, env);
   } else if (node instanceof ForLiteral) {
@@ -448,6 +454,28 @@ function evalIdentifier(node: Identifier, env: Environment): NullableOObject {
   }
 
   return newError('identifier not found: %s at %s', node.Value, node.Token.Position.String());
+}
+
+function evalIncrementIdentifier(node: IncrementExpression, env: Environment): NullableOObject {
+  let val = env.Get(node.Name.Value);
+  if (val) {
+    let incremented = new OInteger(val.toValue() + 1);
+    env.Set(node.Name.Value, incremented);
+    return node.Prefix ? incremented : val;
+  }
+
+  return newError('identifier not found: %s at %s', node.Name.Value, node.Token.Position.String());
+}
+
+function evalDecrementIdentifier(node: IncrementExpression, env: Environment): NullableOObject {
+  let val = env.Get(node.Name.Value);
+  if (val) {
+    let decremented = new OInteger(val.toValue() - 1);
+    env.Set(node.Name.Value, decremented);
+    return node.Prefix ? decremented : val;
+  }
+
+  return newError('identifier not found: %s at %s', node.Name.Value, node.Token.Position.String());
 }
 
 function evalExpressions(exps: Expression[], env: Environment): OObject[] {

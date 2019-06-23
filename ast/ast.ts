@@ -183,6 +183,45 @@ export class PrefixExpression implements Expression {
     return `(${this.Operator}${this.Right.String()})`;
   }
 }
+export class IncrementExpression implements Expression {
+  Token: Token;
+  Name: Identifier;
+  Prefix: boolean; // --i vs i++
+
+  constructor(token: Token, name: Identifier, prefix: boolean) {
+    this.Token = token;
+    this.Name = name;
+    this.Prefix = prefix;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return this.Prefix ? `(++${this.Name})` : `(${this.Name}++)`;
+  }
+}
+
+export class DecrementExpression implements Expression {
+  Token: Token;
+  Name: Identifier;
+  Prefix: boolean; // --i vs i++
+
+  constructor(token: Token, name: Identifier, prefix: boolean) {
+    this.Token = token;
+    this.Name = name;
+    this.Prefix = prefix;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return this.Prefix ? `(--${this.Name})` : `(${this.Name}--)`;
+  }
+}
 
 export class InfixExpression implements Expression {
   Token: Token;
