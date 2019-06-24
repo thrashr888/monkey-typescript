@@ -45,7 +45,7 @@ and(1, false); // false
 or(1, false); // true
 ```
 
-    $ npx monkey-typescript example.monkey
+    $ npx monkey-typescript examples/example.monkey
     Log: 0
     Log: 1
     Log: 2
@@ -134,12 +134,12 @@ or watch for file changes:
     # bump version number in `package.json`
     # bump version number in `Dockerfile`
     # commit and push changes
-    $ git commit -m'bump version to v0.1.5'
+    $ git commit -m'bump version to v0.2.0'
     $ git push
     $ npm run build
     $ npm publish
     $ git tag v0.1.3
-    $ git push origin v0.1.3
+    $ git push origin v0.2.0
 
 ## Credits
 
