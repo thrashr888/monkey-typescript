@@ -98,6 +98,8 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     if (isError(val)) return val;
     return val ? new ReturnValue(val) : null;
   } else if (node instanceof LetStatement) {
+    if (node.Index) return evalLetStatement(node, env);
+    // simple value set
     let val = Eval(node.Value, env);
     if (isNotError(val)) env.Set(node.Name.Value, val);
     return val;
@@ -173,6 +175,37 @@ function evalBlockStatement(program: BlockStatement, env: Environment): Nullable
   }
 
   return result;
+}
+
+/*
+let a = {'b': 1};
+let a['c'] = 2;
+a['c']
+let a['hi'] = function(x){print("Hello " + x + "!")}
+a['hi']("World")
+*/
+function evalLetStatement(stmt: LetStatement, env: Environment): NullableOObject {
+  if (!stmt.Index) return null;
+
+  // Eval the parts of the statement
+  // let (a)['c'] = 2; // ident name
+  let name = stmt.Name;
+  // let (a)['c'] = 2; // ident value
+  let hash = evalIdentifier(stmt.Name, env) as OHash;
+  // let a[('c')] = 2; // hash index
+  let key = Eval(stmt.Index.Index, env) as OString;
+  if (!key) return null;
+  // let a['c'] = (2); // new value
+  let val = Eval(stmt.Value, env);
+
+  // Set the new value
+  let pair = new HashPair(key, val ? val : NULL);
+  hash.Pairs.set(key.HashKey().Match, pair);
+
+  // Overwrite the env's hash
+  env.Set(name.Value, hash);
+
+  return val;
 }
 
 // let a = 0; while(a<=500000){ let a = a + 1; } a;

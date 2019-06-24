@@ -174,14 +174,22 @@ export default class Parser {
     }
   }
 
+  // let a = {'b': 1};let a['c'] = 2;
   parseLetStatement(): Statement | null {
     let curToken = this.curToken;
+    let index: IndexExpression | null = null;
 
     if (!this.expectPeek(TokenType.IDENT)) {
       return null;
     }
 
-    let Name = new Identifier(this.curToken, this.curToken.Literal);
+    let name = new Identifier(this.curToken, this.curToken.Literal);
+
+    if (this.peekTokenIs(TokenType.LBRACKET)) {
+      this.nextToken();
+      index = this.parseIndexExpression(name);
+      // console.log({ index });
+    }
 
     if (!this.expectPeek(TokenType.ASSIGN)) {
       return null;
@@ -189,13 +197,13 @@ export default class Parser {
 
     this.nextToken();
 
-    let Value = this.parseExpression(LOWEST);
+    let value = this.parseExpression(LOWEST);
 
     if (this.peekTokenIs(TokenType.SEMICOLON)) {
       this.nextToken();
     }
 
-    return new LetStatement(curToken, Name, Value);
+    return new LetStatement(curToken, name, value, index);
   }
 
   parseReturnStatement() {
@@ -622,23 +630,26 @@ export default class Parser {
   // 'abcd'[1:3] => 'bc'
   // 'abcd'[2:] => 'cd'
   // ['a', 'b', 'c', 'd'][:2]
-  parseIndexExpression(left: Expression): Expression | null {
+  parseIndexExpression(left: Expression): IndexExpression | null {
     let curToken = this.curToken;
 
     this.nextToken();
 
     let exp = new IndexExpression(curToken, left);
 
+    // [1?]
     if (!this.curTokenIs(TokenType.COLON)) {
       exp.Index = this.parseExpression(LOWEST);
       this.nextToken();
     }
 
+    // [?:]
     if (this.curTokenIs(TokenType.COLON)) {
       this.nextToken();
       exp.HasColon = true;
     }
 
+    // // [?1]
     if (!this.curTokenIs(TokenType.RBRACKET)) {
       exp.RightIndex = this.parseExpression(LOWEST);
       this.nextToken();

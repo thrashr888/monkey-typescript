@@ -35,11 +35,13 @@ export class LetStatement implements Statement {
   Token: Token;
   Name: Identifier;
   Value: Expression | Identifier;
+  Index: IndexExpression | null;
 
-  constructor(token: Token, name: Identifier, value: Expression | Identifier) {
+  constructor(token: Token, name: Identifier, value: Expression | Identifier, index: IndexExpression | null) {
     this.Token = token;
     this.Name = name;
     this.Value = value;
+    this.Index = index;
   }
 
   TokenLiteral() {
@@ -47,7 +49,9 @@ export class LetStatement implements Statement {
   }
 
   String() {
-    return `${this.TokenLiteral()} ${this.Name.String()} = ${this.Value.String()};`;
+    return `${this.TokenLiteral()} ${this.Name.String()}${
+      this.Index ? this.Index.String() : ''
+    } = ${this.Value.String()};`;
   }
 }
 
