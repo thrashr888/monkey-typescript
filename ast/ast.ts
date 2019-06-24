@@ -55,6 +55,26 @@ export class LetStatement implements Statement {
   }
 }
 
+export class ImportSpec implements Statement {
+  Token: Token;
+  Path: StringLiteral;
+  Name: Identifier | null;
+
+  constructor(token: Token, path: StringLiteral, name: Identifier | null = null) {
+    this.Token = token;
+    this.Path = path;
+    this.Name = name;
+  }
+
+  TokenLiteral() {
+    return this.Token.Literal;
+  }
+
+  String() {
+    return `import("${this.Path.String()}")${this.Name ? ` as ${this.Name.String()}` : ''}`;
+  }
+}
+
 export class ReturnStatement implements Statement {
   Token: Token;
   ReturnValue: Expression | null;

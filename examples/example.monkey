@@ -17,7 +17,7 @@ print(b[1]);
 let c = {"a": "bee", "c": "three"};
 print(c["c"]);
 
-let obj = jsonParse('{"a": "bee", "c": "three"}');
+let obj = json_parse('{"a": "bee", "c": "three"}');
 print(obj['a']);
 
 let bigObj = {"data": [
@@ -30,10 +30,11 @@ let bigObj = {"data": [
     "name": "second"
   }
 ]};
-let json = jsonStringify(bigObj);
+let json = json_stringify(bigObj);
 print(json)
 
-print("logic equals " + string( b[0] >= number(a) or b[1] < 50) )
+print(b[0])
+// print("logic equals " + string( b[0] >= number(a) or b[1] < 50) )
 
 // a string using single quotes
 sprint('===========')

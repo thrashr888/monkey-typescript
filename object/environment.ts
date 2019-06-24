@@ -6,10 +6,10 @@ import OObject, {
   OString,
   OInteger,
   OArray,
-  OFloat,
   ONull,
 } from './object';
 import Logger from './logger';
+import FileLoader from './file-loader';
 import process from 'process';
 
 export default class Environment {
@@ -17,8 +17,20 @@ export default class Environment {
   outer: Environment | null = null;
   Logger: Logger = new Logger();
 
-  constructor(logger: Logger) {
+  FileLoader: FileLoader | undefined = new FileLoader();
+  private _files: { [index: string]: string } = {};
+
+  constructor(logger: Logger, fileLoader?: FileLoader) {
     this.Logger = logger;
+    this.FileLoader = fileLoader;
+  }
+
+  GlobalEnv(): Environment {
+    if (this.outer) {
+      if (this.outer.outer) return this.outer.GlobalEnv();
+      return this.outer;
+    }
+    return this;
   }
 
   Get(name: string): NullableOObject {
@@ -37,7 +49,8 @@ export default class Environment {
 
 export function NewEnvironment(): Environment {
   let logger = new Logger();
-  let env = new Environment(logger);
+  let fileLoader = new FileLoader();
+  let env = new Environment(logger, fileLoader);
   return env;
 }
 
@@ -51,7 +64,8 @@ type StringKeyedObject = { [s: string]: string | number | boolean | null };
 
 export function NewNodeEnvironment(): Environment {
   let logger = new Logger();
-  let env = new Environment(logger);
+  let fileLoader = new FileLoader();
+  let env = new Environment(logger, fileLoader);
 
   env.Set('__arch', new OString(process.arch));
   env.Set('__argv', jsArrayToMonkey(process.argv));
@@ -71,7 +85,8 @@ export function NewNodeEnvironment(): Environment {
 declare let window: any;
 export function NewBrowserEnvironment(): Environment {
   let logger = new Logger();
-  let env = new Environment(logger);
+  let fileLoader = new FileLoader();
+  let env = new Environment(logger, fileLoader);
 
   env.Set('__browser', new OBoolean(true));
   env.Set('__environment', new OString('browser'));

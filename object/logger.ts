@@ -1,5 +1,5 @@
 export default class Logger {
-  _listeners: Function[] = [];
+  private _listeners: Function[] = [];
 
   Follow(fn: Function) {
     this._listeners.push(fn);

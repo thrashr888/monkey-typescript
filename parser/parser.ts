@@ -10,6 +10,7 @@ import {
   WhileLiteral,
   ForLiteral,
   FunctionLiteral,
+  ImportSpec,
   Identifier,
   Comment,
   IfExpression,
@@ -99,6 +100,7 @@ export default class Parser {
 
     this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression.bind(this));
 
+    this.registerPrefix(TokenType.IMPORT, this.parseImportSpec.bind(this));
     this.registerPrefix(TokenType.IF, this.parseIfExpression.bind(this));
     this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral.bind(this));
     this.registerPrefix(TokenType.WHILE, this.parseWhileLiteral.bind(this));
@@ -188,7 +190,6 @@ export default class Parser {
     if (this.peekTokenIs(TokenType.LBRACKET)) {
       this.nextToken();
       index = this.parseIndexExpression(name);
-      // console.log({ index });
     }
 
     if (!this.expectPeek(TokenType.ASSIGN)) {
@@ -497,6 +498,32 @@ export default class Parser {
     }
 
     return block;
+  }
+
+  // import("filename.monkey")
+  // import("filename.monkey") as testing
+  parseImportSpec() {
+    let curToken = this.curToken;
+
+    if (!this.expectPeek(TokenType.LPAREN)) {
+      return null;
+    }
+
+    this.nextToken();
+    let path = this.parseStringLiteral();
+
+    if (!this.expectPeek(TokenType.RPAREN)) {
+      return null;
+    }
+
+    let ident = null;
+    if (this.peekTokenIs(TokenType.AS)) {
+      this.nextToken();
+      this.nextToken();
+      ident = new Identifier(this.curToken, this.curToken.Literal);
+    }
+
+    return new ImportSpec(curToken, path, ident);
   }
 
   parseFunctionLiteral() {

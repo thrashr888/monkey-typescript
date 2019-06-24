@@ -23,6 +23,7 @@ import {
   IndexExpression,
   HashLiteral,
   Comment,
+  ImportSpec,
   IncrementExpression,
   DecrementExpression,
   RangeLiteral,
@@ -53,6 +54,8 @@ import OObject, {
   OComment,
 } from '../object/object';
 import Environment, { NewEnclosedEnvironment } from '../object/environment';
+import Lexer from '../lexer/lexer';
+import Parser from '../parser/parser';
 
 export const NULL = new ONull(),
   TRUE = new OBoolean(true),
@@ -61,6 +64,8 @@ export const NULL = new ONull(),
 export default function Eval(node: AnyNodeType | null, env: Environment): NullableOObject {
   if (node instanceof ASTProgram) {
     return evalProgram(node, env);
+  } else if (node instanceof ImportSpec) {
+    return evalImportSpec(node, env);
   } else if (node instanceof ExpressionStatement) {
     return Eval(node.Expression, env);
   } else if (node instanceof FloatLiteral) {
@@ -160,6 +165,43 @@ function evalProgram(program: ASTProgram, env: Environment): NullableOObject {
   return result;
 }
 
+// import("example/basic.monkey")
+// import("example/basic.monkey") as basic; basic['foo']
+// import("example/empty.monkey")
+// import("example/example.monkey"); a;
+// import("example/example.monkey") as testing; testing['a']
+function evalImportSpec(importSpec: ImportSpec, env: Environment): NullableOObject {
+  let globalEnv = env.GlobalEnv();
+  if (!globalEnv.FileLoader) return NULL;
+
+  let path = importSpec.Path.Value;
+  let content = '';
+
+  // cache file contents to global env
+  let cacheKey = '_files.' + path;
+  let cache = globalEnv.Get(cacheKey);
+  if (cache) {
+    content = cache.toString();
+  } else {
+    content = globalEnv.FileLoader.Load(path);
+    globalEnv.Set(cacheKey, new OString(content));
+  }
+
+  let l = new Lexer(content);
+  let p = new Parser(l);
+  let program = p.ParseProgram();
+
+  // scope if name is provided, otherwise shared
+  if (importSpec.Name) {
+    let evaluated = Eval(program, NewEnclosedEnvironment(env));
+    env.Set(importSpec.Name.Value, evaluated);
+  } else {
+    Eval(program, env);
+  }
+
+  return null;
+}
+
 function evalBlockStatement(program: BlockStatement, env: Environment): NullableOObject {
   let result: NullableOObject = null;
 
@@ -185,7 +227,7 @@ let a['hi'] = function(x){print("Hello " + x + "!")}
 a['hi']("World")
 */
 function evalLetStatement(stmt: LetStatement, env: Environment): NullableOObject {
-  if (!stmt.Index) return null;
+  if (!stmt.Index) return NULL;
 
   // Eval the parts of the statement
   // let (a)['c'] = 2; // ident name
@@ -194,7 +236,7 @@ function evalLetStatement(stmt: LetStatement, env: Environment): NullableOObject
   let hash = evalIdentifier(stmt.Name, env) as OHash;
   // let a[('c')] = 2; // hash index
   let key = Eval(stmt.Index.Index, env) as OString;
-  if (!key) return null;
+  if (!key) return NULL;
   // let a['c'] = (2); // new value
   let val = Eval(stmt.Value, env);
 
@@ -263,7 +305,7 @@ function evalFor(
     Eval(iterate, env);
   }
 
-  return null;
+  return NULL;
 }
 
 function nativeBoolToBooleanObject(input: boolean): OBoolean {

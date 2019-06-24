@@ -71,6 +71,8 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   // Keywords
   LAND: 'AND',
   LOR: 'OR',
+  AS: 'AS',
+  IMPORT: 'IMPORT',
   FUNCTION: 'FUNCTION',
   WHILE: 'WHILE',
   FOR: 'FOR',
@@ -85,6 +87,8 @@ export const TokenType: { [index: string]: TokenTypeName } = {
 // keyword strings are defined here as the index
 // for example, this is where a function is defined as "function"
 export const Keywords: { [index: string]: string } = {
+  as: TokenType.AS,
+  import: TokenType.IMPORT,
   function: TokenType.FUNCTION,
   while: TokenType.WHILE,
   for: TokenType.FOR,
