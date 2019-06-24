@@ -37,7 +37,12 @@ export class LetStatement implements Statement {
   Value: Expression | Identifier;
   Index: IndexExpression | null;
 
-  constructor(token: Token, name: Identifier, value: Expression | Identifier, index: IndexExpression | null) {
+  constructor(
+    token: Token,
+    name: Identifier,
+    value: Expression | Identifier,
+    index: IndexExpression | null = null
+  ) {
     this.Token = token;
     this.Name = name;
     this.Value = value;
