@@ -138,7 +138,7 @@ or watch for file changes:
     $ git push
     $ npm run build
     $ npm publish
-    $ git tag v0.1.3
+    $ git tag v0.2.0
     $ git push origin v0.2.0
 
 ## Credits
