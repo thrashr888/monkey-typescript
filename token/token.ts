@@ -46,6 +46,8 @@ export const TokenType: { [index: string]: TokenTypeName } = {
   GTE: '>=',
   EQ: '==',
   NOT_EQ: '!=',
+  RANGE: '..',
+  RANGE_INCL: '...',
 
   // Bitwise
   BIT_AND: '&',

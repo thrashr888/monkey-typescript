@@ -25,6 +25,7 @@ import {
   Comment,
   IncrementExpression,
   DecrementExpression,
+  RangeLiteral,
 } from '../ast/ast';
 import OObject, {
   AnyObject,
@@ -68,6 +69,12 @@ export default function Eval(node: AnyNodeType | null, env: Environment): Nullab
     return new OInteger(node.Value);
   } else if (node instanceof StringLiteral) {
     return new OString(node.Value);
+  } else if (node instanceof RangeLiteral) {
+    let left = Eval(node.Left, env);
+    if (isError(left)) return left;
+    let right = Eval(node.Right, env);
+    if (isError(right)) return right;
+    return evalInfixExpression(node.Operator, left, right);
   } else if (node instanceof Comment) {
     return new OComment(node.Value);
   } else if (node instanceof AstBoolean) {
@@ -365,9 +372,22 @@ function evalIntegerInfixExpression(operator: string, left: OInteger, right: OIn
       return nativeBoolToBooleanObject(leftVal === rightVal);
     case '!=':
       return nativeBoolToBooleanObject(leftVal !== rightVal);
+    case '..':
+      return evalRangeObject(leftVal, rightVal, false);
+    case '...':
+      return evalRangeObject(leftVal, rightVal, true);
     default:
       return newError('unknown operator: %s %s %s', left.Type(), operator, right.Type());
   }
+}
+
+function evalRangeObject(left: number, right: number, include: boolean): OObject {
+  let arr = [];
+  right = include ? right + 1 : right; // `..` vs. `...`
+  for (let i = left; i < right; i++) {
+    arr.push(new OInteger(i));
+  }
+  return new OArray(arr);
 }
 
 function evalFloatInfixExpression(

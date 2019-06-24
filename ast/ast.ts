@@ -223,6 +223,26 @@ export class DecrementExpression implements Expression {
   }
 }
 
+export class RangeLiteral implements Expression {
+  Left: IntegerLiteral;
+  Operator: string;
+  Right: IntegerLiteral;
+
+  constructor(left: IntegerLiteral, operator: string, right: IntegerLiteral) {
+    this.Left = left;
+    this.Operator = operator;
+    this.Right = right;
+  }
+
+  TokenLiteral() {
+    return this.Operator;
+  }
+
+  String() {
+    return `(${this.Left.String()} ${this.Operator} ${this.Right.String()})`;
+  }
+}
+
 export class InfixExpression implements Expression {
   Token: Token;
   Left: Expression;

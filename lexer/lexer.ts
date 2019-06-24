@@ -112,6 +112,25 @@ export default class Lexer {
           tok = new Token(TokenType.BIT_OR, this.ch, pos);
         }
         break;
+      case '.':
+        // single '.' doesn't count
+        if (this.peekChar() === '.') {
+          let ch = this.ch;
+          this.readChar();
+          let literal = ch + this.ch;
+          if (this.peekChar() === '.') {
+            this.readChar();
+            literal = literal + this.ch;
+            // ...
+            tok = new Token(TokenType.RANGE_INCL, literal, pos);
+          } else {
+            // ..
+            tok = new Token(TokenType.RANGE, literal, pos);
+          }
+        } else {
+          tok = new Token(TokenType.ILLEGAL, '' + this.ch, pos);
+        }
+        break;
       case '^':
         tok = new Token(TokenType.BIT_XOR, this.ch, pos);
         break;
@@ -234,6 +253,12 @@ export default class Lexer {
     this.readPosition++;
   }
 
+  backupChar(pos: number) {
+    this.position = pos;
+    this.readPosition = pos;
+    this.ch = this.input[this.readPosition];
+  }
+
   readString(type: string = '"') {
     let position = this.position + 1;
     while (true) {
@@ -264,6 +289,14 @@ export default class Lexer {
     }
   }
 
+  peekChars(count: number = 1) {
+    if (this.readPosition >= this.input.length) {
+      return 0;
+    } else {
+      return this.input.slice(this.readPosition, this.readPosition + count);
+    }
+  }
+
   readIdentifier() {
     let position = this.position;
     while (isLetter(this.ch)) {
@@ -274,7 +307,19 @@ export default class Lexer {
 
   readNumber() {
     let position = this.position;
+    let digitPos = null;
     while (isDigit(this.ch)) {
+      // accounts for ranges, ie. 2..8
+      // if there is a second `.`, reset to prev number
+      if (this.ch === '.' && digitPos) {
+        this.backupChar(this.position - 1);
+        this.column--;
+        this.readChar();
+        break;
+      }
+      if (this.ch === '.') {
+        digitPos = this.position;
+      }
       this.readChar();
     }
     return this.input.slice(position, this.position);
@@ -294,5 +339,5 @@ function isDigit(ch: string | number | null): boolean {
 
 function isFloat(n: string): boolean {
   let val = parseFloat(n);
-  return !isNaN(val) && n.indexOf('.') !== -1;
+  return !isNaN(val) && /\d\.\d/.test(n);
 }

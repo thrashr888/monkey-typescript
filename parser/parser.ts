@@ -26,6 +26,7 @@ import {
   HashLiteral,
   IncrementExpression,
   DecrementExpression,
+  RangeLiteral,
 } from '../ast/ast';
 
 export const LOWEST = 1,
@@ -62,6 +63,8 @@ export const precedences: { [index: string]: number } = {
   [TokenType.BIT_LSHIFT]: BITWISE,
   [TokenType.BIT_RSHIFT]: BITWISE,
   [TokenType.BIT_ZRSHIFT]: BITWISE,
+  [TokenType.RANGE]: BITWISE,
+  [TokenType.RANGE_INCL]: BITWISE,
   [TokenType.LPAREN]: CALL,
   [TokenType.LBRACKET]: INDEX,
 };
@@ -69,6 +72,7 @@ export const precedences: { [index: string]: number } = {
 export default class Parser {
   l: Lexer;
   errors: string[] = [];
+  comments: string[] = [];
 
   curToken: Token;
   peekToken: Token;
@@ -123,6 +127,8 @@ export default class Parser {
       TokenType.BIT_LSHIFT,
       TokenType.BIT_RSHIFT,
       TokenType.BIT_ZRSHIFT,
+      TokenType.RANGE,
+      TokenType.RANGE_INCL,
     ].forEach(value => this.registerInfix(value, this.parseInfixExpression.bind(this)));
 
     this.registerInfix(TokenType.LPAREN, this.parseCallExpression.bind(this));
@@ -278,15 +284,55 @@ export default class Parser {
   }
 
   parseIntegerLiteral() {
+    let value;
+    let lit;
     try {
-      let value = parseInt(this.curToken.Literal, 10);
-      let lit = new IntegerLiteral(this.curToken, value);
-      return lit;
+      value = parseInt(this.curToken.Literal, 10);
+      lit = new IntegerLiteral(this.curToken, value);
     } catch (e) {
       let msg = this.formatError(this.curToken, `could not parse ${this.curToken.Literal} as integer`);
       this.errors.push(msg);
       return null;
     }
+
+    if (this.peekTokenIs(TokenType.RANGE)) {
+      this.nextToken();
+
+      if (this.peekTokenIs(TokenType.INT)) {
+        this.nextToken();
+
+        let rightValue = parseInt(this.curToken.Literal, 10);
+        let right = new IntegerLiteral(this.curToken, rightValue);
+
+        return new RangeLiteral(lit, TokenType.RANGE, right);
+      } else {
+        let msg = this.formatError(
+          this.curToken,
+          `invalid right value for RANGE ${this.curToken.Literal} as integer`
+        );
+        this.errors.push(msg);
+        return null;
+      }
+    } else if (this.peekTokenIs(TokenType.RANGE_INCL)) {
+      this.nextToken();
+
+      if (this.peekTokenIs(TokenType.INT)) {
+        this.nextToken();
+
+        let rightValue = parseInt(this.curToken.Literal, 10);
+        let right = new IntegerLiteral(this.curToken, rightValue);
+        return new RangeLiteral(lit, TokenType.RANGE_INCL, right);
+      } else {
+        let msg = this.formatError(
+          this.curToken,
+          `invalid right value for RANGE ${this.curToken.Literal} as integer`
+        );
+        this.errors.push(msg);
+        return null;
+      }
+    }
+
+    return lit;
   }
 
   parseFloatLiteral() {
